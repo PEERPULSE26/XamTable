@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XamTable | List your day!</title>
+    <title>XamTable | List your Day!</title>
     <link rel="icon" type="image/png" href="logo.png?v=2">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -58,6 +58,7 @@
         .glow-emerald { text-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
         .glow-rose { text-shadow: 0 0 30px rgba(244, 63, 94, 0.6); }
         .glow-cyan { text-shadow: 0 0 40px rgba(6, 182, 212, 0.5); }
+        .glow-amber { text-shadow: 0 0 40px rgba(245, 158, 11, 0.5); }
 
         @keyframes slideInTask {
             from { opacity: 0; transform: scale(0.95) translateY(-10px); }
@@ -83,6 +84,18 @@
             .custom-scroll::-webkit-scrollbar { display: none; }
             .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         }
+
+        /* League specific colors */
+        .league-0 { color: #cd7f32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); } /* Bronze */
+        .league-1 { color: #c0c0c0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); } /* Silver */
+        .league-2 { color: #ffd700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.1); } /* Gold */
+        .league-3 { color: #0ea5e9; border-color: rgba(14,165,233,0.3); background: rgba(14,165,233,0.1); } /* Sapphire */
+        .league-4 { color: #e11d48; border-color: rgba(225,29,72,0.3); background: rgba(225,29,72,0.1); } /* Ruby */
+        .league-5 { color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); } /* Emerald */
+        .league-6 { color: #a855f7; border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.1); } /* Amethyst */
+        .league-7 { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); } /* Pearl */
+        .league-8 { color: #1e293b; border-color: #334155; background: #0f172a; text-shadow: 0 0 10px rgba(255,255,255,0.2); } /* Obsidian */
+        .league-9 { color: #67e8f9; border-color: rgba(103,232,249,0.5); background: rgba(103,232,249,0.1); text-shadow: 0 0 15px rgba(103,232,249,0.8); } /* Diamond */
     </style>
 
     <script>
@@ -94,6 +107,18 @@
 <body class="antialiased">
 
     <div class="cosmic-bg"></div>
+
+    <!-- League Notification Modal -->
+    <div id="league-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl transition-opacity duration-500 opacity-0">
+        <div class="glass-panel p-8 md:p-12 rounded-3xl border-t-4 max-w-lg w-full text-center shadow-2xl transform scale-95 transition-transform duration-500" id="league-modal-content">
+            <div id="league-modal-icon" class="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-5xl mb-6 shadow-2xl">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h2 id="league-modal-title" class="text-3xl md:text-4xl font-black text-white italic tracking-tight mb-2">Result</h2>
+            <p id="league-modal-desc" class="text-slate-300 text-sm md:text-base font-medium leading-relaxed mb-8">Description</p>
+            <button onclick="closeLeagueModal()" class="w-full bg-white text-black font-black py-4 rounded-xl uppercase tracking-widest text-sm hover:scale-[1.02] transition-transform">Continue to Board</button>
+        </div>
+    </div>
 
     <div id="immersive-intro" class="immersive-overlay fixed inset-0 flex flex-col transition-opacity duration-1000 cursor-pointer" onclick="advanceIntro()">
         <div id="phase-0" class="phase phase-active text-center px-6">
@@ -142,7 +167,7 @@
                 <a href="#" onclick="switchView('dashboard', this, 'desktop')" id="nav-dashboard-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-sm transition-colors">
                     <i class="fas fa-border-all w-5"></i> My Dashboard
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors cursor-not-allowed opacity-50">
+                <a href="#" onclick="switchView('leaderboard', this, 'desktop')" id="nav-leaderboard-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
                     <i class="fas fa-trophy w-5"></i> Leaderboard
                 </a>
                 <a href="#" onclick="switchView('score', this, 'desktop')" id="nav-score-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
@@ -177,7 +202,7 @@
                         </div>
 
                         <div class="flex flex-col text-right hidden sm:flex">
-                            <span id="live-user-name" class="text-xs font-bold text-white truncate max-w-[100px]">Aspirant</span>
+                            <span id="live-user-name" class="text-xs font-bold text-white truncate max-w-[150px]">Aspirant</span>
                             <span class="text-[9px] font-mono text-cyan-400">Google Verified</span>
                         </div>
                         <img id="live-user-photo" src="https://ui-avatars.com/api/?name=X&background=0D8ABC&color=fff&rounded=true&bold=true" class="w-7 h-7 md:w-8 md:h-8 rounded-full border border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.3)] object-cover">
@@ -233,6 +258,39 @@
                 </div>
             </main>
 
+            <!-- LEADERBOARD MAIN VIEW -->
+            <main id="view-leaderboard" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-y-auto custom-scroll transition-opacity duration-300 opacity-0 pb-24 md:pb-10">
+                <div class="w-full max-w-4xl flex flex-col h-full">
+                    
+                    <div id="league-header-card" class="glass-panel rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-2xl mb-4 md:mb-6 text-center shrink-0 border-b-4">
+                        <div id="league-header-icon" class="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-full flex items-center justify-center text-3xl md:text-4xl mb-4 shadow-xl">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h2 id="league-header-title" class="text-2xl md:text-4xl font-black uppercase tracking-widest mb-2">League</h2>
+                        <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">
+                            <i class="fas fa-clock mr-1"></i> Resets <span class="text-white">Sunday 3:00 PM IST</span>
+                        </p>
+                    </div>
+
+                    <div class="flex-1 glass-panel rounded-2xl md:rounded-3xl overflow-hidden flex flex-col border-white/5">
+                        <div class="bg-black/40 p-3 md:p-4 flex items-center text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-white/5">
+                            <div class="w-8 md:w-12 text-center">Rnk</div>
+                            <div class="flex-1 pl-2">Aspirant</div>
+                            <div class="w-20 md:w-24 text-right">Study Score</div>
+                            <div class="w-16 md:w-24 text-right pr-2 md:pr-4">Week XP</div>
+                        </div>
+                        
+                        <div id="leaderboard-list" class="flex-1 overflow-y-auto custom-scroll p-2 space-y-1">
+                            <div class="text-center py-10 opacity-30">
+                                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                                <p class="text-xs font-bold uppercase tracking-widest">Syncing League Data...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
             <main id="view-completed" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-hidden transition-opacity duration-300 opacity-0">
                 <div class="w-full max-w-5xl flex flex-col lg:flex-row h-full gap-4 md:gap-6">
                     
@@ -255,8 +313,7 @@
                             <div class="text-center text-[8px] md:text-[9px] font-black text-cyan-400 uppercase tracking-widest">Sa</div>
                         </div>
 
-                        <div id="calendar-days" class="grid grid-cols-7 gap-1">
-                            </div>
+                        <div id="calendar-days" class="grid grid-cols-7 gap-1"></div>
                     </div>
 
                     <div class="flex-1 glass-panel rounded-2xl md:rounded-3xl p-4 md:p-6 border-white/5 overflow-hidden flex flex-col min-h-0 mt-4 lg:mt-0">
@@ -265,14 +322,13 @@
                             <span id="history-date-label" class="text-[10px] md:text-xs font-mono text-slate-400 bg-black/40 px-2 py-1 md:px-3 md:py-1 rounded-lg border border-white/5">Date</span>
                         </div>
                         
-                        <div id="historyListContainer" class="flex-1 overflow-y-auto custom-scroll pr-1 md:pr-2 space-y-2 md:space-y-3">
-                            </div>
+                        <div id="historyListContainer" class="flex-1 overflow-y-auto custom-scroll pr-1 md:pr-2 space-y-2 md:space-y-3"></div>
                     </div>
 
                 </div>
             </main>
 
-            <main id="view-score" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-y-auto custom-scroll transition-opacity duration-300 opacity-0">
+            <main id="view-score" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-y-auto custom-scroll transition-opacity duration-300 opacity-0 pb-24 md:pb-10">
                 <div class="w-full max-w-4xl flex flex-col gap-4 md:gap-6">
                     
                     <div class="bg-cyan-950/40 border border-cyan-500/30 rounded-xl md:rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 backdrop-blur-md shrink-0 text-center">
@@ -342,7 +398,7 @@
             <i class="fas fa-border-all text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Board</span>
         </a>
-        <a href="#" class="flex flex-col items-center gap-1 w-1/4 text-slate-500 cursor-not-allowed transition-colors">
+        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-trophy text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Rank</span>
         </a>
@@ -365,9 +421,8 @@
         if (!rawUserData) window.location.href = "index.html"; 
         
         const liveUser = JSON.parse(rawUserData);
-        const firstName = liveUser.name.split(' ')[0]; 
-        
-        document.getElementById('live-user-name').innerText = firstName;
+        // Correctly setting exact full name to avoid display issues
+        document.getElementById('live-user-name').innerText = liveUser.name;
         document.getElementById('live-user-photo').src = liveUser.photo;
 
         function logoutUser() {
@@ -375,7 +430,6 @@
             window.location.href = "index.html";
         }
 
-        // --- FIREBASE INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAmRsE60jV_KoNP65MyhwhVca4AMU5KzVI",
             authDomain: "xamtable.firebaseapp.com",
@@ -397,6 +451,46 @@
         let activeTasksList = []; 
         let lastCheckedDate = getFormattedDate(0);
         let activeTargetDay = 'today'; 
+        
+        // --- LEAGUE STATE ---
+        let weeklyXP = 0;
+        let currentLeague = 0; // 0 to 9
+        let cohortId = "";
+        let lastLeagueUpdateWeek = "";
+        let unsubscribeLeaderboard = null;
+
+        const LEAGUES = [
+            { name: "Bronze", class: "league-0" },
+            { name: "Silver", class: "league-1" },
+            { name: "Gold", class: "league-2" },
+            { name: "Sapphire", class: "league-3" },
+            { name: "Ruby", class: "league-4" },
+            { name: "Emerald", class: "league-5" },
+            { name: "Amethyst", class: "league-6" },
+            { name: "Pearl", class: "league-7" },
+            { name: "Obsidian", class: "league-8" },
+            { name: "Diamond", class: "league-9" }
+        ];
+
+        // Identify the "Week ID" based on Sunday 3:00 PM IST
+        function getActiveWeekId() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const ist = new Date(utc + (3600000 * 5.5)); 
+            
+            const day = ist.getDay(); 
+            const hours = ist.getHours();
+            
+            let lastSunday = new Date(ist);
+            if (day === 0 && hours < 15) {
+                lastSunday.setDate(ist.getDate() - 7);
+            } else {
+                lastSunday.setDate(ist.getDate() - day);
+            }
+            lastSunday.setHours(15, 0, 0, 0);
+            
+            return "W_" + lastSunday.getTime();
+        }
 
         // --- BOOT FROM CLOUD ---
         async function bootCloudDB() {
@@ -406,6 +500,7 @@
             try {
                 const docRef = db.collection('xamtable_users').doc(liveUser.email);
                 const docSnap = await docRef.get();
+                const activeWeek = getActiveWeekId();
 
                 if (docSnap.exists) {
                     const data = docSnap.data();
@@ -415,8 +510,18 @@
                     completedTasksHistory = data.history || {};
                     activeTasksList = data.activeTasks || [];
                     lastCheckedDate = data.lastCheckedDate || getFormattedDate(0);
+                    
+                    weeklyXP = data.weeklyXP || 0;
+                    currentLeague = data.league || 0;
+                    cohortId = data.cohortId || "";
+                    lastLeagueUpdateWeek = data.lastLeagueUpdateWeek || "";
+
+                    if (lastLeagueUpdateWeek !== activeWeek) {
+                        await processLeagueResults(activeWeek);
+                    }
                 } else {
-                    // New user, save default state to cloud
+                    lastLeagueUpdateWeek = activeWeek;
+                    cohortId = `${activeWeek}_0_${Math.floor(Math.random() * 10)}`; // Max ~30 per random bucket
                     saveUserDB(); 
                 }
 
@@ -428,23 +533,96 @@
                     renderCalendar();
                     loadHistoryForDate(selectedHistoryDate);
                 }
+                
+                if(!document.getElementById('view-leaderboard').classList.contains('hidden')) {
+                    startLeaderboardSync();
+                }
+
             } catch (error) {
                 console.error("Cloud Sync Failed:", error);
-                // Fallback UI update if network drops
                 updateXPDisplays();
                 restoreActiveTasks();
             }
         }
 
+        // --- LEAGUE WEEKLY RESET LOGIC ---
+        async function processLeagueResults(newActiveWeek) {
+            let resultMessage = "Week Complete! Continuing in your current league.";
+            let resultTitle = "Solid Work";
+
+            if (cohortId && lastLeagueUpdateWeek) {
+                // Fetch last week's cohort to find final rank
+                const snapshot = await db.collection('xamtable_users')
+                    .where('cohortId', '==', cohortId)
+                    .get();
+                
+                let users = [];
+                snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+                users.sort((a, b) => b.weeklyXP - a.weeklyXP);
+                
+                const myRankIndex = users.findIndex(u => u.id === liveUser.email);
+                const myRank = myRankIndex + 1;
+                const totalUsers = users.length;
+
+                if (myRank <= 7 && currentLeague < 9 && totalUsers > 1) {
+                    currentLeague++;
+                    resultTitle = "Promoted!";
+                    resultMessage = `Congratulations! You advanced to the ${LEAGUES[currentLeague].name} League.`;
+                } else if (myRank >= (totalUsers - 4) && currentLeague > 1 && totalUsers > 10) {
+                    currentLeague--;
+                    resultTitle = "Demoted";
+                    resultMessage = `You fell behind. Work hard to beat others and climb back up!`;
+                }
+                
+                showLeagueModal(resultTitle, resultMessage);
+            }
+
+            weeklyXP = 0;
+            lastLeagueUpdateWeek = newActiveWeek;
+            cohortId = `${newActiveWeek}_${currentLeague}_${Math.floor(Math.random() * 10)}`;
+            saveUserDB();
+        }
+
+        function showLeagueModal(title, message) {
+            document.getElementById('league-modal-title').innerText = title;
+            document.getElementById('league-modal-desc').innerText = message;
+            
+            const modal = document.getElementById('league-modal');
+            const content = document.getElementById('league-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 50);
+        }
+
+        function closeLeagueModal() {
+            const modal = document.getElementById('league-modal');
+            const content = document.getElementById('league-modal-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 500);
+        }
+
         // --- SAVE TO CLOUD ---
         function saveUserDB() {
             const userDB = {
+                name: liveUser.name,
+                photo: liveUser.photo,
                 globalXP: globalXP,
                 studyScore: studyScore,
                 totalCompletedTasks: totalCompletedTasks,
                 history: completedTasksHistory,
                 activeTasks: activeTasksList,
                 lastCheckedDate: lastCheckedDate,
+                weeklyXP: weeklyXP,
+                league: currentLeague,
+                cohortId: cohortId,
+                lastLeagueUpdateWeek: lastLeagueUpdateWeek,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -459,16 +637,76 @@
             document.getElementById('global-xp-mobile').innerText = globalXP;
         }
 
+        // --- LEADERBOARD SYNC ---
+        function startLeaderboardSync() {
+            if (unsubscribeLeaderboard) unsubscribeLeaderboard();
+            
+            const listEl = document.getElementById('leaderboard-list');
+            const leagueData = LEAGUES[currentLeague];
+            
+            document.getElementById('league-header-title').innerText = `${leagueData.name} League`;
+            document.getElementById('league-header-card').className = `glass-panel rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-2xl mb-4 md:mb-6 text-center shrink-0 border-b-4 ${leagueData.class}`;
+
+            unsubscribeLeaderboard = db.collection('xamtable_users')
+                .where('cohortId', '==', cohortId)
+                .onSnapshot(snapshot => {
+                    let users = [];
+                    snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+                    
+                    // Sort descending by Weekly XP
+                    users.sort((a, b) => (b.weeklyXP || 0) - (a.weeklyXP || 0));
+                    
+                    listEl.innerHTML = '';
+                    
+                    if(users.length === 0) {
+                        listEl.innerHTML = `<div class="text-center py-10 opacity-50 text-xs tracking-widest uppercase">No rivals found in this bracket yet.</div>`;
+                        return;
+                    }
+
+                    users.forEach((u, index) => {
+                        const rank = index + 1;
+                        const isMe = (u.id === liveUser.email);
+                        
+                        let bgStyle = isMe ? "bg-white/10 border-white/20" : "bg-black/20 border-transparent hover:bg-white/5";
+                        if (rank <= 7) bgStyle += " border-l-2 border-l-emerald-400"; // Promoted zone
+                        else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) bgStyle += " border-l-2 border-l-rose-500"; // Demoted zone
+
+                        listEl.innerHTML += `
+                            <div class="flex items-center p-2 md:p-3 rounded-xl border ${bgStyle} transition-colors">
+                                <div class="w-8 md:w-12 text-center font-black text-slate-500 text-xs md:text-sm">${rank}</div>
+                                <div class="flex-1 flex items-center gap-2 pl-2 overflow-hidden">
+                                    <img src="${u.photo || 'https://ui-avatars.com/api/?name=?'}" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/10 shrink-0">
+                                    <span class="text-[10px] md:text-xs font-bold text-white truncate ${isMe ? 'text-cyan-400' : ''}">${isMe ? 'You' : (u.name || 'Aspirant')}</span>
+                                </div>
+                                <div class="w-20 md:w-24 text-right pr-2">
+                                    <span class="text-[9px] md:text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">${u.studyScore || 700}</span>
+                                </div>
+                                <div class="w-16 md:w-24 text-right pr-2 md:pr-4 font-black text-emerald-400 text-xs md:text-sm">
+                                    ${u.weeklyXP || 0}
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add visual dividers
+                        if (rank === 7 && users.length > 7) {
+                            listEl.innerHTML += `<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>`;
+                        }
+                        if (rank === users.length - 5 && currentLeague > 1 && users.length > 10) {
+                            listEl.innerHTML += `<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-rose-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-rose-500/50 font-black">Demotion Zone</span><div class="w-full border-t border-dashed border-rose-500/30"></div></div>`;
+                        }
+                    });
+                });
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
              bootCloudDB(); 
         });
 
-        // --- ACTIVE TASKS RENDER LOGIC ---
+        // --- THE FIX: RESTORE TASKS ON REFRESH ---
         function restoreActiveTasks() {
             const container = document.getElementById('taskListContainer');
             const emptyState = document.getElementById('emptyState');
             
-            // Clear existing logic before re-render to avoid duplicates on fast reloads
             const existingTasks = container.querySelectorAll('.animate-task, .group');
             existingTasks.forEach(t => t.remove());
 
@@ -523,7 +761,12 @@
                     </div>
                     
                     <div class="flex flex-col items-end gap-2 md:gap-3 shrink-0 pl-1 md:pl-2">
-                        ${!isLocked ? `<button id="edit-btn-${taskData.id}" onclick="editTask('${taskData.id}')" class="text-slate-500 hover:text-cyan-400 transition-colors bg-white/5 w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/10"><i class="fas fa-pencil-alt text-[10px] md:text-xs"></i></button>` : ''}
+                        ${!isLocked ? `
+                        <div class="flex gap-1.5 md:gap-2">
+                            <button id="edit-btn-${taskData.id}" onclick="editTask('${taskData.id}')" class="text-slate-500 hover:text-cyan-400 transition-colors bg-white/5 w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/10"><i class="fas fa-pencil-alt text-[10px] md:text-xs"></i></button>
+                            <button id="delete-btn-${taskData.id}" onclick="deleteTask('${taskData.id}')" class="text-slate-500 hover:text-rose-400 transition-colors bg-white/5 w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center border border-white/10 hover:border-rose-500/50 hover:bg-rose-500/10"><i class="fas fa-trash-alt text-[10px] md:text-xs"></i></button>
+                        </div>
+                        ` : ''}
                         <div id="penalty-box-${taskData.id}" class="text-right mt-auto hidden sm:block">
                             <div class="text-[8px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-0.5">Penalty if failed</div>
                             <div class="text-rose-500 font-black text-xs md:text-sm">-200 XP</div>
@@ -541,7 +784,7 @@
             }
         }
 
-        // --- REST OF THE UI LOGIC ---
+        // --- UI LOGIC ---
         function updateScoreUI() {
             let displayScore = Math.max(300, Math.min(900, studyScore));
             let percentage = ((displayScore - 300) / 600) * 100;
@@ -563,38 +806,15 @@
             document.getElementById('study-score-label').innerText = label;
         }
 
-        let currentPhase = 0;
-        const totalPhases = 4;
-
-        function advanceIntro() {
-            if (currentPhase >= totalPhases) return;
-            document.getElementById(`phase-${currentPhase}`).classList.remove('phase-active');
-            document.getElementById(`phase-${currentPhase}`).classList.add('phase-exit');
-            currentPhase++;
-            setTimeout(() => {
-                document.getElementById(`phase-${currentPhase}`).classList.add('phase-active');
-                if(currentPhase === totalPhases) document.getElementById('click-prompt').style.opacity = '0';
-            }, 400);
-        }
-
-        function bootDashboard(event) {
-            event.stopPropagation();
-            localStorage.setItem('xamTableSmoothOnboarded', 'true');
-            document.getElementById('immersive-intro').classList.add('opacity-0');
-            setTimeout(() => {
-                document.getElementById('immersive-intro').style.display = 'none';
-                document.getElementById('dashboard-app').classList.remove('opacity-0', 'scale-[1.02]', 'pointer-events-none');
-            }, 800);
-        }
-
         function switchView(viewName, element, deviceType) {
             const views = {
                 'dashboard': document.getElementById('view-dashboard'),
+                'leaderboard': document.getElementById('view-leaderboard'),
                 'completed': document.getElementById('view-completed'),
                 'score': document.getElementById('view-score')
             };
             
-            const navIds = ['dashboard', 'score', 'completed'];
+            const navIds = ['dashboard', 'leaderboard', 'score', 'completed'];
             
             navIds.forEach(nav => {
                 const desktopEl = document.getElementById(`nav-${nav}-desktop`);
@@ -632,10 +852,18 @@
                     if(viewName === 'score') {
                         updateScoreUI(); 
                     }
+                    if(viewName === 'leaderboard') {
+                        startLeaderboardSync();
+                    } else if (unsubscribeLeaderboard) {
+                        // Conserve cloud reads if not viewing leaderboard
+                        unsubscribeLeaderboard();
+                        unsubscribeLeaderboard = null;
+                    }
                 }, 50);
             }, 200);
 
             if(viewName === 'dashboard') headerTitle.innerText = "List your Day!";
+            if(viewName === 'leaderboard') headerTitle.innerText = "Global Rank";
             if(viewName === 'completed') headerTitle.innerText = "Execution History";
             if(viewName === 'score') headerTitle.innerText = "Study Credit Score";
         }
@@ -672,6 +900,17 @@
             const taskText = input.value.trim();
             
             if (taskText === "") return;
+
+            // Strict Profanity Block Filter
+            const forbiddenWords = ["i love you", "bsdk", "chutiya", "bkl", "suar", "mkc", "fuck", "fuck you"];
+            const lowerTask = taskText.toLowerCase();
+            for (let word of forbiddenWords) {
+                if (lowerTask.includes(word)) {
+                    alert("Blocked word detected. Maintain academic decorum.");
+                    return;
+                }
+            }
+
             if (emptyState) emptyState.style.display = 'none';
 
             const taskId = 'task-' + Date.now();
@@ -721,6 +960,7 @@
             const timerEl = document.getElementById(`timer-${taskId}`);
             const badgeEl = document.getElementById(`timer-badge-${taskId}`);
             const editBtn = document.getElementById(`edit-btn-${taskId}`);
+            const deleteBtn = document.getElementById(`delete-btn-${taskId}`); 
             
             if(timerEl && badgeEl) {
                 timerEl.innerText = "LOCKED";
@@ -728,6 +968,7 @@
                 badgeEl.innerHTML = '<i class="fas fa-server mr-1"></i> LOCKED';
             }
             if (editBtn) editBtn.remove();
+            if (deleteBtn) deleteBtn.remove(); 
         }
 
         function editTask(taskId) {
@@ -736,6 +977,25 @@
             editBox.classList.remove('hidden');
             editBox.classList.add('flex');
             document.getElementById(`input-${taskId}`).focus();
+        }
+
+        function deleteTask(taskId) {
+            const task = document.getElementById(taskId);
+            if(!task) return;
+            
+            clearInterval(task.dataset.intervalId);
+            removeActiveTaskFromDB(taskId);
+
+            task.style.opacity = '0';
+            task.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                task.remove();
+                const container = document.getElementById('taskListContainer');
+                if (container.querySelectorAll('.group').length === 0) { 
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+            }, 300);
         }
 
         function updateEditDay(taskId, day) {
@@ -824,6 +1084,7 @@
             checkBtn.innerHTML = '<i class="fas fa-check text-[8px] md:text-[10px] text-black"></i>';
 
             document.getElementById(`edit-btn-${taskId}`)?.remove();
+            document.getElementById(`delete-btn-${taskId}`)?.remove(); 
             document.getElementById(`edit-box-${taskId}`)?.remove();
             document.getElementById(`badges-${taskId}`).style.opacity = '0.3';
 
@@ -842,6 +1103,7 @@
             }
 
             globalXP += 20; 
+            weeklyXP += 20; // Adds to league standings!
             saveUserDB(); 
             
             setTimeout(() => {
@@ -850,7 +1112,7 @@
                 setTimeout(() => {
                     task.remove();
                     const container = document.getElementById('taskListContainer');
-                    if (container.children.length <= 1) { 
+                    if (container.querySelectorAll('.group').length === 0) { 
                         document.getElementById('emptyState').style.display = 'block';
                     }
                     if(!document.getElementById('view-completed').classList.contains('hidden')) {
@@ -875,6 +1137,12 @@
                     renderCalendar();
                     loadHistoryForDate(todayStr);
                 }
+            }
+
+            // Also check if Sunday 3PM deadline has passed while app is open
+            const currentActiveWeek = getActiveWeekId();
+            if (lastLeagueUpdateWeek !== "" && lastLeagueUpdateWeek !== currentActiveWeek) {
+                processLeagueResults(currentActiveWeek);
             }
 
             const container = document.getElementById('taskListContainer');
@@ -907,6 +1175,7 @@
             checkBtn.outerHTML = `<div class="w-5 h-5 md:w-6 md:h-6 shrink-0 rounded-full bg-rose-500 flex items-center justify-center mt-0.5"><i class="fas fa-skull text-[8px] md:text-[10px] text-black"></i></div>`;
             
             document.getElementById(`edit-btn-${taskId}`)?.remove();
+            document.getElementById(`delete-btn-${taskId}`)?.remove(); 
             document.getElementById(`edit-box-${taskId}`)?.remove();
             
             const penaltyBox = document.getElementById(`penalty-box-${taskId}`);
@@ -920,6 +1189,7 @@
             }
             
             globalXP -= 200;
+            weeklyXP = Math.max(0, weeklyXP - 200); // Drops league standings!
             studyScore -= 10;
             
             if (globalXP <= 0) {
@@ -936,13 +1206,16 @@
                 setTimeout(() => {
                     task.remove();
                     const container = document.getElementById('taskListContainer');
-                    if (container.children.length <= 1) { 
+                    if (container.querySelectorAll('.group').length === 0) { 
                         document.getElementById('emptyState').style.display = 'block';
                     }
                 }, 500);
             }, 3000);
         }
 
+        // ==============================================
+        // CALENDAR LOGIC
+        // ==============================================
         let currentCalDate = new Date();
         let selectedHistoryDate = getFormattedDate(0);
 
