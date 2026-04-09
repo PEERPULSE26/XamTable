@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XamTable | Command Center</title>
+    <title>XamTable | List your Day!</title>
     <link rel="icon" type="image/png" href="logo.png?v=2">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -357,8 +357,12 @@
         </a>
     </nav>
 
+    <!-- FIREBASE SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // --- LIVE USER INJECTION & DATABASE SYNC ---
+        // --- LIVE USER INJECTION & CLOUD DATABASE SYNC ---
         const rawUserData = localStorage.getItem('xamTableLiveUser');
         if (!rawUserData) window.location.href = "index.html"; 
         
@@ -373,47 +377,80 @@
             window.location.href = "index.html";
         }
 
-        // --- UNIQUE DATA PERSISTENCE ---
-        const DB_KEY = 'xamTableDB_' + liveUser.email; 
-        
-        function loadUserDB() {
-            const savedDB = localStorage.getItem(DB_KEY);
-            if (savedDB) {
-                const parsed = JSON.parse(savedDB);
-                if (!parsed.activeTasks) parsed.activeTasks = []; // Retrofit for older saves
-                return parsed;
-            } else {
-                return {
-                    globalXP: 1000,
-                    studyScore: 700,
-                    totalCompletedTasks: 0,
-                    history: {},
-                    activeTasks: [], // Added!
-                    lastCheckedDate: getFormattedDate(0)
-                };
+        // 👇 PASTE YOUR FIREBASE CONFIG HERE 👇
+        const firebaseConfig = {
+  apiKey: "AIzaSyAmRsE60jV_KoNP65MyhwhVca4AMU5KzVI",
+  authDomain: "xamtable.firebaseapp.com",
+  projectId: "xamtable",
+  storageBucket: "xamtable.firebasestorage.app",
+  messagingSenderId: "541541922734",
+  appId: "1:541541922734:web:e7c89c7e68b593daeafa3f",
+  measurementId: "G-LNSV0QRT4L"
+};
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Global Variables
+        let globalXP = 1000;
+        let studyScore = 700;
+        let totalCompletedTasks = 0; 
+        let completedTasksHistory = {};
+        let activeTasksList = []; 
+        let lastCheckedDate = getFormattedDate(0);
+        let activeTargetDay = 'today'; 
+
+        // Pull data from Cloud
+        async function bootCloudDB() {
+            document.getElementById('global-xp-desktop').innerHTML = `<i class="fas fa-spinner fa-spin text-sm text-cyan-400"></i>`;
+            document.getElementById('global-xp-mobile').innerHTML = `...`;
+
+            try {
+                const docRef = db.collection('xamtable_users').doc(liveUser.email);
+                const docSnap = await docRef.get();
+
+                if (docSnap.exists) {
+                    const data = docSnap.data();
+                    globalXP = data.globalXP !== undefined ? data.globalXP : 1000;
+                    studyScore = data.studyScore !== undefined ? data.studyScore : 700;
+                    totalCompletedTasks = data.totalCompletedTasks || 0;
+                    completedTasksHistory = data.history || {};
+                    activeTasksList = data.activeTasks || [];
+                    lastCheckedDate = data.lastCheckedDate || getFormattedDate(0);
+                } else {
+                    saveUserDB(); 
+                }
+
+                updateXPDisplays();
+                restoreActiveTasks();
+                
+                if(!document.getElementById('view-score').classList.contains('hidden')) updateScoreUI();
+                if(!document.getElementById('view-completed').classList.contains('hidden')) {
+                    renderCalendar();
+                    loadHistoryForDate(selectedHistoryDate);
+                }
+            } catch (error) {
+                console.error("Cloud Sync Failed:", error);
+                updateXPDisplays();
+                restoreActiveTasks();
             }
         }
 
-        let userDB = loadUserDB();
-        
-        let globalXP = userDB.globalXP;
-        let studyScore = userDB.studyScore;
-        let totalCompletedTasks = userDB.totalCompletedTasks; 
-        let completedTasksHistory = userDB.history;
-        let activeTasksList = userDB.activeTasks; // Sync array to memory
-        let lastCheckedDate = userDB.lastCheckedDate;
-        let activeTargetDay = 'today'; 
-
+        // Save data to Cloud
         function saveUserDB() {
-            userDB = {
+            const userDB = {
                 globalXP: globalXP,
                 studyScore: studyScore,
                 totalCompletedTasks: totalCompletedTasks,
                 history: completedTasksHistory,
-                activeTasks: activeTasksList, // Save to DB
-                lastCheckedDate: lastCheckedDate
+                activeTasks: activeTasksList,
+                lastCheckedDate: lastCheckedDate,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             };
-            localStorage.setItem(DB_KEY, JSON.stringify(userDB));
+            
+            db.collection('xamtable_users').doc(liveUser.email).set(userDB)
+              .catch(err => console.error("Save failed:", err));
+              
             updateXPDisplays();
         }
 
@@ -423,8 +460,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-             updateXPDisplays();
-             restoreActiveTasks(); // Boot tasks on load
+             bootCloudDB(); 
         });
 
         // --- THE FIX: RESTORE TASKS ON REFRESH ---
