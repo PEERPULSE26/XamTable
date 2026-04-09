@@ -97,16 +97,19 @@
         .league-8 { color: #1e293b; border-color: #334155; background: #0f172a; text-shadow: 0 0 10px rgba(255,255,255,0.2); } /* Obsidian */
         .league-9 { color: #67e8f9; border-color: rgba(103,232,249,0.5); background: rgba(103,232,249,0.1); text-shadow: 0 0 15px rgba(103,232,249,0.8); } /* Diamond */
     </style>
-
-    <script>
-        const savedUser = localStorage.getItem('xamTableLiveUser');
-        if (savedUser) {
-            const userEmail = JSON.parse(savedUser).email;
-            if (localStorage.getItem('xamTableOnboarded_' + userEmail) === 'true') {
-                document.write('<style>#immersive-intro { display: none !important; } #dashboard-app { opacity: 1 !important; transform: scale(1) !important; pointer-events: auto !important; }</style>');
-            }
-        }
-    </script>
+  <script>
+        const savedUser = localStorage.getItem('xamTableLiveUser');
+        if (savedUser) {
+            try {
+                const userEmail = JSON.parse(savedUser).email;
+                if (localStorage.getItem('xamTableOnboarded_' + userEmail) === 'true') {
+                    const style = document.createElement('style');
+                    style.innerHTML = '#immersive-intro { display: none !important; } #dashboard-app { opacity: 1 !important; transform: scale(1) !important; pointer-events: auto !important; }';
+                    document.head.appendChild(style);
+                }
+            } catch(e) {}
+        }
+    </script>
 </head>
 <body class="antialiased">
 
@@ -428,6 +431,19 @@
         // Correctly setting exact full name to avoid display issues
         document.getElementById('live-user-name').innerText = liveUser.name;
         document.getElementById('live-user-photo').src = liveUser.photo;
+      let currentPhase = 0;
+        function advanceIntro() {
+            if (currentPhase >= 4) return;
+            document.getElementById('phase-' + currentPhase).classList.remove('phase-active');
+            document.getElementById('phase-' + currentPhase).classList.add('phase-exit');
+            currentPhase++;
+            document.getElementById('phase-' + currentPhase).classList.add('phase-active');
+            if (currentPhase === 4) {
+                document.getElementById('click-prompt').style.display = 'none';
+                document.getElementById('immersive-intro').classList.remove('cursor-pointer');
+                document.getElementById('immersive-intro').onclick = null;
+            }
+        }
 
         function bootDashboard(event) {
             event.stopPropagation();
