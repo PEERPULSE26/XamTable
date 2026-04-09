@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XamTable | List your Day!</title>
+    <title>XamTable | List your day!</title>
     <link rel="icon" type="image/png" href="logo.png?v=2">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -216,7 +216,6 @@
                     <div class="flex-1 overflow-hidden flex flex-col min-h-0">
                         <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 mb-3 pl-2 shrink-0">Active Targets</h3>
                         <div id="taskListContainer" class="space-y-3 md:space-y-4 overflow-y-auto custom-scroll pr-1 pb-4 flex-1">
-                            <!-- Tasks get injected here, or empty state -->
                             <div id="emptyState" class="text-center py-12 md:py-20 border border-dashed border-white/10 rounded-2xl md:rounded-3xl opacity-30">
                                 <i class="fas fa-ghost text-3xl md:text-4xl mb-3 md:mb-4 block"></i>
                                 <p class="text-xs md:text-sm font-bold uppercase tracking-widest">No active targets.</p>
@@ -357,7 +356,6 @@
         </a>
     </nav>
 
-    <!-- FIREBASE SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -377,21 +375,21 @@
             window.location.href = "index.html";
         }
 
-        // 👇 PASTE YOUR FIREBASE CONFIG HERE 👇
+        // --- FIREBASE INITIALIZATION ---
         const firebaseConfig = {
-  apiKey: "AIzaSyAmRsE60jV_KoNP65MyhwhVca4AMU5KzVI",
-  authDomain: "xamtable.firebaseapp.com",
-  projectId: "xamtable",
-  storageBucket: "xamtable.firebasestorage.app",
-  messagingSenderId: "541541922734",
-  appId: "1:541541922734:web:e7c89c7e68b593daeafa3f",
-  measurementId: "G-LNSV0QRT4L"
-};
-        // Initialize Firebase
+            apiKey: "AIzaSyAmRsE60jV_KoNP65MyhwhVca4AMU5KzVI",
+            authDomain: "xamtable.firebaseapp.com",
+            projectId: "xamtable",
+            storageBucket: "xamtable.firebasestorage.app",
+            messagingSenderId: "541541922734",
+            appId: "1:541541922734:web:e7c89c7e68b593daeafa3f",
+            measurementId: "G-LNSV0QRT4L"
+        };
+
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Global Variables
+        // --- GLOBAL DATA STATE ---
         let globalXP = 1000;
         let studyScore = 700;
         let totalCompletedTasks = 0; 
@@ -400,7 +398,7 @@
         let lastCheckedDate = getFormattedDate(0);
         let activeTargetDay = 'today'; 
 
-        // Pull data from Cloud
+        // --- BOOT FROM CLOUD ---
         async function bootCloudDB() {
             document.getElementById('global-xp-desktop').innerHTML = `<i class="fas fa-spinner fa-spin text-sm text-cyan-400"></i>`;
             document.getElementById('global-xp-mobile').innerHTML = `...`;
@@ -418,6 +416,7 @@
                     activeTasksList = data.activeTasks || [];
                     lastCheckedDate = data.lastCheckedDate || getFormattedDate(0);
                 } else {
+                    // New user, save default state to cloud
                     saveUserDB(); 
                 }
 
@@ -431,12 +430,13 @@
                 }
             } catch (error) {
                 console.error("Cloud Sync Failed:", error);
+                // Fallback UI update if network drops
                 updateXPDisplays();
                 restoreActiveTasks();
             }
         }
 
-        // Save data to Cloud
+        // --- SAVE TO CLOUD ---
         function saveUserDB() {
             const userDB = {
                 globalXP: globalXP,
@@ -463,16 +463,21 @@
              bootCloudDB(); 
         });
 
-        // --- THE FIX: RESTORE TASKS ON REFRESH ---
+        // --- ACTIVE TASKS RENDER LOGIC ---
         function restoreActiveTasks() {
             const container = document.getElementById('taskListContainer');
             const emptyState = document.getElementById('emptyState');
             
+            // Clear existing logic before re-render to avoid duplicates on fast reloads
+            const existingTasks = container.querySelectorAll('.animate-task, .group');
+            existingTasks.forEach(t => t.remove());
+
             if (activeTasksList.length > 0 && emptyState) {
                 emptyState.style.display = 'none';
+            } else if (emptyState) {
+                emptyState.style.display = 'block';
             }
             
-            // Render backwards so newest remains on top
             [...activeTasksList].reverse().forEach(taskData => {
                 renderSingleTaskHTML(taskData);
             });
@@ -481,7 +486,6 @@
         function renderSingleTaskHTML(taskData) {
             const container = document.getElementById('taskListContainer');
             
-            // Calculate how much time is left from when they created it
             let timeLeft = 300 - Math.floor((Date.now() - taskData.createdAt) / 1000);
             let isLocked = timeLeft <= 0;
 
@@ -537,7 +541,7 @@
             }
         }
 
-        // --- SCORE UI ---
+        // --- REST OF THE UI LOGIC ---
         function updateScoreUI() {
             let displayScore = Math.max(300, Math.min(900, studyScore));
             let percentage = ((displayScore - 300) / 600) * 100;
@@ -559,7 +563,6 @@
             document.getElementById('study-score-label').innerText = label;
         }
 
-        // --- ONBOARDING LOGIC ---
         let currentPhase = 0;
         const totalPhases = 4;
 
@@ -584,7 +587,6 @@
             }, 800);
         }
 
-        // --- RESPONSIVE VIEW SWITCHING LOGIC ---
         function switchView(viewName, element, deviceType) {
             const views = {
                 'dashboard': document.getElementById('view-dashboard'),
@@ -664,7 +666,6 @@
             }
         }
 
-        // --- UPDATED NEW TASK LOGIC (SAVES TO DB) ---
         function commitNewTask() {
             const input = document.getElementById('taskInput');
             const emptyState = document.getElementById('emptyState');
@@ -677,7 +678,6 @@
             const escapedText = taskText.replace(/"/g, '&quot;');
             const targetDateStr = (activeTargetDay === 'today') ? getFormattedDate(0) : getFormattedDate(1);
 
-            // Construct Data Object
             const taskData = {
                 id: taskId,
                 text: taskText,
@@ -687,14 +687,11 @@
                 createdAt: Date.now()
             };
 
-            // Save to Database instantly
             activeTasksList.push(taskData);
             saveUserDB();
 
-            // Render to DOM
             renderSingleTaskHTML(taskData);
             
-            // Add Entry Animation
             const newEl = document.getElementById(taskId);
             if(newEl) newEl.classList.add('animate-task');
 
@@ -749,7 +746,6 @@
             const activeClass = "bg-cyan-500 text-black px-2 py-0.5 md:px-3 md:py-1 rounded-md text-[8px] md:text-[10px] font-bold uppercase tracking-widest transition-colors";
             const inactiveClass = "text-slate-400 px-2 py-0.5 md:px-3 md:py-1 rounded-md text-[8px] md:text-[10px] font-bold uppercase tracking-widest transition-colors";
 
-            // Update DOM & Database
             const t = activeTasksList.find(x => x.id === taskId);
             if(t) {
                 t.activeTargetDay = day;
@@ -779,7 +775,6 @@
             
             if (!editBox || input.value.trim() === "") return;
             
-            // Update DOM & Database
             title.innerText = input.value.trim();
             const t = activeTasksList.find(x => x.id === taskId);
             if(t) {
@@ -793,7 +788,6 @@
             editBox.classList.remove('flex');
         }
 
-        // --- TASK REMOVAL HELPERS ---
         function removeActiveTaskFromDB(taskId) {
             activeTasksList = activeTasksList.filter(t => t.id !== taskId);
             saveUserDB();
@@ -806,7 +800,6 @@
             const taskTitle = document.getElementById(`title-${taskId}`).innerText;
             const taskDate = task.dataset.date; 
             
-            // Remove from active list!
             removeActiveTaskFromDB(taskId);
 
             if(!completedTasksHistory[taskDate]) {
@@ -899,7 +892,6 @@
             const task = document.getElementById(taskId);
             if(!task || task.dataset.penalized) return;
             
-            // Remove from active list!
             removeActiveTaskFromDB(taskId);
 
             task.dataset.penalized = "true";
@@ -951,9 +943,6 @@
             }, 3000);
         }
 
-        // ==============================================
-        // CALENDAR LOGIC
-        // ==============================================
         let currentCalDate = new Date();
         let selectedHistoryDate = getFormattedDate(0);
 
