@@ -994,10 +994,20 @@
             let isLocked = timeLeft <= 0;
 
             const todayStr = getFormattedDate(0);
-            let computedDay = (taskData.targetDateStr === todayStr) ? 'today' : 'tomorrow';
+            let computedDay = 'tomorrow';
+            if (taskData.targetDateStr === todayStr) computedDay = 'today';
+            else if (taskData.targetDateStr < todayStr) computedDay = 'overdue'; // FIX: Catch tasks from the past
             
-            const dayBadgeColor = (computedDay === 'today') ? 'text-indigo-400 bg-indigo-950/50' : 'text-purple-400 bg-purple-950/50';
-            const displayDayText = computedDay.toUpperCase();
+            let dayBadgeColor = 'text-purple-400 bg-purple-950/50';
+            let displayDayText = 'TOMORROW';
+            
+            if (computedDay === 'today') {
+                dayBadgeColor = 'text-indigo-400 bg-indigo-950/50';
+                displayDayText = 'TODAY';
+            } else if (computedDay === 'overdue') {
+                dayBadgeColor = 'text-rose-400 bg-rose-950/50';
+                displayDayText = 'OVERDUE';
+            }
 
             const newTask = `
                 <div id="${taskData.id}" data-date="${taskData.targetDateStr}" class="glass-panel p-3 md:p-5 rounded-xl md:rounded-2xl border-l-4 border-l-cyan-500 flex items-start justify-between group transition-all duration-500 shrink-0">
@@ -1464,12 +1474,14 @@
                 processLeagueResults(currentActiveWeek);
             }
 
-            const container = document.getElementById('taskListContainer');
-            const activeTasks = container.querySelectorAll('.animate-task');
+           const container = document.getElementById('taskListContainer');
+            // FIX: Target ALL active tasks in the DOM, not just newly animated ones
+            const activeDOMTasks = container.querySelectorAll('.group'); 
             
-            activeTasks.forEach(task => {
+            activeDOMTasks.forEach(task => {
                 const taskDate = task.dataset.date;
-                if (taskDate < todayStr) {
+                // String comparison works perfectly for YYYY-MM-DD
+                if (taskDate && taskDate < todayStr) {
                     applyPenalty(task.id);
                 }
             });
