@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XamTable | List your Day!</title>
-   <link rel="icon" type="image/png" href="/logo.png?v=3" sizes="192x192">
+    <link rel="icon" type="image/png" href="/logo.png?v=3" sizes="192x192">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -197,10 +197,16 @@
                 </a>
             </nav>
 
-            <div class="p-4 border-t border-white/5 m-4 bg-black/40 rounded-2xl relative overflow-hidden">
+            <div class="p-4 border-t border-white/5 m-4 bg-black/40 rounded-2xl relative overflow-hidden flex justify-between items-center">
                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent"></div>
-                <div class="relative z-10 text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Current XP</div>
-                <div id="global-xp-desktop" class="relative z-10 text-2xl font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">1000 <span class="text-xs text-slate-400">XP</span></div>
+                <div>
+                    <div class="relative z-10 text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Current XP</div>
+                    <div id="global-xp-desktop" class="relative z-10 text-2xl font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">1000 <span class="text-xs text-slate-400">XP</span></div>
+                </div>
+                <div class="relative z-10 text-right">
+                    <div class="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Streak</div>
+                    <div class="text-2xl font-black text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"><i class="fas fa-fire text-sm mr-1"></i><span id="streak-desktop">0</span></div>
+                </div>
             </div>
         </aside>
 
@@ -211,9 +217,15 @@
                 
                 <div class="flex items-center gap-3 md:gap-4 shrink-0">
                     <div class="flex items-center gap-3 bg-white/5 border border-white/10 py-1 md:py-1.5 px-2 pl-3 md:pl-4 rounded-full">
-                        <div class="md:hidden flex items-center gap-1 border-r border-white/10 pr-2 mr-1">
-                            <i class="fas fa-star text-[10px] text-emerald-400"></i>
-                            <span id="global-xp-mobile" class="text-xs font-black text-emerald-400">1000</span>
+                        <div class="md:hidden flex items-center gap-2 border-r border-white/10 pr-2 mr-1">
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-star text-[10px] text-emerald-400"></i>
+                                <span id="global-xp-mobile" class="text-xs font-black text-emerald-400">1000</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-fire text-[10px] text-orange-500"></i>
+                                <span id="streak-mobile" class="text-xs font-black text-orange-500">0</span>
+                            </div>
                         </div>
 
                         <div class="flex flex-col text-right hidden sm:flex">
@@ -247,7 +259,6 @@
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
-                            <!-- Mobile text size fix applied here -->
                             <input type="text" id="taskInput" placeholder="e.g. Solve 50 Numericals..." onkeypress="if(event.key==='Enter') commitNewTask()" class="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 text-white text-base md:text-sm focus:outline-none focus:border-cyan-500 transition-colors font-medium">
                             <button onclick="commitNewTask()" class="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-xl font-black text-xs md:text-sm uppercase tracking-widest hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all shrink-0 w-full sm:w-auto">Commit</button>
                         </div>
@@ -372,6 +383,10 @@
                                 <span>900 (Elite)</span>
                             </div>
                         </div>
+                        
+                        <button onclick="flexRank()" class="mt-8 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-6 rounded-xl text-xs md:text-sm uppercase tracking-widest transition-all hover:scale-105 flex items-center justify-center gap-2 mx-auto">
+                            <i class="fas fa-share-nodes"></i> Flex Your Rating
+                        </button>
                     </div>
 
                     <h3 class="text-[10px] md:text-sm font-black uppercase tracking-widest text-slate-400 mt-2 md:mt-4 pl-2">Score Mechanics</h3>
@@ -436,11 +451,9 @@
         if (!rawUserData) window.location.href = "index.html"; 
         
         const liveUser = JSON.parse(rawUserData);
-        // Correctly setting exact full name to avoid display issues
         document.getElementById('live-user-name').innerText = liveUser.name;
         document.getElementById('live-user-photo').src = liveUser.photo;
 
-        // CHECK IF ONBOARDED IMMEDIATELY BEFORE SHOWING APP
         if (localStorage.getItem('xamTableOnboarded_' + liveUser.email) === 'true') {
             document.getElementById('immersive-intro').style.display = 'none';
             document.getElementById('dashboard-app').classList.remove('opacity-0', 'scale-[1.02]', 'pointer-events-none');
@@ -462,7 +475,6 @@
 
         function bootDashboard(event) {
             event.stopPropagation();
-            // Save that THIS specific email has accepted the rules
             localStorage.setItem('xamTableOnboarded_' + liveUser.email, 'true');
             
             document.getElementById('immersive-intro').classList.add('opacity-0');
@@ -498,10 +510,12 @@
         let activeTasksList = []; 
         let lastCheckedDate = getFormattedDate(0);
         let activeTargetDay = 'today'; 
+        let streak = 0;
+        let lastTaskDate = "";
         
         // --- LEAGUE STATE ---
         let weeklyXP = 0;
-        let currentLeague = 0; // 0 to 9
+        let currentLeague = 0; 
         let cohortId = "";
         let lastLeagueUpdateWeek = "";
         let unsubscribeLeaderboard = null;
@@ -519,7 +533,6 @@
             { name: "Diamond", class: "league-9" }
         ];
 
-        // Identify the "Week ID" based on Sunday 3:00 PM IST
         function getActiveWeekId() {
             const now = new Date();
             const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
@@ -539,7 +552,6 @@
             return "W_" + lastSunday.getTime();
         }
 
-        // --- BOOT FROM CLOUD ---
         async function bootCloudDB() {
             document.getElementById('global-xp-desktop').innerHTML = `<i class="fas fa-spinner fa-spin text-sm text-cyan-400"></i>`;
             document.getElementById('global-xp-mobile').innerHTML = `...`;
@@ -562,17 +574,26 @@
                     currentLeague = data.league || 0;
                     cohortId = data.cohortId || "";
                     lastLeagueUpdateWeek = data.lastLeagueUpdateWeek || "";
+                    
+                    streak = data.streak || 0;
+                    lastTaskDate = data.lastTaskDate || "";
+                    
+                    const todayStrBoot = getFormattedDate(0);
+                    const yesterdayStrBoot = getFormattedDate(-1);
+                    if (lastTaskDate !== todayStrBoot && lastTaskDate !== yesterdayStrBoot) {
+                        streak = 0; // Reset streak if a full day was missed
+                    }
 
                     if (lastLeagueUpdateWeek !== activeWeek) {
                         await processLeagueResults(activeWeek);
                     }
                 } else {
                     lastLeagueUpdateWeek = activeWeek;
-                    cohortId = `${activeWeek}_0_${Math.floor(Math.random() * 10)}`; // Max ~30 per random bucket
+                    cohortId = `${activeWeek}_0_${Math.floor(Math.random() * 10)}`; 
                     saveUserDB(); 
                 }
 
-                updateXPDisplays();
+                updateStatsDisplays();
                 restoreActiveTasks();
                 
                 if(!document.getElementById('view-score').classList.contains('hidden')) updateScoreUI();
@@ -587,18 +608,16 @@
 
             } catch (error) {
                 console.error("Cloud Sync Failed:", error);
-                updateXPDisplays();
+                updateStatsDisplays();
                 restoreActiveTasks();
             }
         }
 
-        // --- LEAGUE WEEKLY RESET LOGIC ---
         async function processLeagueResults(newActiveWeek) {
             let resultMessage = "Week Complete! Continuing in your current league.";
             let resultTitle = "Solid Work";
 
             if (cohortId && lastLeagueUpdateWeek) {
-                // Fetch last week's cohort to find final rank
                 const snapshot = await db.collection('xamtable_users')
                     .where('cohortId', '==', cohortId)
                     .get();
@@ -655,7 +674,6 @@
             }, 500);
         }
 
-        // --- SAVE TO CLOUD ---
         function saveUserDB() {
             const userDB = {
                 name: liveUser.name,
@@ -670,21 +688,38 @@
                 league: currentLeague,
                 cohortId: cohortId,
                 lastLeagueUpdateWeek: lastLeagueUpdateWeek,
+                streak: streak,
+                lastTaskDate: lastTaskDate,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             };
             
             db.collection('xamtable_users').doc(liveUser.email).set(userDB)
               .catch(err => console.error("Save failed:", err));
               
-            updateXPDisplays();
+            updateStatsDisplays();
         }
 
-        function updateXPDisplays() {
+        function updateStatsDisplays() {
             document.getElementById('global-xp-desktop').innerHTML = `${globalXP} <span class="text-xs text-slate-400">XP</span>`;
             document.getElementById('global-xp-mobile').innerText = globalXP;
+            document.getElementById('streak-desktop').innerText = streak;
+            document.getElementById('streak-mobile').innerText = streak;
         }
 
-        // --- LEADERBOARD SYNC ---
+        function flexRank() {
+            const text = `I just hit a ${studyScore} Study Credit Score in the ${LEAGUES[currentLeague].name} League on XamTable. Beat my discipline.`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'XamTable Rank',
+                    text: text,
+                    url: 'https://xamtable.vercel.app'
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(text + " https://xamtable.vercel.app");
+                alert("Flex copied to clipboard! Paste it anywhere.");
+            }
+        }
+
         function startLeaderboardSync() {
             if (unsubscribeLeaderboard) unsubscribeLeaderboard();
             
@@ -700,7 +735,23 @@
                     let users = [];
                     snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
                     
-                    // Sort descending by Weekly XP
+                    // --- GHOST USERS (COLD START FIX) ---
+                    let scaleDay = new Date().getDay(); // 0 is Sunday
+                    if (scaleDay === 0) scaleDay = new Date().getHours() < 15 ? 7 : 0.5;
+                    if (scaleDay === 0) scaleDay = 0.5; // Failsafe
+                    
+                    const ghostBots = [
+                        { id: "bot1", name: "IIT_or_Bust", photo: "https://ui-avatars.com/api/?name=I&background=0D8ABC&color=fff", studyScore: 810, weeklyXP: Math.floor(scaleDay * 40) + 120 },
+                        { id: "bot2", name: "Dropper_007", photo: "https://ui-avatars.com/api/?name=D&background=10B981&color=fff", studyScore: 750, weeklyXP: Math.floor(scaleDay * 20) + 60 },
+                        { id: "bot3", name: "NEET_Hustler", photo: "https://ui-avatars.com/api/?name=N&background=F43F5E&color=fff", studyScore: 680, weeklyXP: Math.floor(scaleDay * 15) },
+                        { id: "bot4", name: "Dr_Stranger", photo: "https://ui-avatars.com/api/?name=S&background=8B5CF6&color=fff", studyScore: 790, weeklyXP: Math.floor(scaleDay * 30) + 40 }
+                    ];
+                    
+                    ghostBots.forEach(bot => {
+                        if (!users.find(u => u.id === bot.id)) users.push(bot);
+                    });
+                    // --- END GHOST USERS ---
+                    
                     users.sort((a, b) => (b.weeklyXP || 0) - (a.weeklyXP || 0));
                     
                     listEl.innerHTML = '';
@@ -715,8 +766,8 @@
                         const isMe = (u.id === liveUser.email);
                         
                         let bgStyle = isMe ? "bg-white/10 border-white/20" : "bg-black/20 border-transparent hover:bg-white/5";
-                        if (rank <= 7) bgStyle += " border-l-2 border-l-emerald-400"; // Promoted zone
-                        else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) bgStyle += " border-l-2 border-l-rose-500"; // Demoted zone
+                        if (rank <= 7) bgStyle += " border-l-2 border-l-emerald-400"; 
+                        else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) bgStyle += " border-l-2 border-l-rose-500"; 
 
                         listEl.innerHTML += `
                             <div class="flex items-center p-2 md:p-3 rounded-xl border ${bgStyle} transition-colors">
@@ -734,7 +785,6 @@
                             </div>
                         `;
                         
-                        // Add visual dividers
                         if (rank === 7 && users.length > 7) {
                             listEl.innerHTML += `<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>`;
                         }
@@ -749,7 +799,6 @@
              bootCloudDB(); 
         });
 
-        // --- THE FIX: RESTORE TASKS ON REFRESH ---
         function restoreActiveTasks() {
             const container = document.getElementById('taskListContainer');
             const emptyState = document.getElementById('emptyState');
@@ -835,7 +884,6 @@
             }
         }
 
-        // --- UI LOGIC ---
         function updateScoreUI() {
             let displayScore = Math.max(300, Math.min(900, studyScore));
             let percentage = ((displayScore - 300) / 600) * 100;
@@ -906,7 +954,6 @@
                     if(viewName === 'leaderboard') {
                         startLeaderboardSync();
                     } else if (unsubscribeLeaderboard) {
-                        // Conserve cloud reads if not viewing leaderboard
                         unsubscribeLeaderboard();
                         unsubscribeLeaderboard = null;
                     }
@@ -954,9 +1001,6 @@
 
             const lowerTask = taskText.toLowerCase();
 
-            // --- THE AI BOUNCER ALGORITHM ---
-
-            // 1. The Gibberish & Effort Check
             if (/(.)\1{4,}/.test(lowerTask)) {
                 alert("🚨 AI Bouncer: Gibberish detected. Take this seriously.");
                 return;
@@ -966,7 +1010,6 @@
                 return;
             }
 
-            // 2. Strict Profanity & Slang Block
             const forbiddenWords = ["i love you", "bsdk", "chutiya", "bkl", "suar", "mkc", "fuck", "fuck you", "bc", "mc", "madarchod", "bitch", "asshole", "kutta", "randi"];
             for (let word of forbiddenWords) {
                 if (lowerTask.includes(word)) {
@@ -975,7 +1018,6 @@
                 }
             }
 
-            // 3. The Drop-Year Distraction Blacklist (Hinglish + English)
             const distractionWords = [
                 "netflix", "movie", "film", "anime", "series", "episode", "cinema",
                 "bgmi", "pubg", "valorant", "cod", "gta", "freefire", "game", "gaming", "play", "playing", "match",
@@ -989,7 +1031,6 @@
                 "nothing", "kuch nahi", "bore", "bored", "idle", "sit", "sitting", "chat", "chatting", "call", "calling", "phone", "talk"
             ];
 
-            // 4. The Academic Exemption Whitelist
             const studyWords = [
                 "lecture", "lec", "pw", "physics wallah", "unacademy", "allen", "aakash", "physics", "chem", "chemistry", "math", "maths", 
                 "bio", "botany", "zoology", "mcq", "pyq", "dpp", "module", "notes", "revision", "ncert", "hcv", "irodov", "cengage", 
@@ -1003,7 +1044,6 @@
                 alert("🚨 AI Bouncer: This looks like a distraction, not a valid study target. Denied.");
                 return;
             }
-            // --- END OF BOUNCER ---
 
             if (emptyState) emptyState.style.display = 'none';
 
@@ -1156,6 +1196,18 @@
             
             removeActiveTaskFromDB(taskId);
 
+            // --- STREAK LOGIC INJECTION ---
+            const todayStrTask = getFormattedDate(0);
+            const yesterdayStrTask = getFormattedDate(-1);
+            if (lastTaskDate !== todayStrTask) {
+                if (lastTaskDate === yesterdayStrTask) {
+                    streak++;
+                } else {
+                    streak = 1;
+                }
+                lastTaskDate = todayStrTask;
+            }
+
             if(!completedTasksHistory[taskDate]) {
                 completedTasksHistory[taskDate] = [];
             }
@@ -1197,7 +1249,7 @@
             }
 
             globalXP += 20; 
-            weeklyXP += 20; // Adds to league standings!
+            weeklyXP += 20; 
             saveUserDB(); 
             
             setTimeout(() => {
@@ -1232,11 +1284,9 @@
                     loadHistoryForDate(todayStr);
                 }
                 
-                // --- NEW FIX: Live refresh tasks at midnight so labels update automatically ---
                 restoreActiveTasks();
             }
 
-            // Also check if Sunday 3PM deadline has passed while app is open
             const currentActiveWeek = getActiveWeekId();
             if (lastLeagueUpdateWeek !== "" && lastLeagueUpdateWeek !== currentActiveWeek) {
                 processLeagueResults(currentActiveWeek);
@@ -1286,7 +1336,7 @@
             }
             
             globalXP -= 200;
-            weeklyXP = Math.max(0, weeklyXP - 200); // Drops league standings!
+            weeklyXP = Math.max(0, weeklyXP - 200);
             studyScore -= 10;
             
             if (globalXP <= 0) {
