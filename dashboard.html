@@ -350,6 +350,21 @@
                         </div>
                         
                         <div id="historyListContainer" class="flex-1 overflow-y-auto custom-scroll pr-1 md:pr-2 space-y-2 md:space-y-3"></div>
+                        
+                        <!-- NEW ANALYTICS ENGINE HTML INJECTED HERE -->
+                        <div class="shrink-0 mt-4 md:mt-6 pt-4 md:pt-6 border-t border-white/10 w-full">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-cyan-400">Weekly Output</h3>
+                                <div class="flex items-center gap-2 bg-black/40 px-2 py-1 rounded-lg border border-white/5">
+                                    <button onclick="changeAnalyticsWeek(-1)" class="text-slate-400 hover:text-white transition-colors px-1"><i class="fas fa-chevron-left text-[8px]"></i></button>
+                                    <span id="analytics-week-label" class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-slate-300 min-w-[60px] text-center">THIS WEEK</span>
+                                    <button onclick="changeAnalyticsWeek(1)" class="text-slate-400 hover:text-white transition-colors px-1"><i class="fas fa-chevron-right text-[8px]"></i></button>
+                                </div>
+                            </div>
+                            <div class="relative h-24 md:h-32 w-full flex items-end justify-between gap-1 md:gap-2" id="analytics-chart">
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -601,6 +616,7 @@
                 if(!document.getElementById('view-completed').classList.contains('hidden')) {
                     renderCalendar();
                     loadHistoryForDate(selectedHistoryDate);
+                    renderAnalytics(); // INJECTED FIX
                 }
                 
                 if(!document.getElementById('view-leaderboard').classList.contains('hidden')) {
@@ -957,6 +973,7 @@
                         selectedHistoryDate = getFormattedDate(0);
                         renderCalendar(); 
                         loadHistoryForDate(selectedHistoryDate); 
+                        renderAnalytics(); // INJECTED FIX
                     }
                     if(viewName === 'score') {
                         updateScoreUI(); 
@@ -1273,6 +1290,7 @@
                     if(!document.getElementById('view-completed').classList.contains('hidden')) {
                         renderCalendar();
                         loadHistoryForDate(taskDate);
+                        renderAnalytics(); // INJECTED FIX
                     }
                 }, 500);
             }, 1500);
@@ -1291,6 +1309,7 @@
                 if (!document.getElementById('view-completed').classList.contains('hidden')) {
                     renderCalendar();
                     loadHistoryForDate(todayStr);
+                    renderAnalytics(); // INJECTED FIX
                 }
                 
                 restoreActiveTasks();
@@ -1446,6 +1465,65 @@
                             <span class="text-xs md:text-sm font-bold text-white break-words line-clamp-2">${task.title}</span>
                         </div>
                         <span class="text-[10px] md:text-xs font-black text-emerald-400 font-mono shrink-0">+${task.xp} XP</span>
+                    </div>
+                `;
+            });
+        }
+
+        // ==============================================
+        // WEEKLY ANALYTICS ENGINE (INJECTED FIX)
+        // ==============================================
+        let analyticsWeekOffset = 0;
+
+        function changeAnalyticsWeek(offset) {
+            analyticsWeekOffset += offset;
+            if (analyticsWeekOffset > 0) analyticsWeekOffset = 0; 
+            renderAnalytics();
+        }
+
+        function renderAnalytics() {
+            const today = new Date();
+            const currentDayOfWeek = today.getDay(); 
+            
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - currentDayOfWeek + (analyticsWeekOffset * 7));
+            
+            let label = "THIS WEEK";
+            if (analyticsWeekOffset === -1) label = "LAST WEEK";
+            else if (analyticsWeekOffset < -1) label = Math.abs(analyticsWeekOffset) + " WKS AGO";
+            document.getElementById('analytics-week-label').innerText = label;
+
+            let maxTasks = 0;
+            const weekData = [];
+            const days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+            
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(startOfWeek);
+                d.setDate(startOfWeek.getDate() + i);
+                const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                
+                const count = completedTasksHistory[dStr] ? completedTasksHistory[dStr].length : 0;
+                if (count > maxTasks) maxTasks = count;
+                
+                weekData.push({ dayName: days[i], count: count, isToday: dStr === getFormattedDate(0) });
+            }
+
+            const yAxisMax = Math.max(maxTasks, 5); 
+            const chartContainer = document.getElementById('analytics-chart');
+            if(!chartContainer) return;
+
+            chartContainer.innerHTML = '';
+            
+            weekData.forEach(data => {
+                const heightPct = data.count === 0 ? 5 : (data.count / yAxisMax) * 100;
+                const barColor = data.isToday ? "bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : (data.count > 0 ? "bg-emerald-500/70 hover:bg-emerald-400" : "bg-white/5");
+                const textColor = data.isToday ? "text-cyan-400" : "text-slate-500";
+                
+                chartContainer.innerHTML += `
+                    <div class="flex flex-col items-center justify-end h-full flex-1 group relative cursor-pointer">
+                        <div class="absolute -top-6 text-[8px] md:text-[10px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 px-2 py-0.5 rounded shadow-lg border border-white/10 z-10 pointer-events-none">${data.count}</div>
+                        <div class="w-full max-w-[1.5rem] md:max-w-[2.5rem] rounded-t-sm md:rounded-t-md transition-all duration-700 ease-out ${barColor}" style="height: ${heightPct}%;"></div>
+                        <div class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest mt-1.5 ${textColor}">${data.dayName}</div>
                     </div>
                 `;
             });
