@@ -1512,7 +1512,20 @@
 
             const currentActiveWeek = getActiveWeekId();
             if (lastLeagueUpdateWeek !== "" && lastLeagueUpdateWeek !== currentActiveWeek) {
-                processLeagueResults(currentActiveWeek);
+                // INSTANT LOCK: Change the variable immediately so the 1-second loop can't fire twice
+                const oldWeek = lastLeagueUpdateWeek;
+                lastLeagueUpdateWeek = currentActiveWeek; 
+                
+                // Extract timestamps to strictly prevent backward time-travel bugs
+                const lastTime = parseInt(oldWeek.split('_')[1]);
+                const currentTime = parseInt(currentActiveWeek.split('_')[1]);
+                
+                if (currentTime > lastTime) {
+                    processLeagueResults(currentActiveWeek);
+                } else {
+                    // They went backward in time. Ignore the league check and just save.
+                    saveUserDB();
+                }
             }
 
            const container = document.getElementById('taskListContainer');
