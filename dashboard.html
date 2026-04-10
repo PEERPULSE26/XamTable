@@ -767,15 +767,23 @@
             const shareDataTest = { title: "Test", text: "Testing", files: [new File([""], "t.png", {type: "image/png"})] };
             if (!navigator.canShare || !navigator.canShare(shareDataTest) || !navigator.share) {
                 alert("🚨 Your browser doesn't support sharing generated images. Copied high score text to clipboard instead.");
-                const text = `I just hit a ${studyScore} Study Credit Score in the ${LEAGUES[currentLeague].name} League on XamTable. Beat my discipline. https://xamtable.vercel.app`;
+                // NEW: Dynamic label determination for text share
+                let labelText = "Novice Ranger";
+                if(studyScore >= 830) labelText = "Truly Warrior";
+                else if(studyScore >= 790) labelText = "Elite Vanguard";
+                else if(studyScore >= 730) labelText = "Resolute Guardian";
+                else if(studyScore >= 700) labelText = "Novice Ranger";
+                else if(studyScore >= 500) labelText = "At Risk";
+                else labelText = "Studyrupt";
+                const text = `I just locked a ${studyScore} (${labelText}) Study Credit Score on XamTable. Beat my discipline. https://xamtable.vercel.app`;
                 navigator.clipboard.writeText(text);
                 return;
             }
 
-            // Ensure fonts are loaded before we draw (otherwise we get generic serif)
+            // Ensure fonts are loaded before we draw
             await loadFontsToCanvas();
 
-            // Create canvas for share card (Square 1080x1080 for Insta/WA)
+            // Create canvas for share card (Square 1080x1080)
             const canvas = document.createElement('canvas');
             canvas.width = 1080;
             canvas.height = 1080;
@@ -794,48 +802,27 @@
             ctx.fillStyle = 'rgba(6, 182, 212, 0.05)'; // very subtle cyan glow
             ctx.fill();
 
-            // --- 2. XamTable Branding ---
-            // Native Bolt Icon draw (safer than FontAwesome unicodes on MVP)
-            const boltX = 120, boltY = 120, boltSize = 80;
+            // --- 2. XamTable Branding (Direct Text, No Logo) ---
             ctx.save();
-            ctx.beginPath();
-            // Round rect path for gradient btn background
-            ctx.moveTo(boltX - (boltSize/2) + 20, boltY - (boltSize/2));
-            ctx.lineTo(boltX + (boltSize/2) - 20, boltY - (boltSize/2));
-            ctx.quadraticCurveTo(boltX + (boltSize/2), boltY - (boltSize/2), boltX + (boltSize/2), boltY - (boltSize/2) + 20);
-            ctx.lineTo(boltX + (boltSize/2), boltY + (boltSize/2) - 20);
-            ctx.quadraticCurveTo(boltX + (boltSize/2), boltY + (boltSize/2), boltX + (boltSize/2) - 20, boltY + (boltSize/2));
-            ctx.lineTo(boltX - (boltSize/2) + 20, boltY + (boltSize/2));
-            ctx.quadraticCurveTo(boltX - (boltSize/2), boltY + (boltSize/2), boltX - (boltSize/2), boltY + (boltSize/2) - 20);
-            ctx.lineTo(boltX - (boltSize/2), boltY - (boltSize/2) + 20);
-            ctx.quadraticCurveTo(boltX - (boltSize/2), boltY - (boltSize/2), boltX - (boltSize/2) + 20, boltY - (boltSize/2));
-            ctx.closePath();
-            
-            const gradBtn = ctx.createLinearGradient(boltX - boltSize, boltY - boltSize, boltX + boltSize, boltY + boltSize);
-            gradBtn.addColorStop(0, '#22d3ee'); // cyan-400
-            gradBtn.addColorStop(1, '#2563eb'); // blue-600
-            ctx.fillStyle = gradBtn;
-            ctx.fill();
-            
-            // Draw simple white bolt shape inside
-            ctx.fillStyle = "white";
-            ctx.beginPath();
-            ctx.moveTo(boltX - 10, boltY - 20);
-            ctx.lineTo(boltX + 10, boltY);
-            ctx.lineTo(boltX - 5, boltY + 5);
-            ctx.lineTo(boltX + 15, boltY + 20);
-            ctx.lineTo(boltX - 15, boltY - 5);
-            ctx.lineTo(boltX, boltY - 10);
-            ctx.fill();
-            ctx.restore();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = "900 80px 'Plus Jakarta Sans'";
+            const xamTableX = canvas.width / 2;
+            const xamTableY = 120; // higher up, centered
 
-            // XamTable Text
-            ctx.font = "900 60px 'Plus Jakarta Sans'";
-            ctx.textAlign = "left";
+            // Draw "Xam" and "Table" in distinct styles
+            const xamText = "Xam";
+            const tableText = "Table";
+            const xamWidth = ctx.measureText(xamText).width;
+            const tableWidth = ctx.measureText(tableText).width;
+            const totalWidth = xamWidth + tableWidth;
+            const startX = xamTableX - (totalWidth / 2);
+
             ctx.fillStyle = "white";
-            ctx.fillText("Xam", 180, 140);
+            ctx.fillText(xamText, startX + (xamWidth / 2), xamTableY);
             ctx.fillStyle = "#22d3ee"; // cyan
-            ctx.fillText("Table", 310, 140);
+            ctx.fillText(tableText, startX + xamWidth + (tableWidth / 2), xamTableY);
+            ctx.restore();
 
             // --- 3. User Info (Circular letter avatar) ---
             const avCenter = 350;
@@ -855,24 +842,34 @@
 
             // Glow logic simulation (using shadow effects)
             ctx.save();
-            ctx.shadowColor = "rgba(6, 182, 212, 0.7)"; // glow-cyan-500 shadow
+            ctx.shadowColor = "rgba(6, 182, 212, 0.7)"; // shadow for glow
             ctx.shadowBlur = 60;
             ctx.fillStyle = "white";
             ctx.font = "900 250px 'Plus Jakarta Sans'";
             ctx.fillText(studyScore, canvas.width / 2, avCenter + 470);
             ctx.restore();
 
-            // League badge text
-            ctx.fillStyle = "#22d3ee"; // cyan-400
+            // League badge text -> STUDY SCORE RATING DESCRIPTION
+            // NEW: Logic to determine exact rating description from score
+            let descriptionLabel = "Novice Ranger";
+            let labelColor = "text-blue-400"; // Fallback color from theme
+            if(studyScore >= 830) { descriptionLabel = "Truly Warrior"; labelColor = "#facc15"; /* yellow-400 */ }
+            else if(studyScore >= 790) { descriptionLabel = "Elite Vanguard"; labelColor = "#22d3ee"; /* cyan-400 */ }
+            else if(studyScore >= 730) { descriptionLabel = "Resolute Guardian"; labelColor = "#10b981"; /* emerald-400 */ }
+            else if(studyScore >= 700) { descriptionLabel = "Novice Ranger"; labelColor = "#22d3ee"; /* cyan-400 */ }
+            else if(studyScore >= 500) { descriptionLabel = "At Risk"; labelColor = "#f59e0b"; /* amber-500 */ }
+            else { descriptionLabel = "Studyrupt"; labelColor = "#f43f5e"; /* rose-500 */ }
+
+            ctx.fillStyle = labelColor; // dynamic color from theme
             ctx.font = "900 35px 'Plus Jakarta Sans'";
-            ctx.fillText(LEAGUES[currentLeague].name.toUpperCase() + " VANGUARD", canvas.width / 2, avCenter + 540);
+            ctx.fillText(descriptionLabel.toUpperCase(), canvas.width / 2, avCenter + 540);
 
             // --- 5. Share Functionality (Files API) ---
             canvas.toBlob(async (blob) => {
                 const file = new File([blob], "XamTableRating.png", { type: "image/png" });
                 const shareData = {
-                    title: 'My XamTable Ranking',
-                    text: `I just locked a ${studyScore} Study Credit Score on XamTable. Beat my discipline.`,
+                    title: 'My XamTable Study Rating',
+                    text: `I just locked a ${studyScore} (${descriptionLabel}) Study Credit Score on XamTable. Beat my discipline.`,
                     files: [file],
                 };
 
@@ -881,11 +878,9 @@
                     await navigator.share(shareData);
                 } catch (err) {
                     console.log("Image share cancelled or failed:", err);
-                    // Minimal fail case (don't alert unless it's a critical error)
                 }
             });
         }
-
         function startLeaderboardSync() {
             if (unsubscribeLeaderboard) unsubscribeLeaderboard();
             
