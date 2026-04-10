@@ -943,15 +943,60 @@
             
             if (taskText === "") return;
 
-            // Strict Profanity Block Filter
-            const forbiddenWords = ["i love you", "bsdk", "chutiya", "bkl", "suar", "mkc", "fuck", "fuck you"];
             const lowerTask = taskText.toLowerCase();
+
+            // --- THE AI BOUNCER ALGORITHM ---
+
+            // 1. The Gibberish & Effort Check (Must be meaningful)
+            if (/(.)\1{4,}/.test(lowerTask)) {
+                alert("🚨 AI Bouncer: Gibberish detected. Take this seriously.");
+                return;
+            }
+            if (taskText.length < 10 || lowerTask.split(" ").length < 2) {
+                alert("🚨 AI Bouncer: Target too vague. Be specific (e.g., 'Solve 50 Kinematics MCQs').");
+                return;
+            }
+
+            // 2. Strict Profanity Block
+            const forbiddenWords =;
             for (let word of forbiddenWords) {
                 if (lowerTask.includes(word)) {
-                    alert("Blocked word detected. Maintain academic decorum.");
+                    alert("🚨 AI Bouncer: Blocked word detected. Maintain academic decorum.");
                     return;
                 }
             }
+
+            // 3. The Drop-Year Distraction Blacklist (Hinglish + English)
+            const distractionWords = [
+                "netflix", "movie", "film", "anime", "series", "episode", "cinema",
+                "bgmi", "pubg", "valorant", "cod", "gta", "freefire", "game", "gaming", "play", "playing", "match",
+                "insta", "instagram", "reel", "reels", "shorts", "snapchat", "tiktok", "facebook", "fb", "scroll", "scrolling", "youtube", "yt",
+                "sleep", "sleeping", "nap", "so ja", "sounga", "sone", "bed", "rest", "resting", "soona",
+                "eat", "eating", "food", "khana", "lunch", "dinner", "breakfast", "snack", "maggi", "chai", "drink",
+                "chill", "chilling", "timepass", "time pass", "bakchodi", "masti", "dost", "friends", "ghumna", "bahar", "walk", "market",
+                "music", "song", "songs", "spotify", "playlist", "listen", "listening",
+                "bath", "bathe", "shower", "nahana", "wash", "toilet", "poop", "brush",
+                "clean", "cleaning", "room", "safai", "kapde", "laundry", "market",
+                "nothing", "kuch nahi", "bore", "bored", "idle", "sit", "sitting", "chat", "chatting", "call", "calling", "phone", "talk"
+            ];
+
+            // 4. The Academic Exemption Whitelist
+            // (If a distraction word is used, it is ONLY allowed if an academic word saves it)
+            const studyWords = [
+                "lecture", "lec", "pw", "physics wallah", "unacademy", "allen", "aakash", "physics", "chem", "chemistry", "math", "maths", 
+                "bio", "botany", "zoology", "mcq", "pyq", "dpp", "module", "notes", "revision", "ncert", "hcv", "irodov", "cengage", 
+                "solve", "read", "chapter", "test", "mock", "paper", "analysis", "video", "one shot", "oneshot"
+            ];
+
+            let hasDistraction = distractionWords.some(w => lowerTask.match(new RegExp(`\\b${w}\\b`)));
+            let hasAcademicSave = studyWords.some(w => lowerTask.includes(w));
+
+            if (hasDistraction && !hasAcademicSave) {
+                alert("🚨 AI Bouncer: This looks like a distraction, not a valid study target. Denied.");
+                return;
+            }
+
+            // --- END OF BOUNCER ---
 
             if (emptyState) emptyState.style.display = 'none';
 
