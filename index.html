@@ -361,5 +361,70 @@
             tokenClient.requestAccessToken();
         }
     </script>
+    <!-- Live Social Proof Ticker -->
+    <div id="live-ticker" class="fixed bottom-20 left-4 md:bottom-8 md:left-8 z-[100] transform translate-y-10 opacity-0 pointer-events-none transition-all duration-700 ease-out">
+        <div class="glass-panel p-3 rounded-2xl border-l-2 border-l-cyan-500 flex items-center gap-3 shadow-2xl backdrop-blur-xl bg-slate-900/60 max-w-xs">
+            <div class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0 border border-cyan-500/30">
+                <i class="fas fa-bolt text-cyan-400 text-xs"></i>
+            </div>
+            <div>
+                <p id="ticker-name" class="text-[10px] md:text-xs font-black text-white tracking-widest uppercase">AspirantX</p>
+                <p id="ticker-action" class="text-[9px] md:text-[10px] text-slate-400 font-bold mt-0.5">Just locked 50 Kinematics MCQs</p>
+            </div>
+            <div class="text-[9px] font-black text-emerald-400 ml-2 shrink-0 animate-pulse">
+                +20 XP
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // The Ghost Ticker Brain
+        const ticker = document.getElementById('live-ticker');
+        const tickerName = document.getElementById('ticker-name');
+        const tickerAction = document.getElementById('ticker-action');
+
+        const ghostNames = [
+            "IIT_or_Bust", "AIIMS_Dreamer", "Dropper_007", "NEET_Hustler", "Kota_Survivor", 
+            "Dr_Stranger", "Physics_Wizard", "Ranker_26", "Focus_Mode", "Med_Student", 
+            "JEE_Slayer", "Aspirant_99", "Daily_Grind", "Silent_Killer"
+        ];
+
+        const ghostActions = [
+            "Just locked 50 Kinematics MCQs",
+            "Cleared Organic Chem Backlog",
+            "Completed a 3-hour Mock Test",
+            "Secured 100 Botany questions",
+            "Finished Calculus Revision",
+            "Locked NCERT Biology Chapter",
+            "Completed Modern Physics DPP",
+            "Revised HC Verma concepts",
+            "Just survived a 5000 XP Loan",
+            "Promoted to the Emerald League"
+        ];
+
+        function triggerGhostTicker() {
+            // Pick random name and action
+            const name = ghostNames[Math.floor(Math.random() * ghostNames.length)];
+            const action = ghostActions[Math.floor(Math.random() * ghostActions.length)];
+
+            tickerName.innerText = name;
+            tickerAction.innerText = action;
+
+            // Slide in
+            ticker.classList.remove('translate-y-10', 'opacity-0');
+            
+            // Wait 4 seconds, then slide out
+            setTimeout(() => {
+                ticker.classList.add('translate-y-10', 'opacity-0');
+            }, 4000);
+        }
+
+        // Start the illusion: First popup happens after 3 seconds
+        setTimeout(() => {
+            triggerGhostTicker();
+            // Then pop up randomly every 8 to 15 seconds
+            setInterval(triggerGhostTicker, Math.floor(Math.random() * 7000) + 8000);
+        }, 3000);
+    </script>
 </body>
 </html>
