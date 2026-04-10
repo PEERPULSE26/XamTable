@@ -639,9 +639,40 @@
                     .where('cohortId', '==', cohortId)
                     .get();
                 
-                let users = [];
+               let users = [];
                 snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-                users.sort((a, b) => b.weeklyXP - a.weeklyXP);
+                
+                // FIX: Inject the Ghost Bots into the background calculation so totalUsers > 10
+                let scaleDay = new Date().getDay(); 
+                if (scaleDay === 0) scaleDay = new Date().getHours() < 15 ? 7 : 0.5;
+                if (scaleDay === 0) scaleDay = 0.5; 
+                
+                const ghostBots = [
+                    { id: "bot1", studyScore: 840, weeklyXP: (Math.floor(scaleDay * 2.5) + 7) * 20 },
+                    { id: "bot2", studyScore: 810, weeklyXP: (Math.floor(scaleDay * 2.0) + 6) * 20 },
+                    { id: "bot3", studyScore: 800, weeklyXP: (Math.floor(scaleDay * 2.0) + 5) * 20 },
+                    { id: "bot4", studyScore: 790, weeklyXP: (Math.floor(scaleDay * 1.5) + 4) * 20 },
+                    { id: "bot5", studyScore: 770, weeklyXP: (Math.floor(scaleDay * 1.5) + 4) * 20 },
+                    { id: "bot6", studyScore: 760, weeklyXP: (Math.floor(scaleDay * 1.2) + 3) * 20 },
+                    { id: "bot7", studyScore: 750, weeklyXP: (Math.floor(scaleDay * 1.0) + 3) * 20 },
+                    { id: "bot8", studyScore: 740, weeklyXP: (Math.floor(scaleDay * 1.0) + 2) * 20 },
+                    { id: "bot9", studyScore: 720, weeklyXP: (Math.floor(scaleDay * 1.0) + 2) * 20 },
+                    { id: "bot10", studyScore: 680, weeklyXP: (Math.floor(scaleDay * 0.5) + 1) * 20 },
+                    { id: "bot11", studyScore: 650, weeklyXP: (Math.floor(scaleDay * 0.5) + 1) * 20 },
+                    { id: "bot12", studyScore: 550, weeklyXP: 0 },
+                    { id: "bot13", studyScore: 310, weeklyXP: 0 }
+                ];
+                
+                ghostBots.forEach(bot => {
+                    if (!users.find(u => u.id === bot.id)) users.push(bot);
+                });
+
+                // FIX: Apply tie-breaker logic here too
+                users.sort((a, b) => {
+                    const xpDiff = (b.weeklyXP || 0) - (a.weeklyXP || 0);
+                    if (xpDiff !== 0) return xpDiff;
+                    return (b.studyScore || 700) - (a.studyScore || 700);
+                });
                 
                 const myRankIndex = users.findIndex(u => u.id === liveUser.email);
                 const myRank = myRankIndex + 1;
