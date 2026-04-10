@@ -723,18 +723,167 @@
             document.getElementById('streak-mobile').innerText = streak;
         }
 
-        function flexRank() {
-            const text = `I just hit a ${studyScore} Study Credit Score in the ${LEAGUES[currentLeague].name} League on XamTable. Beat my discipline.`;
-            if (navigator.share) {
-                navigator.share({
-                    title: 'XamTable Rank',
-                    text: text,
-                    url: 'https://xamtable.vercel.app'
-                }).catch(console.error);
-            } else {
-                navigator.clipboard.writeText(text + " https://xamtable.vercel.app");
-                alert("Flex copied to clipboard! Paste it anywhere.");
+        // ==============================================
+        // ADVANCED SHARING: DUOLINGO-STYLE CANVAS
+        // ==============================================
+        // Helper: Pre-loads fonts needed for the Share Card
+        async function loadFontsToCanvas() {
+            try {
+                // Ensure browser supports this method
+                if (!('fonts' in document)) return;
+                // Wait for the main UI fonts to be fully ready
+                await document.fonts.ready;
+            } catch(e) { console.error("Font load skip", e) }
+        }
+
+        // Helper: Native letter avatar draw (safest for CORS)
+        function drawNativeAvatar(ctx, name, x, y, size) {
+            const firstLetter = (name && name.length > 0) ? name[0].toUpperCase() : 'A';
+            
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip(); // Circle mask
+
+            // Avatar Gradient
+            const avGrad = ctx.createLinearGradient(x - size, y - size, x + size, y + size);
+            avGrad.addColorStop(0, '#0ea5e9'); // user avatars bg (silver-ish blue)
+            avGrad.addColorStop(1, '#2563eb'); // blue-600
+            ctx.fillStyle = avGrad;
+            ctx.fillRect(x - size, y - size, size * 2, size * 2);
+
+            // Draw letter
+            ctx.fillStyle = "white";
+            ctx.font = `900 ${size * 1.1}px 'Plus Jakarta Sans'`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(firstLetter, x, y + (size * 0.1));
+            ctx.restore();
+        }
+
+        async function flexRank() {
+            // Check share API Level 2 support (needed for sharing files)
+            const shareDataTest = { title: "Test", text: "Testing", files: [new File([""], "t.png", {type: "image/png"})] };
+            if (!navigator.canShare || !navigator.canShare(shareDataTest) || !navigator.share) {
+                alert("🚨 Your browser doesn't support sharing generated images. Copied high score text to clipboard instead.");
+                const text = `I just hit a ${studyScore} Study Credit Score in the ${LEAGUES[currentLeague].name} League on XamTable. Beat my discipline. https://xamtable.vercel.app`;
+                navigator.clipboard.writeText(text);
+                return;
             }
+
+            // Ensure fonts are loaded before we draw (otherwise we get generic serif)
+            await loadFontsToCanvas();
+
+            // Create canvas for share card (Square 1080x1080 for Insta/WA)
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1080;
+            const ctx = canvas.getContext('2d');
+
+            // --- 1. Draw Background ---
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, 1080);
+            bgGradient.addColorStop(0, '#0f172a'); // slate-900
+            bgGradient.addColorStop(1, '#020617'); // slate-950
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, 1080, 1080);
+
+            // Subtle Glimmer overlay
+            ctx.beginPath();
+            ctx.arc(200, 200, 500, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(6, 182, 212, 0.05)'; // very subtle cyan glow
+            ctx.fill();
+
+            // --- 2. XamTable Branding ---
+            // Native Bolt Icon draw (safer than FontAwesome unicodes on MVP)
+            const boltX = 120, boltY = 120, boltSize = 80;
+            ctx.save();
+            ctx.beginPath();
+            // Round rect path for gradient btn background
+            ctx.moveTo(boltX - (boltSize/2) + 20, boltY - (boltSize/2));
+            ctx.lineTo(boltX + (boltSize/2) - 20, boltY - (boltSize/2));
+            ctx.quadraticCurveTo(boltX + (boltSize/2), boltY - (boltSize/2), boltX + (boltSize/2), boltY - (boltSize/2) + 20);
+            ctx.lineTo(boltX + (boltSize/2), boltY + (boltSize/2) - 20);
+            ctx.quadraticCurveTo(boltX + (boltSize/2), boltY + (boltSize/2), boltX + (boltSize/2) - 20, boltY + (boltSize/2));
+            ctx.lineTo(boltX - (boltSize/2) + 20, boltY + (boltSize/2));
+            ctx.quadraticCurveTo(boltX - (boltSize/2), boltY + (boltSize/2), boltX - (boltSize/2), boltY + (boltSize/2) - 20);
+            ctx.lineTo(boltX - (boltSize/2), boltY - (boltSize/2) + 20);
+            ctx.quadraticCurveTo(boltX - (boltSize/2), boltY - (boltSize/2), boltX - (boltSize/2) + 20, boltY - (boltSize/2));
+            ctx.closePath();
+            
+            const gradBtn = ctx.createLinearGradient(boltX - boltSize, boltY - boltSize, boltX + boltSize, boltY + boltSize);
+            gradBtn.addColorStop(0, '#22d3ee'); // cyan-400
+            gradBtn.addColorStop(1, '#2563eb'); // blue-600
+            ctx.fillStyle = gradBtn;
+            ctx.fill();
+            
+            // Draw simple white bolt shape inside
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.moveTo(boltX - 10, boltY - 20);
+            ctx.lineTo(boltX + 10, boltY);
+            ctx.lineTo(boltX - 5, boltY + 5);
+            ctx.lineTo(boltX + 15, boltY + 20);
+            ctx.lineTo(boltX - 15, boltY - 5);
+            ctx.lineTo(boltX, boltY - 10);
+            ctx.fill();
+            ctx.restore();
+
+            // XamTable Text
+            ctx.font = "900 60px 'Plus Jakarta Sans'";
+            ctx.textAlign = "left";
+            ctx.fillStyle = "white";
+            ctx.fillText("Xam", 180, 140);
+            ctx.fillStyle = "#22d3ee"; // cyan
+            ctx.fillText("Table", 310, 140);
+
+            // --- 3. User Info (Circular letter avatar) ---
+            const avCenter = 350;
+            drawNativeAvatar(ctx, liveUser.name, canvas.width / 2, avCenter, 90);
+
+            // Name text
+            ctx.fillStyle = "white";
+            ctx.font = "700 40px 'Plus Jakarta Sans'";
+            ctx.textAlign = "center";
+            ctx.fillText("@" + liveUser.name, canvas.width / 2, avCenter + 150);
+
+            // --- 4. Giant Score (Duolingo Style) ---
+            ctx.textAlign = "center";
+            ctx.fillStyle = "rgba(255,255,255,0.7)";
+            ctx.font = "800 30px 'Plus Jakarta Sans'";
+            ctx.fillText("STUDY CREDIT RATING", canvas.width / 2, avCenter + 270);
+
+            // Glow logic simulation (using shadow effects)
+            ctx.save();
+            ctx.shadowColor = "rgba(6, 182, 212, 0.7)"; // glow-cyan-500 shadow
+            ctx.shadowBlur = 60;
+            ctx.fillStyle = "white";
+            ctx.font = "900 250px 'Plus Jakarta Sans'";
+            ctx.fillText(studyScore, canvas.width / 2, avCenter + 470);
+            ctx.restore();
+
+            // League badge text
+            ctx.fillStyle = "#22d3ee"; // cyan-400
+            ctx.font = "900 35px 'Plus Jakarta Sans'";
+            ctx.fillText(LEAGUES[currentLeague].name.toUpperCase() + " VANGUARD", canvas.width / 2, avCenter + 540);
+
+            // --- 5. Share Functionality (Files API) ---
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], "XamTableRating.png", { type: "image/png" });
+                const shareData = {
+                    title: 'My XamTable Ranking',
+                    text: `I just locked a ${studyScore} Study Credit Score on XamTable. Beat my discipline.`,
+                    files: [file],
+                };
+
+                try {
+                    // Try direct file share
+                    await navigator.share(shareData);
+                } catch (err) {
+                    console.log("Image share cancelled or failed:", err);
+                    // Minimal fail case (don't alert unless it's a critical error)
+                }
+            });
         }
 
         function startLeaderboardSync() {
