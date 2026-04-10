@@ -923,7 +923,12 @@
                     });
                     // --- END GHOST USERS ---
                     
-                    users.sort((a, b) => (b.weeklyXP || 0) - (a.weeklyXP || 0));
+                   // FIX: Sort by Weekly XP first. If tied, sort by all-time Study Score.
+                    users.sort((a, b) => {
+                        const xpDiff = (b.weeklyXP || 0) - (a.weeklyXP || 0);
+                        if (xpDiff !== 0) return xpDiff; // If XP is different, sort by XP
+                        return (b.studyScore || 700) - (a.studyScore || 700); // If XP is tied, highest Study Score wins
+                    });
                     
                     listEl.innerHTML = '';
                     
