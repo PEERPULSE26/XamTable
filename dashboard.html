@@ -1488,10 +1488,12 @@
             const startOfWeek = new Date(today);
             startOfWeek.setDate(today.getDate() - currentDayOfWeek + (analyticsWeekOffset * 7));
             
-            let label = "THIS WEEK";
-            if (analyticsWeekOffset === -1) label = "LAST WEEK";
-            else if (analyticsWeekOffset < -1) label = Math.abs(analyticsWeekOffset) + " WKS AGO";
-            document.getElementById('analytics-week-label').innerText = label;
+            // --- NEW: Exact Date Range Label (e.g., 01/04 - 07/04) ---
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            const startStr = `${String(startOfWeek.getDate()).padStart(2,'0')}/${String(startOfWeek.getMonth()+1).padStart(2,'0')}`;
+            const endStr = `${String(endOfWeek.getDate()).padStart(2,'0')}/${String(endOfWeek.getMonth()+1).padStart(2,'0')}`;
+            document.getElementById('analytics-week-label').innerText = `${startStr} - ${endStr}`;
 
             let maxTasks = 0;
             const weekData = [];
@@ -1505,7 +1507,8 @@
                 const count = completedTasksHistory[dStr] ? completedTasksHistory[dStr].length : 0;
                 if (count > maxTasks) maxTasks = count;
                 
-                weekData.push({ dayName: days[i], count: count, isToday: dStr === getFormattedDate(0) });
+                // --- NEW: Extracting the exact date number (1, 2, 30, etc.) ---
+                weekData.push({ dayName: days[i], dateNum: d.getDate(), count: count, isToday: dStr === getFormattedDate(0) });
             }
 
             const yAxisMax = Math.max(maxTasks, 5); 
@@ -1519,11 +1522,15 @@
                 const barColor = data.isToday ? "bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : (data.count > 0 ? "bg-emerald-500/70 hover:bg-emerald-400" : "bg-white/5");
                 const textColor = data.isToday ? "text-cyan-400" : "text-slate-500";
                 
+                // --- NEW: Stacked day name and exact date underneath the bar ---
                 chartContainer.innerHTML += `
                     <div class="flex flex-col items-center justify-end h-full flex-1 group relative cursor-pointer">
                         <div class="absolute -top-6 text-[8px] md:text-[10px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 px-2 py-0.5 rounded shadow-lg border border-white/10 z-10 pointer-events-none">${data.count}</div>
                         <div class="w-full max-w-[1.5rem] md:max-w-[2.5rem] rounded-t-sm md:rounded-t-md transition-all duration-700 ease-out ${barColor}" style="height: ${heightPct}%;"></div>
-                        <div class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest mt-1.5 ${textColor}">${data.dayName}</div>
+                        <div class="flex flex-col items-center mt-1.5 leading-tight">
+                            <span class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest ${textColor}">${data.dayName}</span>
+                            <span class="text-[7px] md:text-[8px] font-bold opacity-70 ${textColor}">${data.dateNum}</span>
+                        </div>
                     </div>
                 `;
             });
