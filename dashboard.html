@@ -85,6 +85,15 @@
             .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         }
 
+        /* Mobile Height & Safe Area Fixes */
+        .h-dynamic { 
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Dynamic viewport height */
+        }
+        .pb-safe { 
+            padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); 
+        }
+
         /* League specific colors */
         .league-0 { color: #cd7f32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); } /* Bronze */
         .league-1 { color: #c0c0c0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); } /* Silver */
@@ -159,7 +168,7 @@
         </div>
     </div>
 
-    <div id="dashboard-app" class="flex flex-col md:flex-row h-screen w-full opacity-0 scale-[1.02] transition-all duration-1000 pointer-events-none pb-[70px] md:pb-0">
+    <div id="dashboard-app" class="flex flex-col md:flex-row h-dynamic w-full opacity-0 scale-[1.02] transition-all duration-1000 pointer-events-none pb-[70px] md:pb-0">
         
         <aside class="w-64 glass-panel border-r border-white/5 flex flex-col hidden md:flex shrink-0 z-20 relative">
             <div class="p-6 border-b border-white/5 flex items-center gap-3">
@@ -238,7 +247,8 @@
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
-                            <input type="text" id="taskInput" placeholder="e.g. Solve 50 Numericals..." onkeypress="if(event.key==='Enter') commitNewTask()" class="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors font-medium">
+                            <!-- Mobile text size fix applied here -->
+                            <input type="text" id="taskInput" placeholder="e.g. Solve 50 Numericals..." onkeypress="if(event.key==='Enter') commitNewTask()" class="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 text-white text-base md:text-sm focus:outline-none focus:border-cyan-500 transition-colors font-medium">
                             <button onclick="commitNewTask()" class="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-xl font-black text-xs md:text-sm uppercase tracking-widest hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all shrink-0 w-full sm:w-auto">Commit</button>
                         </div>
                         <p class="text-[9px] md:text-[10px] text-slate-500 font-bold mt-3 uppercase tracking-wider text-center sm:text-left"><i class="fas fa-lock mr-1"></i> 5-min server lock. Failing = -200 XP & -10 Score.</p>
@@ -764,7 +774,6 @@
             let timeLeft = 300 - Math.floor((Date.now() - taskData.createdAt) / 1000);
             let isLocked = timeLeft <= 0;
 
-            // --- THE FIX: Dynamically compute if the task is actually due today based on current date ---
             const todayStr = getFormattedDate(0);
             let computedDay = (taskData.targetDateStr === todayStr) ? 'today' : 'tomorrow';
             
@@ -943,15 +952,58 @@
             
             if (taskText === "") return;
 
-            // Strict Profanity Block Filter
-            const forbiddenWords = ["i love you", "bsdk", "chutiya", "bkl", "suar", "mkc", "fuck", "fuck you"];
             const lowerTask = taskText.toLowerCase();
+
+            // --- THE AI BOUNCER ALGORITHM ---
+
+            // 1. The Gibberish & Effort Check
+            if (/(.)\1{4,}/.test(lowerTask)) {
+                alert("🚨 AI Bouncer: Gibberish detected. Take this seriously.");
+                return;
+            }
+            if (taskText.length < 10 || lowerTask.split(" ").length < 2) {
+                alert("🚨 AI Bouncer: Target too vague. Be specific (e.g., 'Solve 50 Kinematics MCQs').");
+                return;
+            }
+
+            // 2. Strict Profanity & Slang Block
+            const forbiddenWords = ["i love you", "bsdk", "chutiya", "bkl", "suar", "mkc", "fuck", "fuck you", "bc", "mc", "madarchod", "bitch", "asshole", "kutta", "randi"];
             for (let word of forbiddenWords) {
                 if (lowerTask.includes(word)) {
-                    alert("Blocked word detected. Maintain academic decorum.");
+                    alert("🚨 AI Bouncer: Blocked word detected. Maintain academic decorum.");
                     return;
                 }
             }
+
+            // 3. The Drop-Year Distraction Blacklist (Hinglish + English)
+            const distractionWords = [
+                "netflix", "movie", "film", "anime", "series", "episode", "cinema",
+                "bgmi", "pubg", "valorant", "cod", "gta", "freefire", "game", "gaming", "play", "playing", "match",
+                "insta", "instagram", "reel", "reels", "shorts", "snapchat", "tiktok", "facebook", "fb", "scroll", "scrolling", "youtube", "yt",
+                "sleep", "sleeping", "nap", "so ja", "sounga", "sone", "bed", "rest", "resting", "soona",
+                "eat", "eating", "food", "khana", "lunch", "dinner", "breakfast", "snack", "maggi", "chai", "drink",
+                "chill", "chilling", "timepass", "time pass", "bakchodi", "masti", "dost", "friends", "ghumna", "bahar", "walk", "market",
+                "music", "song", "songs", "spotify", "playlist", "listen", "listening",
+                "bath", "bathe", "shower", "nahana", "wash", "toilet", "poop", "brush",
+                "clean", "cleaning", "room", "safai", "kapde", "laundry",
+                "nothing", "kuch nahi", "bore", "bored", "idle", "sit", "sitting", "chat", "chatting", "call", "calling", "phone", "talk"
+            ];
+
+            // 4. The Academic Exemption Whitelist
+            const studyWords = [
+                "lecture", "lec", "pw", "physics wallah", "unacademy", "allen", "aakash", "physics", "chem", "chemistry", "math", "maths", 
+                "bio", "botany", "zoology", "mcq", "pyq", "dpp", "module", "notes", "revision", "ncert", "hcv", "irodov", "cengage", 
+                "solve", "read", "chapter", "test", "mock", "paper", "analysis", "video", "one shot", "oneshot"
+            ];
+
+            let hasDistraction = distractionWords.some(w => lowerTask.match(new RegExp(`\\b${w}\\b`)));
+            let hasAcademicSave = studyWords.some(w => lowerTask.includes(w));
+
+            if (hasDistraction && !hasAcademicSave) {
+                alert("🚨 AI Bouncer: This looks like a distraction, not a valid study target. Denied.");
+                return;
+            }
+            // --- END OF BOUNCER ---
 
             if (emptyState) emptyState.style.display = 'none';
 
