@@ -302,7 +302,74 @@
         </div>
     </footer>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // 1. Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmRsE60jV_KoNP65MyhwhVca4AMU5KzVI",
+            authDomain: "xamtable.firebaseapp.com",
+            projectId: "xamtable",
+            storageBucket: "xamtable.firebasestorage.app",
+            messagingSenderId: "541541922734",
+            appId: "1:541541922734:web:e7c89c7e68b593daeafa3f",
+            measurementId: "G-LNSV0QRT4L"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // 2. Scroll Reveal Logic (Kept exactly as you had it)
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-active');
+                        obs.unobserve(entry.target); 
+                    }
+                });
+            }, { root: null, rootMargin: '0px 0px -50px 0px', threshold: 0.05 });
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+        });
+
+        // 3. The New Secure Firebase Login
+        window.startRealAuth = function() {
+            const btn = document.getElementById('authBtn');
+            if (btn.classList.contains('processing')) return;
+            btn.classList.add('processing');
+
+            // UI Loading State
+            document.getElementById('authIndicator').style.display = 'none';
+            btn.classList.remove('hover:scale-105');
+            btn.style.transform = 'scale(0.95)';
+            document.getElementById('authText').innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-cyan-500"></i> Authenticating...';
+
+            // Firebase Secure Popup
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    const user = result.user;
+                    
+                    // Save to local storage for the dashboard
+                    localStorage.setItem('xamTableLiveUser', JSON.stringify({
+                        name: user.displayName.split(" ")[0],
+                        photo: user.photoURL,
+                        email: user.email
+                    }));
+                    
+                    // Teleport to dashboard
+                    window.location.href = "dashboard.html";
+                })
+                .catch((error) => {
+                    console.error(error);
+                    // Reset UI on failure
+                    btn.classList.remove('processing');
+                    btn.style.transform = 'scale(1)';
+                    document.getElementById('authText').innerHTML = 'Start building your score. Sign Up.';
+                    document.getElementById('authIndicator').style.display = 'flex';
+                    alert("Authentication failed: " + error.message);
+                });
+        }
+    </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
