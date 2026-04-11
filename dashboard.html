@@ -460,6 +460,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <script>
         // --- LIVE USER INJECTION & CLOUD DATABASE SYNC ---
@@ -501,9 +502,10 @@
         }
 
         function logoutUser() {
-            firebase.auth().signOut();
-            localStorage.removeItem('xamTableLiveUser');
-            window.location.href = "index.html";
+            firebase.auth().signOut().then(() => {
+                localStorage.removeItem('xamTableLiveUser');
+                window.location.href = "index.html";
+            });
         }
 
         const firebaseConfig = {
@@ -1008,7 +1010,15 @@
         }
 
        document.addEventListener("DOMContentLoaded", () => {
-             bootCloudDB(); 
+            // Wait for Firebase to confirm the secure Google token before loading data
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    bootCloudDB(); 
+                } else {
+                    // Kick them back to login if they try to bypass the front door
+                    window.location.href = "index.html";
+                }
+            });
         });
         function restoreActiveTasks() {
             const container = document.getElementById('taskListContainer');
