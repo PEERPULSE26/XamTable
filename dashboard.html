@@ -671,10 +671,15 @@
                     { id: "bot13", studyScore: 310, weeklyXP: 0 }
                 ];
                 
-                ghostBots.forEach(bot => {
-                    if (!users.find(u => u.id === bot.id)) users.push(bot);
-                });
-
+                // SMART BOTS: Only inject enough bots to ensure there are at least 15 people on the board.
+        // As real users join, the bots will automatically vanish one by one.
+        let botsNeeded = 15 - users.length;
+        if (botsNeeded > 0) {
+            const selectedBots = ghostBots.slice(0, botsNeeded);
+            selectedBots.forEach(bot => {
+                if (!users.find(u => u.id === bot.id)) users.push(bot);
+            });
+        }
                 // FIX: Apply tie-breaker logic here too
                 users.sort((a, b) => {
                     const xpDiff = (b.weeklyXP || 0) - (a.weeklyXP || 0);
@@ -956,10 +961,15 @@
                         { id: "bot13", name: "Rupam", photo: "https://ui-avatars.com/api/?name=R&background=3F3F46&color=fff", studyScore: 310, weeklyXP: 0 }
                     ];
                     
-                    ghostBots.forEach(bot => {
-                        if (!users.find(u => u.id === bot.id)) users.push(bot);
-                    });
-                    // --- END GHOST USERS ---
+                   // SMART BOTS: Only inject enough bots to ensure there are at least 15 people on the board.
+        // As real users join, the bots will automatically vanish one by one.
+        let botsNeeded = 15 - users.length;
+        if (botsNeeded > 0) {
+            const selectedBots = ghostBots.slice(0, botsNeeded);
+            selectedBots.forEach(bot => {
+                if (!users.find(u => u.id === bot.id)) users.push(bot);
+            });
+        }
                     
                    // FIX: Sort by Weekly XP first. If tied, sort by all-time Study Score.
                     users.sort((a, b) => {
