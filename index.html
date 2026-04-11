@@ -342,17 +342,19 @@
            btn.style.transform = 'scale(0.95)';
            document.getElementById('authText').innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-cyan-500"></i> Authenticating...';
 
-           // Trigger Google Popup
-           firebase.auth().signInWithPopup(provider)
-               .then((result) => {
-                   const user = result.user;
-                   
-                   // Save minimal data for the dashboard UI to use
-                   localStorage.setItem('xamTableLiveUser', JSON.stringify({
-                       name: user.displayName ? user.displayName.split(" ")[0] : "Aspirant",
-                       photo: user.photoURL,
-                       email: user.email
-                   }));
+           // Silent Auto-Login: If Google remembers them, teleport instantly
+       firebase.auth().onAuthStateChanged((user) => {
+           if (user) {
+               // We MUST rebuild the local storage before teleporting, 
+               // otherwise the dashboard security will kick you back out.
+               localStorage.setItem('xamTableLiveUser', JSON.stringify({
+                   name: user.displayName ? user.displayName.split(" ")[0] : "Aspirant",
+                   photo: user.photoURL,
+                   email: user.email
+               }));
+               window.location.href = "dashboard.html";
+           }
+       });
                    
                    // Teleport to dashboard
                    window.location.href = "dashboard.html";
