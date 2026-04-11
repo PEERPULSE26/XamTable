@@ -311,9 +311,12 @@
            appId: "1:541541922734:web:e7c89c7e68b593daeafa3f",
            measurementId: "G-LNSV0QRT4L"
        };
-       firebase.initializeApp(firebaseConfig);
-       const provider = new firebase.auth.GoogleAuthProvider();
-
+       // Silent Auto-Login: If Google remembers them, teleport instantly
+       firebase.auth().onAuthStateChanged((user) => {
+           if (user) {
+               window.location.href = "dashboard.html";
+           }
+       });
        // 3. Scroll Reveal Logic
        document.addEventListener("DOMContentLoaded", () => {
            const observer = new IntersectionObserver((entries, obs) => {
