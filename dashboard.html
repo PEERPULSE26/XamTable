@@ -631,6 +631,11 @@
         }
 
         async function processLeagueResults(newActiveWeek) {
+            // NEW Bouncer: Fetch fresh DB data to ensure another browser tab hasn't already promoted us
+            const freshSnap = await db.collection('xamtable_users').doc(liveUser.email).get();
+            if (freshSnap.exists && freshSnap.data().lastLeagueUpdateWeek === newActiveWeek) {
+                return; // Abort: A different tab already handled the promotion
+            }
             let resultMessage = "Week Complete! Continuing in your current league.";
             let resultTitle = "Solid Work";
 
@@ -1338,6 +1343,16 @@
             const task = document.getElementById(taskId);
             if(!task) return;
             
+            // NEW Bouncer: Stop console hackers from deleting locked tasks
+            const tData = activeTasksList.find(x => x.id === taskId);
+            if (tData) {
+                let timeLeft = 300 - Math.floor((Date.now() - tData.createdAt) / 1000);
+                if (timeLeft <= 0) {
+                    alert("🚨 System Lock: Task cannot be deleted. Face the penalty.");
+                    return;
+                }
+            }
+            
             clearInterval(task.dataset.intervalId);
             removeActiveTaskFromDB(taskId);
 
@@ -1493,10 +1508,16 @@
         setInterval(() => {
             const todayStr = getFormattedDate(0);
             
-            if (todayStr !== lastCheckedDate) {
+           if (todayStr !== lastCheckedDate) {
                 lastCheckedDate = todayStr;
                 selectedHistoryDate = todayStr;
                 currentCalDate = new Date();
+                
+                // NEW Bouncer: Strip the streak if they cross midnight and failed to execute yesterday
+                const yesterdayCheck = getFormattedDate(-1);
+                if (lastTaskDate !== todayStr && lastTaskDate !== yesterdayCheck) {
+                    streak = 0;
+                }
                 
                 saveUserDB(); 
 
