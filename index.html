@@ -116,11 +116,6 @@
         if (localStorage.getItem('xamTableSmoothOnboarded') === 'true') {
             document.write('<style>#immersive-intro { display: none !important; } #dashboard-app { opacity: 1 !important; transform: scale(1) !important; pointer-events: auto !important; }</style>');
         }
-        
-        // Anti-Auth Friction: If already logged in, skip landing page entirely
-        if (localStorage.getItem('xamTableLiveUser')) {
-            window.location.href = "dashboard.html";
-        }
     </script>
 </head>
 <body class="antialiased">
