@@ -460,6 +460,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <script>
         // --- LIVE USER INJECTION & CLOUD DATABASE SYNC ---
@@ -501,6 +502,7 @@
         }
 
         function logoutUser() {
+            firebase.auth().signOut();
             localStorage.removeItem('xamTableLiveUser');
             window.location.href = "index.html";
         }
@@ -1006,8 +1008,16 @@
                 });
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-             bootCloudDB(); 
+       document.addEventListener("DOMContentLoaded", () => {
+            // FIX: Wait for Google's secure token before touching the database
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    bootCloudDB(); 
+                } else {
+                    // If they bypass login and type dashboard.html directly, kick them out
+                    window.location.href = "index.html";
+                }
+            });
         });
 
         function restoreActiveTasks() {
