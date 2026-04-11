@@ -460,7 +460,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <script>
         // --- LIVE USER INJECTION & CLOUD DATABASE SYNC ---
@@ -1009,17 +1008,8 @@
         }
 
        document.addEventListener("DOMContentLoaded", () => {
-            // FIX: Wait for Google's secure token before touching the database
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    bootCloudDB(); 
-                } else {
-                    // If they bypass login and type dashboard.html directly, kick them out
-                    window.location.href = "index.html";
-                }
-            });
+             bootCloudDB(); 
         });
-
         function restoreActiveTasks() {
             const container = document.getElementById('taskListContainer');
             const emptyState = document.getElementById('emptyState');
