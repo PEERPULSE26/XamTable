@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/png" href="/logo.png?v=4" sizes="192x192">
+    <link rel="icon" type="image/png" href="/logo.png?v=4" sizes="192x192">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="8De1jB31XlESpottY7qGy8x-d4eQbN8Ag6x3hifeQ0Q" />
@@ -115,11 +115,6 @@
         // Anti-Flash: Hides intro if already onboarded
         if (localStorage.getItem('xamTableSmoothOnboarded') === 'true') {
             document.write('<style>#immersive-intro { display: none !important; } #dashboard-app { opacity: 1 !important; transform: scale(1) !important; pointer-events: auto !important; }</style>');
-        }
-        
-        // Anti-Auth Friction: If already logged in, skip landing page entirely
-        if (localStorage.getItem('xamTableLiveUser')) {
-            window.location.href = "dashboard.html";
         }
     </script>
 </head>
@@ -302,67 +297,75 @@
         </div>
     </footer>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const observer = new IntersectionObserver((entries, obs) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('reveal-active');
-                        obs.unobserve(entry.target); 
-                    }
-                });
-            }, { root: null, rootMargin: '0px 0px -50px 0px', threshold: 0.05 });
-            document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
-        });
+   <script>
+       // 2. Initialize Firebase
+       const firebaseConfig = {
+           apiKey: "AIzaSyAmRsE60jV_KoNP65MyhwhVca4AMU5KzVI",
+           authDomain: "xamtable.firebaseapp.com",
+           projectId: "xamtable",
+           storageBucket: "xamtable.firebasestorage.app",
+           messagingSenderId: "541541922734",
+           appId: "1:541541922734:web:e7c89c7e68b593daeafa3f",
+           measurementId: "G-LNSV0QRT4L"
+       };
+       firebase.initializeApp(firebaseConfig);
+       const provider = new firebase.auth.GoogleAuthProvider();
 
-        let tokenClient;
-        window.onload = function () {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: "541541922734-jv0ttq1qs1s4rq8nac6u6cc6oev05n08.apps.googleusercontent.com",
-                scope: "email profile",
-                callback: (tokenResponse) => {
-                    if (tokenResponse && tokenResponse.access_token) {
-                        // Instant redirect after fetching basic data
-                        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                            headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
-                        })
-                        .then(response => response.json())
-                        .then(userInfo => {
-                            localStorage.setItem('xamTableLiveUser', JSON.stringify({
-                                name: userInfo.name,
-                                photo: userInfo.picture,
-                                email: userInfo.email
-                            }));
-                            window.location.href = "dashboard.html"; // NO DELAY TELEPORT
-                        });
-                    }
-                },
-                error_callback: () => {
-                    const btn = document.getElementById('authBtn');
-                    btn.classList.remove('processing');
-                    btn.style.transform = 'scale(1)';
-                    document.getElementById('authText').innerHTML = 'Start building your score. Sign Up.';
-                    document.getElementById('authIndicator').style.display = 'flex';
-                }
-            });
-        };
+       // 3. Scroll Reveal Logic
+       document.addEventListener("DOMContentLoaded", () => {
+           const observer = new IntersectionObserver((entries, obs) => {
+               entries.forEach(entry => {
+                   if (entry.isIntersecting) {
+                       entry.target.classList.add('reveal-active');
+                       obs.unobserve(entry.target); 
+                   }
+               });
+           }, { root: null, rootMargin: '0px 0px -50px 0px', threshold: 0.05 });
+           document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+       });
 
-        window.startRealAuth = function() {
-            const btn = document.getElementById('authBtn');
-            if (btn.classList.contains('processing')) return;
-            btn.classList.add('processing');
+       // 4. Secure Firebase Login Function
+       window.startRealAuth = function() {
+           const btn = document.getElementById('authBtn');
+           if (btn.classList.contains('processing')) return;
+           btn.classList.add('processing');
 
-            document.getElementById('authIndicator').style.display = 'none';
-            btn.classList.remove('hover:scale-105');
-            btn.style.transform = 'scale(0.95)';
-            document.getElementById('authText').innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-cyan-500"></i> Authenticating...';
+           // UI Loading State
+           document.getElementById('authIndicator').style.display = 'none';
+           btn.classList.remove('hover:scale-105');
+           btn.style.transform = 'scale(0.95)';
+           document.getElementById('authText').innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-cyan-500"></i> Authenticating...';
 
-            tokenClient.requestAccessToken();
-        }
-    </script>
-    <!-- Live Social Proof Ticker -->
+           // Trigger Google Popup
+           firebase.auth().signInWithPopup(provider)
+               .then((result) => {
+                   const user = result.user;
+                   
+                   // Save minimal data for the dashboard UI to use
+                   localStorage.setItem('xamTableLiveUser', JSON.stringify({
+                       name: user.displayName ? user.displayName.split(" ")[0] : "Aspirant",
+                       photo: user.photoURL,
+                       email: user.email
+                   }));
+                   
+                   // Teleport to dashboard
+                   window.location.href = "dashboard.html";
+               })
+               .catch((error) => {
+                   console.error("Login failed: ", error);
+                   // Reset UI on failure so they can try again
+                   btn.classList.remove('processing');
+                   btn.style.transform = 'scale(1)';
+                   document.getElementById('authText').innerHTML = 'Start building your score. Sign Up.';
+                   document.getElementById('authIndicator').style.display = 'flex';
+                   alert("Authentication failed: " + error.message);
+               });
+       }
+   </script>
+
     <div id="live-ticker" class="fixed bottom-20 left-4 md:bottom-8 md:left-8 z-[100] transform translate-y-10 opacity-0 pointer-events-none transition-all duration-700 ease-out">
         <div class="glass-panel p-3 rounded-2xl border-l-2 border-l-cyan-500 flex items-center gap-3 shadow-2xl backdrop-blur-xl bg-slate-900/60 max-w-xs">
             <div class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0 border border-cyan-500/30">
