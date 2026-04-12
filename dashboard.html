@@ -705,6 +705,7 @@
             }
 
             weeklyXP = 0;
+            lastLeagueUpdateWeek = newActiveWeek;
             cohortId = `${newActiveWeek}_${currentLeague}_${Math.floor(Math.random() * 10)}`;
             saveUserDB();
         }
