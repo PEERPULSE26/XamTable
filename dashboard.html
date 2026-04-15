@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="/logo.png?v=4" sizes="192x192">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
         
@@ -196,6 +197,9 @@
                 <div class="flex-1"></div> <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent font-bold text-sm transition-colors">
                     <i class="fas fa-power-off w-5"></i> Disconnect
                 </a>
+                <a href="#" onclick="switchView('vault', this, 'desktop')" id="nav-vault-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
+    <i class="fas fa-vault w-5"></i> Revision Vault
+</a>
             </nav>
 
             <div class="p-4 border-t border-white/5 m-4 bg-black/40 rounded-2xl relative overflow-hidden flex justify-between items-center">
@@ -317,6 +321,30 @@
 
                 </div>
             </main>
+            <main id="view-vault" class="hidden flex-1 p-4 md:p-10 flex flex-col overflow-hidden transition-opacity duration-300 opacity-0 pb-24 md:pb-10">
+    <div class="w-full max-w-5xl mx-auto flex flex-col h-full">
+        
+        <div class="glass-panel rounded-2xl p-4 md:p-6 mb-4 shrink-0 flex justify-between items-center border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+            <div id="vault-breadcrumbs" class="text-sm md:text-base font-black uppercase tracking-widest text-white flex items-center gap-2">
+                <span class="cursor-pointer hover:text-cyan-400 transition-colors" onclick="renderVaultView('root')">Vault</span>
+            </div>
+            
+            <div class="flex gap-2" id="vault-controls">
+                <button onclick="promptAddVaultItem()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-cyan-400 transition-all">
+                    <i class="fas fa-plus mr-1"></i> Add
+                </button>
+                <button id="btn-export-pdf" onclick="exportChapterPDF()" class="hidden bg-white/10 text-white border border-white/20 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all">
+                    <i class="fas fa-file-pdf text-rose-400 mr-1"></i> Export PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scroll p-1" id="vault-content-container">
+            </div>
+
+        <div id="pdf-export-container" class="hidden bg-white text-black p-8"></div>
+    </div>
+</main>
 
             <main id="view-completed" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-hidden transition-opacity duration-300 opacity-0">
                 <div class="w-full max-w-5xl flex flex-col lg:flex-row h-full gap-4 md:gap-6">
@@ -439,22 +467,26 @@
     </div>
 
     <nav class="md:hidden fixed bottom-0 w-full z-50 mobile-nav-glass flex justify-around items-center px-2 py-3 pb-safe">
-        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 w-1/4 text-cyan-400 transition-colors">
+        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-cyan-400 transition-colors">
             <i class="fas fa-border-all text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Board</span>
         </a>
-        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-trophy text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Rank</span>
         </a>
-        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-id-card text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Score</span>
         </a>
-        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-check-double text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">History</span>
         </a>
+        <a href="#" onclick="switchView('vault', this, 'mobile')" id="nav-vault-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <i class="fas fa-vault text-lg"></i>
+        <span class="text-[9px] font-bold uppercase tracking-wider">Vault</span>
+    </a>
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -524,6 +556,8 @@
         let globalXP = 1000;
         let studyScore = 700;
         let totalCompletedTasks = 0; 
+        let vaultData = [];
+let currentVaultPath = { subjectId: null, chapterId: null };
         let completedTasksHistory = {};
         let activeTasksList = [];
         let lastCheckedDate = getFormattedDate(0);
@@ -583,6 +617,7 @@
                     const data = docSnap.data();
                     globalXP = data.globalXP !== undefined ? data.globalXP : 1000;
                     studyScore = data.studyScore !== undefined ? data.studyScore : 700;
+                    vaultData = data.vault || [];
                     totalCompletedTasks = data.totalCompletedTasks || 0;
                     completedTasksHistory = data.history || {};
                     activeTasksList = data.activeTasks || [];
@@ -1147,30 +1182,31 @@
         }
 
         function switchView(viewName, element, deviceType) {
-            const views = {
-                'dashboard': document.getElementById('view-dashboard'),
-                'leaderboard': document.getElementById('view-leaderboard'),
-                'completed': document.getElementById('view-completed'),
-                'score': document.getElementById('view-score')
-            };
-            
-            const navIds = ['dashboard', 'leaderboard', 'score', 'completed',];
-            
-            navIds.forEach(nav => {
-                const desktopEl = document.getElementById(`nav-${nav}-desktop`);
-                const mobileEl = document.getElementById(`nav-${nav}-mobile`);
-                
-                if (nav === viewName) {
-                    desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-sm transition-colors";
-                    mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-cyan-400 w-1/4 transition-colors";
-                } else {
-                    desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors";
-                    mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-slate-400 hover:text-white w-1/4 transition-colors";
-                }
-            });
+    const views = {
+        'dashboard': document.getElementById('view-dashboard'),
+        'leaderboard': document.getElementById('view-leaderboard'),
+        'completed': document.getElementById('view-completed'),
+        'score': document.getElementById('view-score'),
+        'vault': document.getElementById('view-vault') 
+    };
+    
+    const navIds = ['dashboard', 'leaderboard', 'score', 'completed', 'vault'];
+    
+    navIds.forEach(nav => {
+        const desktopEl = document.getElementById(`nav-${nav}-desktop`);
+        const mobileEl = document.getElementById(`nav-${nav}-mobile`);
+        
+        if (nav === viewName) {
+            desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-sm transition-colors";
+            mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-cyan-400 w-1/5 transition-colors";
+        } else {
+            desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors";
+            mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-slate-400 hover:text-white w-1/5 transition-colors";
+        }
+    });
 
-            const headerTitle = document.getElementById('header-title');
-
+    const headerTitle = document.getElementById('header-title');
+    // ... (keep the rest of the existing opacity/hidden logic untouched)
             Object.values(views).forEach(view => {
                 if(!view.classList.contains('hidden')) {
                     view.classList.add('opacity-0');
@@ -1786,6 +1822,169 @@
             });
         }
         // ==============================================
+            // ==============================================
+// REVISION VAULT LOGIC
+// ==============================================
+function renderVaultView(level, subId = null, chapId = null) {
+    const container = document.getElementById('vault-content-container');
+    const breadcrumbs = document.getElementById('vault-breadcrumbs');
+    const pdfBtn = document.getElementById('btn-export-pdf');
+    container.innerHTML = '';
+
+    if (level === 'root') {
+        currentVaultPath = { subjectId: null, chapterId: null };
+        breadcrumbs.innerHTML = `<span class="cursor-pointer text-cyan-400">Vault</span>`;
+        pdfBtn.classList.add('hidden');
+
+        if (vaultData.length === 0) {
+            container.innerHTML = `<div class="text-center py-20 opacity-30"><i class="fas fa-folder-open text-4xl mb-4"></i><p class="text-sm font-bold uppercase tracking-widest">Vault is empty.</p></div>`;
+            return;
+        }
+
+        vaultData.forEach(sub => {
+            container.innerHTML += `
+                <div onclick="renderVaultView('subject', '${sub.id}')" class="glass-panel p-5 rounded-2xl mb-3 cursor-pointer hover:border-cyan-500/50 transition-all group flex justify-between items-center">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform"><i class="fas fa-book"></i></div><h3 class="text-lg font-black text-white uppercase tracking-wider">${sub.name}</h3></div>
+                    <span class="text-xs text-slate-500 font-bold">${sub.chapters.length} Chapters <i class="fas fa-chevron-right ml-2"></i></span>
+                </div>
+            `;
+        });
+    } 
+    else if (level === 'subject') {
+        currentVaultPath = { subjectId: subId, chapterId: null };
+        const subject = vaultData.find(s => s.id === subId);
+        
+        breadcrumbs.innerHTML = `
+            <span class="cursor-pointer hover:text-slate-300 transition-colors" onclick="renderVaultView('root')">Vault</span>
+            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-2"></i>
+            <span class="text-cyan-400">${subject.name}</span>
+        `;
+        pdfBtn.classList.add('hidden');
+
+        if (subject.chapters.length === 0) {
+            container.innerHTML = `<div class="text-center py-20 opacity-30"><p class="text-sm font-bold uppercase tracking-widest">No chapters added yet.</p></div>`;
+            return;
+        }
+
+        subject.chapters.forEach(chap => {
+            container.innerHTML += `
+                <div onclick="renderVaultView('chapter', '${subId}', '${chap.id}')" class="glass-panel p-4 rounded-xl mb-3 border-l-2 border-l-emerald-500 cursor-pointer hover:bg-white/5 transition-all group flex justify-between items-center">
+                    <h4 class="text-md font-bold text-slate-200 group-hover:text-white">${chap.name}</h4>
+                    <span class="text-[10px] uppercase tracking-widest text-emerald-400">${chap.topics.length} Topics <i class="fas fa-arrow-right ml-2"></i></span>
+                </div>
+            `;
+        });
+    }
+    else if (level === 'chapter') {
+        currentVaultPath = { subjectId: subId, chapterId: chapId };
+        const subject = vaultData.find(s => s.id === subId);
+        const chapter = subject.chapters.find(c => c.id === chapId);
+        
+        breadcrumbs.innerHTML = `
+            <span class="cursor-pointer hover:text-slate-300 transition-colors" onclick="renderVaultView('root')">Vault</span>
+            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-2"></i>
+            <span class="cursor-pointer hover:text-slate-300 transition-colors" onclick="renderVaultView('subject', '${subId}')">${subject.name}</span>
+            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-2"></i>
+            <span class="text-cyan-400">${chapter.name}</span>
+        `;
+        pdfBtn.classList.remove('hidden');
+
+        if (chapter.topics.length === 0) {
+            container.innerHTML = `<div class="text-center py-20 opacity-30"><p class="text-sm font-bold uppercase tracking-widest">No topics noted yet.</p></div>`;
+            return;
+        }
+
+        chapter.topics.forEach(topic => {
+            let detailsHTML = topic.details ? `<p class="mt-2 text-xs md:text-sm text-slate-400 pl-4 border-l-2 border-slate-700 whitespace-pre-wrap">${topic.details}</p>` : '';
+            container.innerHTML += `
+                <div class="bg-black/40 border border-white/5 p-4 rounded-xl mb-3">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-circle text-[6px] text-cyan-400 mt-2"></i>
+                        <div class="flex-1">
+                            <h5 class="text-sm font-bold text-white">${topic.title}</h5>
+                            ${detailsHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+}
+
+function promptAddVaultItem() {
+    let type = currentVaultPath.subjectId === null ? 'Subject' : (currentVaultPath.chapterId === null ? 'Chapter' : 'Topic');
+    
+    const name = prompt(`Enter new ${type} name/title:`);
+    if (!name || name.trim() === '') return;
+
+    if (type === 'Subject') {
+        vaultData.push({ id: 'sub_' + Date.now(), name: name.trim(), chapters: [] });
+        saveVaultToDB();
+        renderVaultView('root');
+    } 
+    else if (type === 'Chapter') {
+        const sub = vaultData.find(s => s.id === currentVaultPath.subjectId);
+        sub.chapters.push({ id: 'chap_' + Date.now(), name: name.trim(), topics: [] });
+        saveVaultToDB();
+        renderVaultView('subject', currentVaultPath.subjectId);
+    } 
+    else if (type === 'Topic') {
+        const sub = vaultData.find(s => s.id === currentVaultPath.subjectId);
+        const chap = sub.chapters.find(c => c.id === currentVaultPath.chapterId);
+        const details = prompt(`(Optional) Enter detailed notes for "${name}":`);
+        
+        chap.topics.push({ id: 'top_' + Date.now(), title: name.trim(), details: details ? details.trim() : "" });
+        saveVaultToDB();
+        renderVaultView('chapter', currentVaultPath.subjectId, currentVaultPath.chapterId);
+    }
+}
+
+function saveVaultToDB() {
+    db.collection('xamtable_users').doc(liveUser.email).update({ vault: vaultData })
+      .catch(err => console.error("Vault save failed:", err));
+}
+
+function exportChapterPDF() {
+    if (!currentVaultPath.chapterId) return;
+    
+    const sub = vaultData.find(s => s.id === currentVaultPath.subjectId);
+    const chap = sub.chapters.find(c => c.id === currentVaultPath.chapterId);
+    const pdfContainer = document.getElementById('pdf-export-container');
+    
+    let htmlContent = `
+        <div style="font-family: Arial, sans-serif; color: #000; padding: 20px;">
+            <h1 style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">${sub.name} - ${chap.name}</h1>
+            <ul style="list-style-type: disc; padding-left: 20px;">
+    `;
+
+    chap.topics.forEach(topic => {
+        htmlContent += `<li style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">${topic.title}</li>`;
+        if (topic.details) {
+            htmlContent += `
+                <ul style="list-style-type: circle; padding-left: 20px; margin-bottom: 15px;">
+                    <li style="font-size: 14px; font-weight: normal; color: #333; white-space: pre-wrap;">${topic.details}</li>
+                </ul>
+            `;
+        }
+    });
+
+    htmlContent += `</ul></div>`;
+    pdfContainer.innerHTML = htmlContent;
+    pdfContainer.classList.remove('hidden');
+
+    const opt = {
+        margin:       10,
+        filename:     `${sub.name}_${chap.name}_Revision.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(pdfContainer).save().then(() => {
+        pdfContainer.classList.add('hidden');
+        pdfContainer.innerHTML = '';
+    });
+}
     </script>
 </body>
 </html>
