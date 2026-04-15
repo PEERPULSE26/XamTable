@@ -438,23 +438,7 @@
 
                 </div>
             </main>
-            <main id="view-notetab" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-y-auto custom-scroll transition-opacity duration-300 opacity-0 pb-24 md:pb-10">
-    <div class="w-full max-w-4xl flex flex-col gap-4 md:gap-6 h-full">
-        <div class="glass-panel rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-2xl border-t-4 border-emerald-500 shrink-0">
-            <h2 class="text-sm md:text-base font-black uppercase tracking-widest text-emerald-400 mb-4"><i class="fas fa-brain mr-2"></i>Store Volatile Topics</h2>
-            <input type="text" id="nt-chapter" placeholder="Chapter Name (e.g. Electrostatics)" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-bold mb-3">
-            <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="nt-topics" placeholder="Comma separated topics (e.g. Gauss Law, Flux)" class="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-medium">
-                <button onclick="saveNotetab()" class="bg-emerald-500 text-black px-6 py-3 rounded-lg font-black text-xs md:text-sm uppercase tracking-widest hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all shrink-0">Add to Vault</button>
-            </div>
-        </div>
-        <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 pl-2 shrink-0">Your Final Week Syllabus</h3>
-        <div id="notetab-display-area" class="flex-1 overflow-y-auto custom-scroll pr-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 content-start">
-            </div>
-    </div>
-</main>
-
-        </div>
+   </div>
     </div>
 
     <nav class="md:hidden fixed bottom-0 w-full z-50 mobile-nav-glass flex justify-around items-center px-2 py-3 pb-safe">
@@ -549,7 +533,6 @@
         let totalCompletedTasks = 0; 
         let completedTasksHistory = {};
         let activeTasksList = [];
-        let notetabsList = [];
         let lastCheckedDate = getFormattedDate(0);
         let activeTargetDay = 'today'; 
         let streak = 0;
@@ -610,7 +593,6 @@
                     totalCompletedTasks = data.totalCompletedTasks || 0;
                     completedTasksHistory = data.history || {};
                     activeTasksList = data.activeTasks || [];
-                    notetabsList = data.notetabs || [];
                     lastCheckedDate = data.lastCheckedDate || getFormattedDate(0);
                     
                     weeklyXP = data.weeklyXP || 0;
@@ -768,7 +750,6 @@
                 totalCompletedTasks: totalCompletedTasks,
                 history: completedTasksHistory,
                 activeTasks: activeTasksList,
-                notetabs: notetabsList,
                 lastCheckedDate: lastCheckedDate,
                 weeklyXP: weeklyXP,
                 league: currentLeague,
@@ -1178,10 +1159,9 @@
                 'leaderboard': document.getElementById('view-leaderboard'),
                 'completed': document.getElementById('view-completed'),
                 'score': document.getElementById('view-score')
-                'notetab': document.getElementById('view-notetab')
             };
             
-            const navIds = ['dashboard', 'leaderboard', 'score', 'completed', 'notetab'];
+            const navIds = ['dashboard', 'leaderboard', 'score', 'completed',];
             
             navIds.forEach(nav => {
                 const desktopEl = document.getElementById(`nav-${nav}-desktop`);
@@ -1233,8 +1213,6 @@
             if(viewName === 'leaderboard') headerTitle.innerText = "Global Rank";
             if(viewName === 'completed') headerTitle.innerText = "Execution History";
             if(viewName === 'score') headerTitle.innerText = "Study Credit Score";
-         if(viewName === 'notetab') renderNotetabs();
-if(viewName === 'notetab') headerTitle.innerText = "Revision Vault";
         }
 
         function getFormattedDate(offsetDays = 0) {
@@ -1815,82 +1793,6 @@ if(viewName === 'notetab') headerTitle.innerText = "Revision Vault";
             });
         }
         // ==============================================
-// REVISION VAULT ENGINE
-// ==============================================
-window.saveNotetab = function() {
-    const chapterInput = document.getElementById('nt-chapter').value.trim();
-    const topicsRaw = document.getElementById('nt-topics').value.trim();
-
-    if (!chapterInput || !topicsRaw) {
-        alert("🚨 AI Bouncer: Chapter name and at least one topic required.");
-        return;
-    }
-
-    const topicsArray = topicsRaw.split(',').map(t => t.trim()).filter(t => t !== "");
-    const chapterKey = chapterInput.toLowerCase();
-    const existingIndex = notetabsList.findIndex(n => n.chapter.toLowerCase() === chapterKey);
-
-    if (existingIndex !== -1) {
-        const existingNote = notetabsList[existingIndex];
-        const mergedTopics = [...new Set([...existingNote.topics, ...topicsArray])];
-        existingNote.topics = mergedTopics;
-        notetabsList.splice(existingIndex, 1);
-        notetabsList.unshift(existingNote);
-    } else {
-        const newNote = {
-            id: 'nt-' + Date.now(),
-            chapter: chapterInput,
-            topics: topicsArray,
-            createdAt: Date.now()
-        };
-        notetabsList.unshift(newNote);
-    }
-
-    saveUserDB(); 
-    renderNotetabs(); 
-
-    document.getElementById('nt-topics').value = '';
-    document.getElementById('nt-topics').focus();
-}
-
-window.deleteNotetab = function(id) {
-    if(confirm("Delete this chapter entirely from your revision vault?")) {
-        notetabsList = notetabsList.filter(n => n.id !== id);
-        saveUserDB();
-        renderNotetabs();
-    }
-}
-
-window.renderNotetabs = function() {
-    const container = document.getElementById('notetab-display-area');
-    if (!container) return;
-
-    if (notetabsList.length === 0) {
-        container.innerHTML = `
-            <div class="col-span-full text-center py-12 border border-dashed border-white/10 rounded-2xl opacity-30">
-                <i class="fas fa-brain text-4xl mb-4 block"></i>
-                <p class="text-sm font-bold uppercase tracking-widest">Vault is empty.</p>
-                <p class="text-[10px] mt-2 italic">Store highly volatile topics here for the final week.</p>
-            </div>`;
-        return;
-    }
-
-    container.innerHTML = '';
-    notetabsList.forEach(note => {
-        let tagsHTML = '';
-        note.topics.forEach(t => {
-            tagsHTML += `<span class="inline-block bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded md:rounded-md mr-1 md:mr-2 mb-1.5 border border-emerald-500/20 font-bold">${t}</span>`;
-        });
-
-        container.innerHTML += `
-            <div class="glass-panel p-4 md:p-5 rounded-2xl border-l-4 border-l-slate-700 hover:border-l-emerald-500 transition-colors shrink-0 relative group">
-                <button onclick="deleteNotetab('${note.id}')" class="absolute top-4 right-4 text-slate-500 hover:text-rose-400 md:opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash-alt text-xs"></i></button>
-                <h4 class="text-sm md:text-base font-black text-white mb-3 uppercase tracking-wide pr-6">${note.chapter}</h4>
-                <div class="flex flex-wrap">${tagsHTML}</div>
-            </div>
-        `;
-    });
-}
     </script>
 </body>
 </html>
