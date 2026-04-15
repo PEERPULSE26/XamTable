@@ -96,16 +96,16 @@
         }
 
         /* League specific colors */
-        .league-0 { color: #cd7f32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); } /* Bronze */
-        .league-1 { color: #c0c0c0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); } /* Silver */
-        .league-2 { color: #ffd700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.1); } /* Gold */
-        .league-3 { color: #0ea5e9; border-color: rgba(14,165,233,0.3); background: rgba(14,165,233,0.1); } /* Sapphire */
-        .league-4 { color: #e11d48; border-color: rgba(225,29,72,0.3); background: rgba(225,29,72,0.1); } /* Ruby */
-        .league-5 { color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); } /* Emerald */
-        .league-6 { color: #a855f7; border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.1); } /* Amethyst */
-        .league-7 { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); } /* Pearl */
-        .league-8 { color: #1e293b; border-color: #334155; background: #0f172a; text-shadow: 0 0 10px rgba(255,255,255,0.2); } /* Obsidian */
-        .league-9 { color: #67e8f9; border-color: rgba(103,232,249,0.5); background: rgba(103,232,249,0.1); text-shadow: 0 0 15px rgba(103,232,249,0.8); } /* Diamond */
+        .league-0 { color: #cd7f32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); } 
+        .league-1 { color: #c0c0c0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); } 
+        .league-2 { color: #ffd700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.1); } 
+        .league-3 { color: #0ea5e9; border-color: rgba(14,165,233,0.3); background: rgba(14,165,233,0.1); } 
+        .league-4 { color: #e11d48; border-color: rgba(225,29,72,0.3); background: rgba(225,29,72,0.1); } 
+        .league-5 { color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); } 
+        .league-6 { color: #a855f7; border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.1); } 
+        .league-7 { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); } 
+        .league-8 { color: #1e293b; border-color: #334155; background: #0f172a; text-shadow: 0 0 10px rgba(255,255,255,0.2); } 
+        .league-9 { color: #67e8f9; border-color: rgba(103,232,249,0.5); background: rgba(103,232,249,0.1); text-shadow: 0 0 15px rgba(103,232,249,0.8); } 
     </style>
   <script>
         const savedUser = localStorage.getItem('xamTableLiveUser');
@@ -193,8 +193,8 @@
                     <i class="fas fa-check-double w-5"></i> Completed Tasks
                 </a>
                 <a href="#" onclick="switchView('notetab', this, 'desktop')" id="nav-notetab-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
-    <i class="fas fa-brain w-5 text-emerald-400"></i> Revision Vault
-</a>
+                    <i class="fas fa-brain w-5 text-emerald-400"></i> Revision Vault
+                </a>
                 
                 <div class="flex-1"></div> <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent font-bold text-sm transition-colors">
                     <i class="fas fa-power-off w-5"></i> Disconnect
@@ -354,7 +354,6 @@
                         
                         <div id="historyListContainer" class="flex-1 overflow-y-auto custom-scroll pr-1 md:pr-2 space-y-2 md:space-y-3"></div>
                         
-                        <!-- NEW ANALYTICS ENGINE HTML INJECTED HERE -->
                         <div class="shrink-0 mt-4 md:mt-6 pt-4 md:pt-6 border-t border-white/10 w-full">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-cyan-400">Weekly Output</h3>
@@ -438,30 +437,47 @@
 
                 </div>
             </main>
-   </div>
+
+            <main id="view-notetab" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-y-auto custom-scroll transition-opacity duration-300 opacity-0 pb-24 md:pb-10">
+                <div class="w-full max-w-4xl flex flex-col gap-4 md:gap-6 h-full">
+                    <div class="glass-panel rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-2xl border-t-4 border-emerald-500 shrink-0">
+                        <h2 class="text-sm md:text-base font-black uppercase tracking-widest text-emerald-400 mb-4"><i class="fas fa-brain mr-2"></i>Store Volatile Topics</h2>
+                        <input type="text" id="nt-chapter" placeholder="Chapter Name (e.g. Electrostatics)" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-bold mb-3">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" id="nt-topics" placeholder="Comma separated topics (e.g. Gauss Law, Flux)" class="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-medium">
+                            <button onclick="saveNotetab()" class="bg-emerald-500 text-black px-6 py-3 rounded-lg font-black text-xs md:text-sm uppercase tracking-widest hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all shrink-0">Add to Vault</button>
+                        </div>
+                    </div>
+                    <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 pl-2 shrink-0">Your Final Week Syllabus</h3>
+                    <div id="notetab-display-area" class="flex-1 overflow-y-auto custom-scroll pr-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 content-start">
+                        </div>
+                </div>
+            </main>
+
+        </div>
     </div>
 
     <nav class="md:hidden fixed bottom-0 w-full z-50 mobile-nav-glass flex justify-around items-center px-2 py-3 pb-safe">
-        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-cyan-400 transition-colors">
+        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 flex-1 text-cyan-400 transition-colors">
             <i class="fas fa-border-all text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Board</span>
         </a>
-        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 flex-1 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-trophy text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Rank</span>
         </a>
-        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 flex-1 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-id-card text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Score</span>
         </a>
-        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 flex-1 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-check-double text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">History</span>
         </a>
-        <a href="#" onclick="switchView('notetab', this, 'mobile')" id="nav-notetab-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
-    <i class="fas fa-brain text-lg"></i>
-    <span class="text-[9px] font-bold uppercase tracking-wider">Vault</span>
-</a>
+        <a href="#" onclick="switchView('notetab', this, 'mobile')" id="nav-notetab-mobile" class="flex flex-col items-center gap-1 flex-1 text-slate-400 hover:text-white transition-colors">
+            <i class="fas fa-brain text-lg"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">Vault</span>
+        </a>
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -533,6 +549,7 @@
         let totalCompletedTasks = 0; 
         let completedTasksHistory = {};
         let activeTasksList = [];
+        let notetabsList = []; // NEW: Vault Database State
         let lastCheckedDate = getFormattedDate(0);
         let activeTargetDay = 'today'; 
         let streak = 0;
@@ -593,6 +610,7 @@
                     totalCompletedTasks = data.totalCompletedTasks || 0;
                     completedTasksHistory = data.history || {};
                     activeTasksList = data.activeTasks || [];
+                    notetabsList = data.notetabs || []; // NEW: Load Vault data from cloud
                     lastCheckedDate = data.lastCheckedDate || getFormattedDate(0);
                     
                     weeklyXP = data.weeklyXP || 0;
@@ -625,7 +643,10 @@
                 if(!document.getElementById('view-completed').classList.contains('hidden')) {
                     renderCalendar();
                     loadHistoryForDate(selectedHistoryDate);
-                    renderAnalytics(); // INJECTED FIX
+                    renderAnalytics(); 
+                }
+                if(!document.getElementById('view-notetab').classList.contains('hidden')) {
+                    renderNotetabs(); // NEW: Render Vault if open
                 }
                 
                 if(!document.getElementById('view-leaderboard').classList.contains('hidden')) {
@@ -640,10 +661,9 @@
         }
 
         async function processLeagueResults(newActiveWeek) {
-            // NEW Bouncer: Fetch fresh DB data to ensure another browser tab hasn't already promoted us
             const freshSnap = await db.collection('xamtable_users').doc(liveUser.email).get();
             if (freshSnap.exists && freshSnap.data().lastLeagueUpdateWeek === newActiveWeek) {
-                return; // Abort: A different tab already handled the promotion
+                return; 
             }
             let resultMessage = "Week Complete! Continuing in your current league.";
             let resultTitle = "Solid Work";
@@ -656,7 +676,6 @@
                let users = [];
                 snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
                 
-                // FIX: Inject the Ghost Bots into the background calculation so totalUsers > 10
                 let scaleDay = new Date().getDay(); 
                 if (scaleDay === 0) scaleDay = new Date().getHours() < 15 ? 7 : 0.5;
                 if (scaleDay === 0) scaleDay = 0.5; 
@@ -677,8 +696,6 @@
                     { id: "bot13", studyScore: 310, weeklyXP: 0 }
                 ];
                 
-                // SMART BOTS: Only inject enough bots to ensure there are at least 15 people on the board.
-        // As real users join, the bots will automatically vanish one by one.
         let botsNeeded = 15 - users.length;
         if (botsNeeded > 0) {
             const selectedBots = ghostBots.slice(0, botsNeeded);
@@ -686,7 +703,6 @@
                 if (!users.find(u => u.id === bot.id)) users.push(bot);
             });
         }
-                // FIX: Apply tie-breaker logic here too
                 users.sort((a, b) => {
                     const xpDiff = (b.weeklyXP || 0) - (a.weeklyXP || 0);
                     if (xpDiff !== 0) return xpDiff;
@@ -750,6 +766,7 @@
                 totalCompletedTasks: totalCompletedTasks,
                 history: completedTasksHistory,
                 activeTasks: activeTasksList,
+                notetabs: notetabsList, // NEW: Sync Vault data to cloud
                 lastCheckedDate: lastCheckedDate,
                 weeklyXP: weeklyXP,
                 league: currentLeague,
@@ -776,17 +793,13 @@
         // ==============================================
         // ADVANCED SHARING: DUOLINGO-STYLE CANVAS
         // ==============================================
-        // Helper: Pre-loads fonts needed for the Share Card
         async function loadFontsToCanvas() {
             try {
-                // Ensure browser supports this method
                 if (!('fonts' in document)) return;
-                // Wait for the main UI fonts to be fully ready
                 await document.fonts.ready;
             } catch(e) { console.error("Font load skip", e) }
         }
 
-        // Helper: Native letter avatar draw (safest for CORS)
         function drawNativeAvatar(ctx, name, x, y, size) {
             const firstLetter = (name && name.length > 0) ? name[0].toUpperCase() : 'A';
             
@@ -794,16 +807,14 @@
             ctx.beginPath();
             ctx.arc(x, y, size, 0, Math.PI * 2);
             ctx.closePath();
-            ctx.clip(); // Circle mask
+            ctx.clip(); 
 
-            // Avatar Gradient
             const avGrad = ctx.createLinearGradient(x - size, y - size, x + size, y + size);
-            avGrad.addColorStop(0, '#0ea5e9'); // user avatars bg (silver-ish blue)
-            avGrad.addColorStop(1, '#2563eb'); // blue-600
+            avGrad.addColorStop(0, '#0ea5e9'); 
+            avGrad.addColorStop(1, '#2563eb'); 
             ctx.fillStyle = avGrad;
             ctx.fillRect(x - size, y - size, size * 2, size * 2);
 
-            // Draw letter
             ctx.fillStyle = "white";
             ctx.font = `900 ${size * 1.1}px 'Plus Jakarta Sans'`;
             ctx.textAlign = "center";
@@ -813,11 +824,9 @@
         }
 
         async function flexRank() {
-            // Check share API Level 2 support (needed for sharing files)
             const shareDataTest = { title: "Test", text: "Testing", files: [new File([""], "t.png", {type: "image/png"})] };
             if (!navigator.canShare || !navigator.canShare(shareDataTest) || !navigator.share) {
                 alert("🚨 Your browser doesn't support sharing generated images. Copied high score text to clipboard instead.");
-                // NEW: Dynamic label determination for text share
                 let labelText = "Novice Ranger";
                 if(studyScore >= 830) labelText = "Truly Warrior";
                 else if(studyScore >= 790) labelText = "Elite Vanguard";
@@ -830,37 +839,31 @@
                 return;
             }
 
-            // Ensure fonts are loaded before we draw
             await loadFontsToCanvas();
 
-            // Create canvas for share card (Square 1080x1080)
             const canvas = document.createElement('canvas');
             canvas.width = 1080;
             canvas.height = 1080;
             const ctx = canvas.getContext('2d');
 
-            // --- 1. Draw Background ---
             const bgGradient = ctx.createLinearGradient(0, 0, 0, 1080);
-            bgGradient.addColorStop(0, '#0f172a'); // slate-900
-            bgGradient.addColorStop(1, '#020617'); // slate-950
+            bgGradient.addColorStop(0, '#0f172a'); 
+            bgGradient.addColorStop(1, '#020617'); 
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, 1080, 1080);
 
-            // Subtle Glimmer overlay
             ctx.beginPath();
             ctx.arc(200, 200, 500, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(6, 182, 212, 0.05)'; // very subtle cyan glow
+            ctx.fillStyle = 'rgba(6, 182, 212, 0.05)'; 
             ctx.fill();
 
-            // --- 2. XamTable Branding (Direct Text, No Logo) ---
             ctx.save();
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.font = "900 80px 'Plus Jakarta Sans'";
             const xamTableX = canvas.width / 2;
-            const xamTableY = 120; // higher up, centered
+            const xamTableY = 120; 
 
-            // Draw "Xam" and "Table" in distinct styles
             const xamText = "Xam";
             const tableText = "Table";
             const xamWidth = ctx.measureText(xamText).width;
@@ -870,51 +873,44 @@
 
             ctx.fillStyle = "white";
             ctx.fillText(xamText, startX + (xamWidth / 2), xamTableY);
-            ctx.fillStyle = "#22d3ee"; // cyan
+            ctx.fillStyle = "#22d3ee"; 
             ctx.fillText(tableText, startX + xamWidth + (tableWidth / 2), xamTableY);
             ctx.restore();
 
-            // --- 3. User Info (Circular letter avatar) ---
             const avCenter = 350;
             drawNativeAvatar(ctx, liveUser.name, canvas.width / 2, avCenter, 90);
 
-            // Name text
             ctx.fillStyle = "white";
             ctx.font = "700 40px 'Plus Jakarta Sans'";
             ctx.textAlign = "center";
             ctx.fillText("@" + liveUser.name, canvas.width / 2, avCenter + 150);
 
-            // --- 4. Giant Score (Duolingo Style) ---
             ctx.textAlign = "center";
             ctx.fillStyle = "rgba(255,255,255,0.7)";
             ctx.font = "800 30px 'Plus Jakarta Sans'";
             ctx.fillText("STUDY CREDIT RATING", canvas.width / 2, avCenter + 270);
 
-            // Glow logic simulation (using shadow effects)
             ctx.save();
-            ctx.shadowColor = "rgba(6, 182, 212, 0.7)"; // shadow for glow
+            ctx.shadowColor = "rgba(6, 182, 212, 0.7)"; 
             ctx.shadowBlur = 60;
             ctx.fillStyle = "white";
             ctx.font = "900 250px 'Plus Jakarta Sans'";
             ctx.fillText(studyScore, canvas.width / 2, avCenter + 470);
             ctx.restore();
 
-            // League badge text -> STUDY SCORE RATING DESCRIPTION
-            // NEW: Logic to determine exact rating description from score
             let descriptionLabel = "Novice Ranger";
-            let labelColor = "text-blue-400"; // Fallback color from theme
-            if(studyScore >= 830) { descriptionLabel = "Truly Warrior"; labelColor = "#facc15"; /* yellow-400 */ }
-            else if(studyScore >= 790) { descriptionLabel = "Elite Vanguard"; labelColor = "#22d3ee"; /* cyan-400 */ }
-            else if(studyScore >= 730) { descriptionLabel = "Resolute Guardian"; labelColor = "#10b981"; /* emerald-400 */ }
-            else if(studyScore >= 700) { descriptionLabel = "Novice Ranger"; labelColor = "#22d3ee"; /* cyan-400 */ }
-            else if(studyScore >= 500) { descriptionLabel = "At Risk"; labelColor = "#f59e0b"; /* amber-500 */ }
-            else { descriptionLabel = "Studyrupt"; labelColor = "#f43f5e"; /* rose-500 */ }
+            let labelColor = "text-blue-400"; 
+            if(studyScore >= 830) { descriptionLabel = "Truly Warrior"; labelColor = "#facc15"; }
+            else if(studyScore >= 790) { descriptionLabel = "Elite Vanguard"; labelColor = "#22d3ee"; }
+            else if(studyScore >= 730) { descriptionLabel = "Resolute Guardian"; labelColor = "#10b981"; }
+            else if(studyScore >= 700) { descriptionLabel = "Novice Ranger"; labelColor = "#22d3ee"; }
+            else if(studyScore >= 500) { descriptionLabel = "At Risk"; labelColor = "#f59e0b"; }
+            else { descriptionLabel = "Studyrupt"; labelColor = "#f43f5e"; }
 
-            ctx.fillStyle = labelColor; // dynamic color from theme
+            ctx.fillStyle = labelColor; 
             ctx.font = "900 35px 'Plus Jakarta Sans'";
             ctx.fillText(descriptionLabel.toUpperCase(), canvas.width / 2, avCenter + 540);
 
-            // --- 5. Share Functionality (Files API) ---
             canvas.toBlob(async (blob) => {
                 const file = new File([blob], "XamTableRating.png", { type: "image/png" });
                 const shareData = {
@@ -924,7 +920,6 @@
                 };
 
                 try {
-                    // Try direct file share
                     await navigator.share(shareData);
                 } catch (err) {
                     console.log("Image share cancelled or failed:", err);
@@ -946,12 +941,10 @@
                     let users = [];
                     snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
                     
-                    // --- FULL GHOST USER ROSTER (13 Bots) ---
-                    let scaleDay = new Date().getDay(); // 0 is Sunday
+                    let scaleDay = new Date().getDay(); 
                     if (scaleDay === 0) scaleDay = new Date().getHours() < 15 ? 7 : 0.5;
                     if (scaleDay === 0) scaleDay = 0.5; 
                     
-                   // FIX: All bot XP generation is now strictly multiplied by 20 so it looks human
                     const ghostBots = [
                         { id: "bot1", name: "Rishi", photo: "https://ui-avatars.com/api/?name=R&background=0EA5E9&color=fff", studyScore: 840, weeklyXP: (Math.floor(scaleDay * 2.5) + 7) * 20 },
                         { id: "bot2", name: "Headstart", photo: "https://ui-avatars.com/api/?name=H&background=0D8ABC&color=fff", studyScore: 810, weeklyXP: (Math.floor(scaleDay * 2.0) + 6) * 20 },
@@ -968,8 +961,6 @@
                         { id: "bot13", name: "Rupam", photo: "https://ui-avatars.com/api/?name=R&background=3F3F46&color=fff", studyScore: 310, weeklyXP: 0 }
                     ];
                     
-                   // SMART BOTS: Only inject enough bots to ensure there are at least 15 people on the board.
-        // As real users join, the bots will automatically vanish one by one.
         let botsNeeded = 15 - users.length;
         if (botsNeeded > 0) {
             const selectedBots = ghostBots.slice(0, botsNeeded);
@@ -978,11 +969,10 @@
             });
         }
                     
-                   // FIX: Sort by Weekly XP first. If tied, sort by all-time Study Score.
                     users.sort((a, b) => {
                         const xpDiff = (b.weeklyXP || 0) - (a.weeklyXP || 0);
-                        if (xpDiff !== 0) return xpDiff; // If XP is different, sort by XP
-                        return (b.studyScore || 700) - (a.studyScore || 700); // If XP is tied, highest Study Score wins
+                        if (xpDiff !== 0) return xpDiff; 
+                        return (b.studyScore || 700) - (a.studyScore || 700); 
                     });
                     
                     listEl.innerHTML = '';
@@ -1027,12 +1017,10 @@
         }
 
        document.addEventListener("DOMContentLoaded", () => {
-            // Wait for Firebase to confirm the secure Google token before loading data
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     bootCloudDB(); 
                 } else {
-                    // Kick them back to login if they try to bypass the front door
                     window.location.href = "index.html";
                 }
             });
@@ -1064,7 +1052,7 @@
             const todayStr = getFormattedDate(0);
             let computedDay = 'tomorrow';
             if (taskData.targetDateStr === todayStr) computedDay = 'today';
-            else if (taskData.targetDateStr < todayStr) computedDay = 'overdue'; // FIX: Catch tasks from the past
+            else if (taskData.targetDateStr < todayStr) computedDay = 'overdue'; 
             
             let dayBadgeColor = 'text-purple-400 bg-purple-950/50';
             let displayDayText = 'TOMORROW';
@@ -1158,61 +1146,69 @@
                 'dashboard': document.getElementById('view-dashboard'),
                 'leaderboard': document.getElementById('view-leaderboard'),
                 'completed': document.getElementById('view-completed'),
-                'score': document.getElementById('view-score')
+                'score': document.getElementById('view-score'),
+                'notetab': document.getElementById('view-notetab')
             };
             
-            const navIds = ['dashboard', 'leaderboard', 'score', 'completed',];
+            const navIds = ['dashboard', 'leaderboard', 'score', 'completed', 'notetab'];
             
             navIds.forEach(nav => {
                 const desktopEl = document.getElementById(`nav-${nav}-desktop`);
                 const mobileEl = document.getElementById(`nav-${nav}-mobile`);
                 
                 if (nav === viewName) {
-                    desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-sm transition-colors";
-                    mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-cyan-400 w-1/4 transition-colors";
+                    if(desktopEl) desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-sm transition-colors";
+                    if(mobileEl) mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-cyan-400 flex-1 transition-colors";
                 } else {
-                    desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors";
-                    mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-slate-400 hover:text-white w-1/4 transition-colors";
+                    if(desktopEl) desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors";
+                    if(mobileEl) mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-slate-400 hover:text-white flex-1 transition-colors";
                 }
             });
 
             const headerTitle = document.getElementById('header-title');
 
             Object.values(views).forEach(view => {
-                if(!view.classList.contains('hidden')) {
+                if(view && !view.classList.contains('hidden')) {
                     view.classList.add('opacity-0');
                     setTimeout(() => view.classList.add('hidden'), 200); 
                 }
             });
 
             setTimeout(() => {
-                views[viewName].classList.remove('hidden');
-                setTimeout(() => {
-                    views[viewName].classList.remove('opacity-0');
-                    
-                    if(viewName === 'completed') {
-                        currentCalDate = new Date();
-                        selectedHistoryDate = getFormattedDate(0);
-                        renderCalendar(); 
-                        loadHistoryForDate(selectedHistoryDate); 
-                        renderAnalytics(); // INJECTED FIX
-                    }
-                    if(viewName === 'score') {
-                        updateScoreUI(); 
-                    }
-                    if(viewName === 'leaderboard') {
-                        startLeaderboardSync();
-                    } else if (unsubscribeLeaderboard) {
-                        unsubscribeLeaderboard();
-                        unsubscribeLeaderboard = null;
-                    }
-                }, 50);
+                const activeView = views[viewName];
+                if(activeView) {
+                    activeView.classList.remove('hidden');
+                    setTimeout(() => {
+                        activeView.classList.remove('opacity-0');
+                        
+                        if(viewName === 'completed') {
+                            currentCalDate = new Date();
+                            selectedHistoryDate = getFormattedDate(0);
+                            renderCalendar(); 
+                            loadHistoryForDate(selectedHistoryDate); 
+                            renderAnalytics(); 
+                        }
+                        if(viewName === 'score') {
+                            updateScoreUI(); 
+                        }
+                        if(viewName === 'notetab') {
+                            renderNotetabs(); 
+                        }
+                        if(viewName === 'leaderboard') {
+                            startLeaderboardSync();
+                        } else if (unsubscribeLeaderboard) {
+                            unsubscribeLeaderboard();
+                            unsubscribeLeaderboard = null;
+                        }
+                    }, 50);
+                }
             }, 200);
 
             if(viewName === 'dashboard') headerTitle.innerText = "List your Day!";
             if(viewName === 'leaderboard') headerTitle.innerText = "Global Rank";
             if(viewName === 'completed') headerTitle.innerText = "Execution History";
             if(viewName === 'score') headerTitle.innerText = "Study Credit Score";
+            if(viewName === 'notetab') headerTitle.innerText = "Revision Vault";
         }
 
         function getFormattedDate(offsetDays = 0) {
@@ -1370,7 +1366,6 @@
             const task = document.getElementById(taskId);
             if(!task) return;
             
-            // NEW Bouncer: Stop console hackers from deleting locked tasks
             const tData = activeTasksList.find(x => x.id === taskId);
             if (tData) {
                 let timeLeft = 300 - Math.floor((Date.now() - tData.createdAt) / 1000);
@@ -1526,7 +1521,7 @@
                     if(!document.getElementById('view-completed').classList.contains('hidden')) {
                         renderCalendar();
                         loadHistoryForDate(taskDate);
-                        renderAnalytics(); // INJECTED FIX
+                        renderAnalytics(); 
                     }
                 }, 500);
             }, 1500);
@@ -1540,7 +1535,6 @@
                 selectedHistoryDate = todayStr;
                 currentCalDate = new Date();
                 
-                // NEW Bouncer: Strip the streak if they cross midnight and failed to execute yesterday
                 const yesterdayCheck = getFormattedDate(-1);
                 if (lastTaskDate !== todayStr && lastTaskDate !== yesterdayCheck) {
                     streak = 0;
@@ -1551,7 +1545,7 @@
                 if (!document.getElementById('view-completed').classList.contains('hidden')) {
                     renderCalendar();
                     loadHistoryForDate(todayStr);
-                    renderAnalytics(); // INJECTED FIX
+                    renderAnalytics(); 
                 }
                 
                 restoreActiveTasks();
@@ -1559,29 +1553,24 @@
 
             const currentActiveWeek = getActiveWeekId();
             if (lastLeagueUpdateWeek !== "" && lastLeagueUpdateWeek !== currentActiveWeek) {
-                // INSTANT LOCK: Change the variable immediately so the 1-second loop can't fire twice
                 const oldWeek = lastLeagueUpdateWeek;
                 lastLeagueUpdateWeek = currentActiveWeek; 
                 
-                // Extract timestamps to strictly prevent backward time-travel bugs
                 const lastTime = parseInt(oldWeek.split('_')[1]);
                 const currentTime = parseInt(currentActiveWeek.split('_')[1]);
                 
                 if (currentTime > lastTime) {
                     processLeagueResults(currentActiveWeek);
                 } else {
-                    // They went backward in time. Ignore the league check and just save.
                     saveUserDB();
                 }
             }
 
            const container = document.getElementById('taskListContainer');
-            // FIX: Target ALL active tasks in the DOM, not just newly animated ones
             const activeDOMTasks = container.querySelectorAll('.group'); 
             
             activeDOMTasks.forEach(task => {
                 const taskDate = task.dataset.date;
-                // String comparison works perfectly for YYYY-MM-DD
                 if (taskDate && taskDate < todayStr) {
                     applyPenalty(task.id);
                 }
@@ -1728,7 +1717,7 @@
         }
 
         // ==============================================
-        // WEEKLY ANALYTICS ENGINE (INJECTED FIX)
+        // WEEKLY ANALYTICS ENGINE 
         // ==============================================
         let analyticsWeekOffset = 0;
 
@@ -1745,7 +1734,6 @@
             const startOfWeek = new Date(today);
             startOfWeek.setDate(today.getDate() - currentDayOfWeek + (analyticsWeekOffset * 7));
             
-            // --- NEW: Exact Date Range Label (e.g., 01/04 - 07/04) ---
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 6);
             const startStr = `${String(startOfWeek.getDate()).padStart(2,'0')}/${String(startOfWeek.getMonth()+1).padStart(2,'0')}`;
@@ -1764,7 +1752,6 @@
                 const count = completedTasksHistory[dStr] ? completedTasksHistory[dStr].length : 0;
                 if (count > maxTasks) maxTasks = count;
                 
-                // --- NEW: Extracting the exact date number (1, 2, 30, etc.) ---
                 weekData.push({ dayName: days[i], dateNum: d.getDate(), count: count, isToday: dStr === getFormattedDate(0) });
             }
 
@@ -1779,7 +1766,6 @@
                 const barColor = data.isToday ? "bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : (data.count > 0 ? "bg-emerald-500/70 hover:bg-emerald-400" : "bg-white/5");
                 const textColor = data.isToday ? "text-cyan-400" : "text-slate-500";
                 
-                // --- NEW: Stacked day name and exact date underneath the bar ---
                 chartContainer.innerHTML += `
                     <div class="flex flex-col items-center justify-end h-full flex-1 group relative cursor-pointer">
                         <div class="absolute -top-6 text-[8px] md:text-[10px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 px-2 py-0.5 rounded shadow-lg border border-white/10 z-10 pointer-events-none">${data.count}</div>
@@ -1792,7 +1778,84 @@
                 `;
             });
         }
+
         // ==============================================
+        // REVISION VAULT ENGINE (SMART MERGE)
+        // ==============================================
+        window.saveNotetab = function() {
+            const chapterInput = document.getElementById('nt-chapter').value.trim();
+            const topicsRaw = document.getElementById('nt-topics').value.trim();
+
+            if (!chapterInput || !topicsRaw) {
+                alert("🚨 AI Bouncer: Chapter name and at least one topic required.");
+                return;
+            }
+
+            const topicsArray = topicsRaw.split(',').map(t => t.trim()).filter(t => t !== "");
+            const chapterKey = chapterInput.toLowerCase();
+            const existingIndex = notetabsList.findIndex(n => n.chapter.toLowerCase() === chapterKey);
+
+            if (existingIndex !== -1) {
+                const existingNote = notetabsList[existingIndex];
+                const mergedTopics = [...new Set([...existingNote.topics, ...topicsArray])];
+                existingNote.topics = mergedTopics;
+                notetabsList.splice(existingIndex, 1);
+                notetabsList.unshift(existingNote);
+            } else {
+                const newNote = {
+                    id: 'nt-' + Date.now(),
+                    chapter: chapterInput,
+                    topics: topicsArray,
+                    createdAt: Date.now()
+                };
+                notetabsList.unshift(newNote);
+            }
+
+            saveUserDB(); 
+            renderNotetabs(); 
+
+            document.getElementById('nt-topics').value = '';
+            document.getElementById('nt-topics').focus();
+        }
+
+        window.deleteNotetab = function(id) {
+            if(confirm("Delete this chapter entirely from your revision vault?")) {
+                notetabsList = notetabsList.filter(n => n.id !== id);
+                saveUserDB();
+                renderNotetabs();
+            }
+        }
+
+        window.renderNotetabs = function() {
+            const container = document.getElementById('notetab-display-area');
+            if (!container) return;
+
+            if (notetabsList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 border border-dashed border-white/10 rounded-2xl opacity-30">
+                        <i class="fas fa-brain text-4xl mb-4 block"></i>
+                        <p class="text-sm font-bold uppercase tracking-widest">Vault is empty.</p>
+                        <p class="text-[10px] mt-2 italic">Store highly volatile topics here for the final week.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            notetabsList.forEach(note => {
+                let tagsHTML = '';
+                note.topics.forEach(t => {
+                    tagsHTML += `<span class="inline-block bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded md:rounded-md mr-1 md:mr-2 mb-1.5 border border-emerald-500/20 font-bold">${t}</span>`;
+                });
+
+                container.innerHTML += `
+                    <div class="glass-panel p-4 md:p-5 rounded-2xl border-l-4 border-l-slate-700 hover:border-l-emerald-500 transition-colors shrink-0 relative group">
+                        <button onclick="deleteNotetab('${note.id}')" class="absolute top-4 right-4 text-slate-500 hover:text-rose-400 md:opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash-alt text-xs"></i></button>
+                        <h4 class="text-sm md:text-base font-black text-white mb-3 uppercase tracking-wide pr-6">${note.chapter}</h4>
+                        <div class="flex flex-wrap">${tagsHTML}</div>
+                    </div>
+                `;
+            });
+        }
     </script>
 </body>
 </html>
