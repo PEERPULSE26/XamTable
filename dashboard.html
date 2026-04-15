@@ -192,9 +192,6 @@
                 <a href="#" onclick="switchView('completed', this, 'desktop')" id="nav-completed-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
                     <i class="fas fa-check-double w-5"></i> Completed Tasks
                 </a>
-                <a href="#" onclick="switchView('notetab', this, 'desktop')" id="nav-notetab-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
-    <i class="fas fa-brain w-5 text-emerald-400"></i> Revision Vault
-</a>
                 
                 <div class="flex-1"></div> <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent font-bold text-sm transition-colors">
                     <i class="fas fa-power-off w-5"></i> Disconnect
@@ -442,26 +439,22 @@
     </div>
 
     <nav class="md:hidden fixed bottom-0 w-full z-50 mobile-nav-glass flex justify-around items-center px-2 py-3 pb-safe">
-        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-cyan-400 transition-colors">
+        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 w-1/4 text-cyan-400 transition-colors">
             <i class="fas fa-border-all text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Board</span>
         </a>
-        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-trophy text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Rank</span>
         </a>
-        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-id-card text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Score</span>
         </a>
-        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-check-double text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">History</span>
         </a>
-        <a href="#" onclick="switchView('notetab', this, 'mobile')" id="nav-notetab-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
-    <i class="fas fa-brain text-lg"></i>
-    <span class="text-[9px] font-bold uppercase tracking-wider">Vault</span>
-</a>
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
