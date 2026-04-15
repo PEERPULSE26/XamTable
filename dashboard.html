@@ -21,6 +21,27 @@
 .ql-snow .ql-picker { color: #94a3b8; }
 .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke { stroke: #22d3ee; }
 .ql-editor p { margin-bottom: 0.5rem; }
+        /* --- Restore List Styles for Quill Content (Overrides Tailwind Reset) --- */
+.quill-content ul, .pdf-quill-content ul { 
+    list-style-type: disc !important; 
+    padding-left: 1.5rem !important; 
+    margin-bottom: 0.5rem; 
+}
+.quill-content ol, .pdf-quill-content ol { 
+    list-style-type: decimal !important; 
+    padding-left: 1.5rem !important; 
+    margin-bottom: 0.5rem; 
+}
+.quill-content li, .pdf-quill-content li { 
+    display: list-item !important;
+    margin-bottom: 0.25rem; 
+}
+.quill-content p, .pdf-quill-content p { 
+    margin-bottom: 0.5rem; 
+}
+/* Ensure nested lists look right */
+.quill-content ul ul, .pdf-quill-content ul ul { list-style-type: circle !important; }
+.quill-content ol ol, .pdf-quill-content ol ol { list-style-type: lower-alpha !important; }
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
         
         body { 
@@ -2131,6 +2152,7 @@ function exportChapterPDF() {
     const chap = sub.chapters.find(c => c.id === currentVaultPath.chapterId);
     const pdfContainer = document.getElementById('pdf-export-container');
     
+    // Notice the addition of pdf-quill-content below
     let htmlContent = `
         <div style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 30px;">
             <div style="border-bottom: 2px solid #0ea5e9; padding-bottom: 10px; margin-bottom: 25px;">
@@ -2146,9 +2168,9 @@ function exportChapterPDF() {
                 <h2 style="font-size: 16px; font-weight: bold; color: #0f172a; margin: 0 0 8px 0; border-left: 3px solid #10b981; padding-left: 10px;">${topic.title}</h2>
         `;
         if (topic.details) {
-            // Because Quill outputs clean HTML (p, strong, em, ul, li), we just inject it.
+            // FIXED: Wrapped in pdf-quill-content so our CSS targets it during the PDF render
             htmlContent += `
-                <div style="font-size: 14px; line-height: 1.6; color: #334155; padding-left: 13px;">
+                <div class="pdf-quill-content" style="font-size: 14px; line-height: 1.6; color: #334155; padding-left: 13px;">
                     ${topic.details}
                 </div>
             `;
@@ -2164,7 +2186,7 @@ function exportChapterPDF() {
         margin:       10,
         filename:     `${sub.name.replace(/[^a-z0-9]/gi, '_')}_${chap.name.replace(/[^a-z0-9]/gi, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
+        html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
