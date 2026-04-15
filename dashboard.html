@@ -33,7 +33,6 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* Mobile Bottom Nav Glass */
         .mobile-nav-glass {
             background: rgba(2, 6, 23, 0.85);
             backdrop-filter: blur(20px);
@@ -80,22 +79,19 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.2); border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(6,182,212,0.4); }
         
-        /* Hide scrollbar completely on mobile for cleaner look */
         @media (max-width: 768px) {
             .custom-scroll::-webkit-scrollbar { display: none; }
             .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         }
 
-        /* Mobile Height & Safe Area Fixes */
         .h-dynamic { 
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Dynamic viewport height */
+            height: 100vh;
+            height: 100dvh;
         }
         .pb-safe { 
             padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); 
         }
 
-        /* League specific colors */
         .league-0 { color: #cd7f32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); } 
         .league-1 { color: #c0c0c0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); } 
         .league-2 { color: #ffd700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.1); } 
@@ -106,8 +102,65 @@
         .league-7 { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); } 
         .league-8 { color: #1e293b; border-color: #334155; background: #0f172a; text-shadow: 0 0 10px rgba(255,255,255,0.2); } 
         .league-9 { color: #67e8f9; border-color: rgba(103,232,249,0.5); background: rgba(103,232,249,0.1); text-shadow: 0 0 15px rgba(103,232,249,0.8); } 
+
+        /* ===== MISTAKES VAULT STYLES ===== */
+        .mv-subject-pill {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mv-subject-pill.active {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: rgba(168, 85, 247, 0.6);
+            color: #c084fc;
+        }
+        .mv-points-area {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .mv-points-area.open {
+            display: flex;
+        }
+        .mv-point-tag {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: rgba(168, 85, 247, 0.06);
+            border: 1px solid rgba(168, 85, 247, 0.15);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 11px;
+            color: #c4b5fd;
+            line-height: 1.5;
+        }
+        .mv-point-tag .mv-pt-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #a855f7;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+        .mv-chapter-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 12px 14px;
+            transition: border-color 0.2s;
+        }
+        .mv-chapter-card:hover {
+            border-color: rgba(168, 85, 247, 0.25);
+        }
+        .mv-add-point-row {
+            display: none;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .mv-add-point-row.open {
+            display: flex;
+        }
     </style>
-  <script>
+    <script>
         const savedUser = localStorage.getItem('xamTableLiveUser');
         if (savedUser) {
             try {
@@ -196,7 +249,8 @@
                     <i class="fas fa-brain w-5 text-emerald-400"></i> Revision Vault
                 </a>
                 
-                <div class="flex-1"></div> <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent font-bold text-sm transition-colors">
+                <div class="flex-1"></div>
+                <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent font-bold text-sm transition-colors">
                     <i class="fas fa-power-off w-5"></i> Disconnect
                 </a>
             </nav>
@@ -438,19 +492,100 @@
                 </div>
             </main>
 
+            <!-- ============================================================ -->
+            <!--  REVISION VAULT — contains original notetab + new Mistakes    -->
+            <!-- ============================================================ -->
             <main id="view-notetab" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-y-auto custom-scroll transition-opacity duration-300 opacity-0 pb-24 md:pb-10">
-                <div class="w-full max-w-4xl flex flex-col gap-4 md:gap-6 h-full">
-                    <div class="glass-panel rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-2xl border-t-4 border-emerald-500 shrink-0">
-                        <h2 class="text-sm md:text-base font-black uppercase tracking-widest text-emerald-400 mb-4"><i class="fas fa-brain mr-2"></i>Store Volatile Topics</h2>
-                        <input type="text" id="nt-chapter" placeholder="Chapter Name (e.g. Electrostatics)" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-bold mb-3">
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" id="nt-topics" placeholder="Comma separated topics (e.g. Gauss Law, Flux)" class="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-medium">
-                            <button onclick="saveNotetab()" class="bg-emerald-500 text-black px-6 py-3 rounded-lg font-black text-xs md:text-sm uppercase tracking-widest hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all shrink-0">Add to Vault</button>
+                <div class="w-full max-w-4xl flex flex-col gap-4 md:gap-6">
+
+                    <!-- Tab switcher -->
+                    <div class="flex bg-black/40 rounded-xl p-1 border border-white/10 shrink-0 self-start">
+                        <button id="vault-tab-topics" onclick="switchVaultTab('topics')" class="px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            <i class="fas fa-brain mr-1.5"></i>Topics
+                        </button>
+                        <button id="vault-tab-mistakes" onclick="switchVaultTab('mistakes')" class="px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white ml-1">
+                            <i class="fas fa-triangle-exclamation mr-1.5"></i>Mistakes
+                        </button>
+                    </div>
+
+                    <!-- ===== TOPICS PANEL (original notetab) ===== -->
+                    <div id="vault-panel-topics" class="flex flex-col gap-4">
+                        <div class="glass-panel rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-2xl border-t-4 border-emerald-500 shrink-0">
+                            <h2 class="text-sm md:text-base font-black uppercase tracking-widest text-emerald-400 mb-4"><i class="fas fa-brain mr-2"></i>Store Volatile Topics</h2>
+                            <input type="text" id="nt-chapter" placeholder="Chapter Name (e.g. Electrostatics)" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-bold mb-3">
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input type="text" id="nt-topics" placeholder="Comma separated topics (e.g. Gauss Law, Flux)" class="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-medium">
+                                <button onclick="saveNotetab()" class="bg-emerald-500 text-black px-6 py-3 rounded-lg font-black text-xs md:text-sm uppercase tracking-widest hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all shrink-0">Add to Vault</button>
+                            </div>
+                        </div>
+                        <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 pl-2 shrink-0">Your Final Week Syllabus</h3>
+                        <div id="notetab-display-area" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 content-start">
                         </div>
                     </div>
-                    <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 pl-2 shrink-0">Your Final Week Syllabus</h3>
-                    <div id="notetab-display-area" class="flex-1 overflow-y-auto custom-scroll pr-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 content-start">
+
+                    <!-- ===== MISTAKES PANEL (new) ===== -->
+                    <div id="vault-panel-mistakes" class="hidden flex-col gap-4">
+
+                        <!-- Input card -->
+                        <div class="glass-panel rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-2xl border-t-4 border-purple-500 shrink-0">
+                            <h2 class="text-sm md:text-base font-black uppercase tracking-widest text-purple-400 mb-4"><i class="fas fa-triangle-exclamation mr-2"></i>Log a Mistake / Key Point</h2>
+
+                            <!-- Row 1: Subject dropdown + add subject -->
+                            <div class="flex gap-2 mb-3">
+                                <div class="relative flex-1">
+                                    <select id="mv-subject-select" class="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 font-bold appearance-none cursor-pointer">
+                                        <option value="" disabled selected>— Select Subject —</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                </div>
+                                <button onclick="mvShowAddSubject()" id="mv-add-subject-btn" title="Add new subject" class="w-11 h-11 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center hover:bg-purple-500/25 transition-colors flex-shrink-0">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+
+                            <!-- Add subject inline row (hidden by default) -->
+                            <div id="mv-new-subject-row" class="hidden flex gap-2 mb-3">
+                                <input type="text" id="mv-new-subject-input" placeholder="New subject name (e.g. Physics)" class="flex-1 bg-black/60 border border-purple-500/40 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-400 font-bold" onkeypress="if(event.key==='Enter') mvConfirmAddSubject()">
+                                <button onclick="mvConfirmAddSubject()" class="px-4 py-2 bg-purple-500 text-black text-xs font-black uppercase rounded-lg hover:bg-purple-400 transition-colors">Add</button>
+                                <button onclick="mvHideAddSubject()" class="px-3 py-2 bg-white/5 border border-white/10 text-slate-400 text-xs font-black uppercase rounded-lg hover:bg-white/10 transition-colors">✕</button>
+                            </div>
+
+                            <!-- Row 2: Chapter -->
+                            <input type="text" id="mv-chapter-input" placeholder="Chapter name (e.g. Laws of Motion)" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 font-bold mb-3">
+
+                            <!-- Row 3: Mistake/Topic title -->
+                            <input type="text" id="mv-topic-input" placeholder="Mistake or topic title (e.g. Sign convention in work-energy)" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 font-medium mb-3">
+
+                            <!-- Row 4: Optional points toggle -->
+                            <div class="flex items-center gap-3 mb-3">
+                                <button onclick="mvTogglePointsInput()" id="mv-add-points-toggle" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-purple-400 transition-colors border border-white/10 hover:border-purple-500/30 rounded-lg px-3 py-2 bg-white/5 hover:bg-purple-500/10">
+                                    <i class="fas fa-list-ul text-xs"></i> Add Detail Points <span id="mv-pts-toggle-icon" class="ml-1">▸</span>
+                                </button>
+                                <span class="text-[9px] text-slate-600 font-bold uppercase tracking-wider">Optional</span>
+                            </div>
+
+                            <!-- Points input area (hidden by default) -->
+                            <div id="mv-points-input-area" class="hidden flex-col gap-2 mb-3">
+                                <div id="mv-points-list" class="flex flex-col gap-2"></div>
+                                <button onclick="mvAddPointRow()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-400 hover:text-purple-300 transition-colors self-start mt-1">
+                                    <i class="fas fa-plus text-[9px]"></i> Add point
+                                </button>
+                            </div>
+
+                            <button onclick="mvSaveEntry()" class="w-full bg-purple-500 text-black px-6 py-3 rounded-lg font-black text-xs md:text-sm uppercase tracking-widest hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all">
+                                <i class="fas fa-save mr-2"></i>Log to Mistakes Vault
+                            </button>
                         </div>
+
+                        <!-- Subject filter pills -->
+                        <div id="mv-subject-pills" class="flex flex-wrap gap-2 px-1 shrink-0"></div>
+
+                        <!-- Display area -->
+                        <div id="mv-display-area" class="flex flex-col gap-3 content-start pb-4">
+                        </div>
+
+                    </div><!-- end mistakes panel -->
+
                 </div>
             </main>
 
@@ -549,7 +684,8 @@
         let totalCompletedTasks = 0; 
         let completedTasksHistory = {};
         let activeTasksList = [];
-        let notetabsList = []; // NEW: Vault Database State
+        let notetabsList = [];
+        let mistakesVault = { subjects: [], entries: [] }; // NEW: { subjects: ['Physics',...], entries: [{id, subject, chapter, topic, points:[]}] }
         let lastCheckedDate = getFormattedDate(0);
         let activeTargetDay = 'today'; 
         let streak = 0;
@@ -610,7 +746,10 @@
                     totalCompletedTasks = data.totalCompletedTasks || 0;
                     completedTasksHistory = data.history || {};
                     activeTasksList = data.activeTasks || [];
-                    notetabsList = data.notetabs || []; // NEW: Load Vault data from cloud
+                    notetabsList = data.notetabs || [];
+                    mistakesVault = data.mistakesVault || { subjects: [], entries: [] };
+                    if (!mistakesVault.subjects) mistakesVault.subjects = [];
+                    if (!mistakesVault.entries) mistakesVault.entries = [];
                     lastCheckedDate = data.lastCheckedDate || getFormattedDate(0);
                     
                     weeklyXP = data.weeklyXP || 0;
@@ -624,7 +763,7 @@
                     const todayStrBoot = getFormattedDate(0);
                     const yesterdayStrBoot = getFormattedDate(-1);
                     if (lastTaskDate !== todayStrBoot && lastTaskDate !== yesterdayStrBoot) {
-                        streak = 0; // Reset streak if a full day was missed
+                        streak = 0;
                     }
 
                     if (lastLeagueUpdateWeek !== activeWeek) {
@@ -646,7 +785,10 @@
                     renderAnalytics(); 
                 }
                 if(!document.getElementById('view-notetab').classList.contains('hidden')) {
-                    renderNotetabs(); // NEW: Render Vault if open
+                    renderNotetabs();
+                    mvRenderSubjectDropdown();
+                    mvRenderSubjectPills();
+                    mvRenderEntries();
                 }
                 
                 if(!document.getElementById('view-leaderboard').classList.contains('hidden')) {
@@ -696,13 +838,13 @@
                     { id: "bot13", studyScore: 310, weeklyXP: 0 }
                 ];
                 
-        let botsNeeded = 15 - users.length;
-        if (botsNeeded > 0) {
-            const selectedBots = ghostBots.slice(0, botsNeeded);
-            selectedBots.forEach(bot => {
-                if (!users.find(u => u.id === bot.id)) users.push(bot);
-            });
-        }
+                let botsNeeded = 15 - users.length;
+                if (botsNeeded > 0) {
+                    const selectedBots = ghostBots.slice(0, botsNeeded);
+                    selectedBots.forEach(bot => {
+                        if (!users.find(u => u.id === bot.id)) users.push(bot);
+                    });
+                }
                 users.sort((a, b) => {
                     const xpDiff = (b.weeklyXP || 0) - (a.weeklyXP || 0);
                     if (xpDiff !== 0) return xpDiff;
@@ -766,7 +908,8 @@
                 totalCompletedTasks: totalCompletedTasks,
                 history: completedTasksHistory,
                 activeTasks: activeTasksList,
-                notetabs: notetabsList, // NEW: Sync Vault data to cloud
+                notetabs: notetabsList,
+                mistakesVault: mistakesVault,
                 lastCheckedDate: lastCheckedDate,
                 weeklyXP: weeklyXP,
                 league: currentLeague,
@@ -926,6 +1069,7 @@
                 }
             });
         }
+
         function startLeaderboardSync() {
             if (unsubscribeLeaderboard) unsubscribeLeaderboard();
             
@@ -961,13 +1105,13 @@
                         { id: "bot13", name: "Rupam", photo: "https://ui-avatars.com/api/?name=R&background=3F3F46&color=fff", studyScore: 310, weeklyXP: 0 }
                     ];
                     
-        let botsNeeded = 15 - users.length;
-        if (botsNeeded > 0) {
-            const selectedBots = ghostBots.slice(0, botsNeeded);
-            selectedBots.forEach(bot => {
-                if (!users.find(u => u.id === bot.id)) users.push(bot);
-            });
-        }
+                    let botsNeeded = 15 - users.length;
+                    if (botsNeeded > 0) {
+                        const selectedBots = ghostBots.slice(0, botsNeeded);
+                        selectedBots.forEach(bot => {
+                            if (!users.find(u => u.id === bot.id)) users.push(bot);
+                        });
+                    }
                     
                     users.sort((a, b) => {
                         const xpDiff = (b.weeklyXP || 0) - (a.weeklyXP || 0);
@@ -1025,6 +1169,7 @@
                 }
             });
         });
+
         function restoreActiveTasks() {
             const container = document.getElementById('taskListContainer');
             const emptyState = document.getElementById('emptyState');
@@ -1192,7 +1337,10 @@
                             updateScoreUI(); 
                         }
                         if(viewName === 'notetab') {
-                            renderNotetabs(); 
+                            renderNotetabs();
+                            mvRenderSubjectDropdown();
+                            mvRenderSubjectPills();
+                            mvRenderEntries();
                         }
                         if(viewName === 'leaderboard') {
                             startLeaderboardSync();
@@ -1780,8 +1928,39 @@
         }
 
         // ==============================================
-        // REVISION VAULT ENGINE (SMART MERGE)
+        // REVISION VAULT — TOPICS (original notetab)
         // ==============================================
+        function switchVaultTab(tab) {
+            const topicsPanel = document.getElementById('vault-panel-topics');
+            const mistakesPanel = document.getElementById('vault-panel-mistakes');
+            const topicsBtn = document.getElementById('vault-tab-topics');
+            const mistakesBtn = document.getElementById('vault-tab-mistakes');
+
+            const activeClass = 'px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all';
+            const topicsActive = ' bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            const mistakesActive = ' bg-purple-500/20 text-purple-400 border border-purple-500/30';
+            const inactiveClass = ' text-slate-400 hover:text-white';
+
+            if (tab === 'topics') {
+                topicsPanel.classList.remove('hidden');
+                topicsPanel.classList.add('flex');
+                mistakesPanel.classList.remove('flex');
+                mistakesPanel.classList.add('hidden');
+                topicsBtn.className = activeClass + topicsActive;
+                mistakesBtn.className = activeClass + inactiveClass;
+            } else {
+                mistakesPanel.classList.remove('hidden');
+                mistakesPanel.classList.add('flex');
+                topicsPanel.classList.remove('flex');
+                topicsPanel.classList.add('hidden');
+                mistakesBtn.className = activeClass + mistakesActive;
+                topicsBtn.className = activeClass + inactiveClass;
+                mvRenderSubjectDropdown();
+                mvRenderSubjectPills();
+                mvRenderEntries();
+            }
+        }
+
         window.saveNotetab = function() {
             const chapterInput = document.getElementById('nt-chapter').value.trim();
             const topicsRaw = document.getElementById('nt-topics').value.trim();
@@ -1855,6 +2034,294 @@
                     </div>
                 `;
             });
+        }
+
+        // ==============================================
+        // MISTAKES VAULT ENGINE (NEW)
+        // ==============================================
+
+        // State for which subject is filtered (null = all)
+        let mvActiveSubjectFilter = null;
+        // Points input rows counter
+        let mvPointRowCount = 0;
+        // Toggle state
+        let mvPointsOpen = false;
+
+        function mvRenderSubjectDropdown() {
+            const sel = document.getElementById('mv-subject-select');
+            if (!sel) return;
+            const currentVal = sel.value;
+            // Clear existing options except placeholder
+            sel.innerHTML = '<option value="" disabled>— Select Subject —</option>';
+            mistakesVault.subjects.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                sel.appendChild(opt);
+            });
+            // Restore selection if still valid
+            if (currentVal && mistakesVault.subjects.includes(currentVal)) {
+                sel.value = currentVal;
+            }
+        }
+
+        function mvShowAddSubject() {
+            const row = document.getElementById('mv-new-subject-row');
+            row.classList.remove('hidden');
+            row.classList.add('flex');
+            document.getElementById('mv-new-subject-input').focus();
+            document.getElementById('mv-add-subject-btn').classList.add('hidden');
+        }
+
+        function mvHideAddSubject() {
+            const row = document.getElementById('mv-new-subject-row');
+            row.classList.add('hidden');
+            row.classList.remove('flex');
+            document.getElementById('mv-new-subject-input').value = '';
+            document.getElementById('mv-add-subject-btn').classList.remove('hidden');
+        }
+
+        function mvConfirmAddSubject() {
+            const input = document.getElementById('mv-new-subject-input');
+            const name = input.value.trim();
+            if (!name) return;
+
+            // Check duplicate (case-insensitive)
+            const exists = mistakesVault.subjects.some(s => s.toLowerCase() === name.toLowerCase());
+            if (exists) {
+                alert("Subject already exists.");
+                return;
+            }
+
+            mistakesVault.subjects.push(name);
+            saveUserDB();
+            mvRenderSubjectDropdown();
+            mvRenderSubjectPills();
+
+            // Auto-select the newly added subject
+            document.getElementById('mv-subject-select').value = name;
+            mvHideAddSubject();
+        }
+
+        function mvTogglePointsInput() {
+            mvPointsOpen = !mvPointsOpen;
+            const area = document.getElementById('mv-points-input-area');
+            const icon = document.getElementById('mv-pts-toggle-icon');
+
+            if (mvPointsOpen) {
+                area.classList.remove('hidden');
+                area.classList.add('flex');
+                icon.innerText = '▾';
+                // Add first row if none
+                if (document.getElementById('mv-points-list').children.length === 0) {
+                    mvAddPointRow();
+                }
+            } else {
+                area.classList.add('hidden');
+                area.classList.remove('flex');
+                icon.innerText = '▸';
+            }
+        }
+
+        function mvAddPointRow() {
+            const list = document.getElementById('mv-points-list');
+            const rowId = 'mv-pt-' + (++mvPointRowCount);
+            const row = document.createElement('div');
+            row.id = rowId;
+            row.className = 'flex gap-2 items-center';
+            row.innerHTML = `
+                <input type="text" placeholder="e.g. Remember: Normal force is perpendicular to surface" 
+                    class="flex-1 bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-medium"
+                    onkeypress="if(event.key==='Enter'){mvAddPointRow();event.preventDefault();}">
+                <button onclick="document.getElementById('${rowId}').remove()" class="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-slate-500 hover:text-rose-400 hover:border-rose-500/30 transition-colors flex-shrink-0">
+                    <i class="fas fa-times text-[10px]"></i>
+                </button>
+            `;
+            list.appendChild(row);
+            // Focus the new input
+            setTimeout(() => row.querySelector('input').focus(), 50);
+        }
+
+        function mvCollectPoints() {
+            const list = document.getElementById('mv-points-list');
+            const inputs = list.querySelectorAll('input');
+            const points = [];
+            inputs.forEach(inp => {
+                const v = inp.value.trim();
+                if (v) points.push(v);
+            });
+            return points;
+        }
+
+        function mvResetPointsInput() {
+            document.getElementById('mv-points-list').innerHTML = '';
+            mvPointRowCount = 0;
+            mvPointsOpen = false;
+            const area = document.getElementById('mv-points-input-area');
+            area.classList.add('hidden');
+            area.classList.remove('flex');
+            document.getElementById('mv-pts-toggle-icon').innerText = '▸';
+        }
+
+        function mvSaveEntry() {
+            const subjectEl = document.getElementById('mv-subject-select');
+            const chapterEl = document.getElementById('mv-chapter-input');
+            const topicEl = document.getElementById('mv-topic-input');
+
+            const subject = subjectEl.value;
+            const chapter = chapterEl.value.trim();
+            const topic = topicEl.value.trim();
+
+            if (!subject) { alert("🚨 Select or create a subject first."); subjectEl.focus(); return; }
+            if (!chapter) { alert("🚨 Chapter name required."); chapterEl.focus(); return; }
+            if (!topic) { alert("🚨 Mistake/topic title required."); topicEl.focus(); return; }
+
+            const points = mvCollectPoints();
+
+            const entry = {
+                id: 'mv-' + Date.now(),
+                subject: subject,
+                chapter: chapter.trim(),
+                topic: topic,
+                points: points,
+                createdAt: Date.now()
+            };
+
+            mistakesVault.entries.unshift(entry);
+            saveUserDB();
+
+            // Clear inputs
+            topicEl.value = '';
+            mvResetPointsInput();
+            chapterEl.value = '';
+
+            mvRenderSubjectPills();
+            mvRenderEntries();
+        }
+
+        function mvRenderSubjectPills() {
+            const container = document.getElementById('mv-subject-pills');
+            if (!container) return;
+
+            // Collect subjects that actually have entries
+            const subjectsWithEntries = [...new Set(mistakesVault.entries.map(e => e.subject))];
+
+            if (subjectsWithEntries.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `<button onclick="mvSetFilter(null)" class="mv-subject-pill px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors ${mvActiveSubjectFilter === null ? 'bg-white/15 border-white/30 text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'}">All</button>`;
+            subjectsWithEntries.forEach(s => {
+                const isActive = (mvActiveSubjectFilter === s);
+                html += `<button onclick="mvSetFilter('${s.replace(/'/g, "\\'")}')" class="mv-subject-pill px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors ${isActive ? 'bg-purple-500/25 border-purple-500/60 text-purple-300' : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'}">${s}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function mvSetFilter(subject) {
+            mvActiveSubjectFilter = subject;
+            mvRenderSubjectPills();
+            mvRenderEntries();
+        }
+
+        function mvRenderEntries() {
+            const container = document.getElementById('mv-display-area');
+            if (!container) return;
+
+            let entries = mvActiveSubjectFilter
+                ? mistakesVault.entries.filter(e => e.subject === mvActiveSubjectFilter)
+                : mistakesVault.entries;
+
+            if (entries.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 border border-dashed border-white/10 rounded-2xl opacity-30">
+                        <i class="fas fa-triangle-exclamation text-4xl mb-4 block"></i>
+                        <p class="text-sm font-bold uppercase tracking-widest">No mistakes logged yet.</p>
+                        <p class="text-[10px] mt-2 italic">Log your first mistake to never repeat it.</p>
+                    </div>`;
+                return;
+            }
+
+            // Group by subject → chapter
+            const grouped = {};
+            entries.forEach(e => {
+                if (!grouped[e.subject]) grouped[e.subject] = {};
+                if (!grouped[e.subject][e.chapter]) grouped[e.subject][e.chapter] = [];
+                grouped[e.subject][e.chapter].push(e);
+            });
+
+            let html = '';
+            Object.keys(grouped).forEach(subject => {
+                html += `
+                    <div class="glass-panel rounded-2xl overflow-hidden border-l-4 border-l-purple-500">
+                        <div class="flex items-center justify-between px-4 py-3 bg-purple-950/30 border-b border-purple-500/15">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-book-open text-purple-400 text-xs"></i>
+                                <span class="text-sm font-black uppercase tracking-widest text-purple-300">${subject}</span>
+                            </div>
+                            <span class="text-[9px] font-black text-purple-400/60 uppercase tracking-widest">${grouped[subject] ? Object.values(grouped[subject]).flat().length : 0} entries</span>
+                        </div>
+                        <div class="p-3 flex flex-col gap-2">
+                `;
+
+                Object.keys(grouped[subject]).forEach(chapter => {
+                    const chapterEntries = grouped[subject][chapter];
+                    html += `
+                        <div class="mv-chapter-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-black text-white uppercase tracking-wide">${chapter}</span>
+                                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">${chapterEntries.length} mistake${chapterEntries.length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                    `;
+
+                    chapterEntries.forEach(entry => {
+                        const hasPoints = entry.points && entry.points.length > 0;
+                        const ptId = 'pts-' + entry.id;
+
+                        let pointsHTML = '';
+                        if (hasPoints) {
+                            entry.points.forEach(pt => {
+                                pointsHTML += `<div class="mv-point-tag"><div class="mv-pt-dot"></div><span>${pt}</span></div>`;
+                            });
+                        }
+
+                        html += `
+                            <div class="flex items-start justify-between gap-2 group/entry">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-[11px] font-bold text-slate-200 leading-relaxed">${entry.topic}</span>
+                                        ${hasPoints ? `<button onclick="mvTogglePoints('${ptId}')" class="text-[9px] font-black text-purple-400 hover:text-purple-300 uppercase tracking-widest flex items-center gap-1 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded transition-colors"><i class="fas fa-list-ul text-[8px]"></i> ${entry.points.length} pts</button>` : ''}
+                                    </div>
+                                    ${hasPoints ? `<div id="${ptId}" class="mv-points-area">${pointsHTML}</div>` : ''}
+                                </div>
+                                <button onclick="mvDeleteEntry('${entry.id}')" class="text-slate-600 hover:text-rose-400 transition-colors opacity-0 group-hover/entry:opacity-100 flex-shrink-0 mt-0.5"><i class="fas fa-times text-[10px]"></i></button>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div></div>`;
+                });
+
+                html += `</div></div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function mvTogglePoints(ptId) {
+            const el = document.getElementById(ptId);
+            if (!el) return;
+            el.classList.toggle('open');
+        }
+
+        window.mvDeleteEntry = function(entryId) {
+            if (!confirm("Remove this mistake entry?")) return;
+            mistakesVault.entries = mistakesVault.entries.filter(e => e.id !== entryId);
+            saveUserDB();
+            mvRenderSubjectPills();
+            mvRenderEntries();
         }
     </script>
 </body>
