@@ -8,8 +8,19 @@
     <link rel="icon" type="image/png" href="/logo.png?v=4" sizes="192x192">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        /* Quill Dark Mode Overrides */
+.ql-toolbar.ql-snow { border-color: rgba(255,255,255,0.1); border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background: rgba(0,0,0,0.4); }
+.ql-container.ql-snow { border-color: rgba(255,255,255,0.1); border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+.ql-editor { min-height: 120px; font-size: 0.875rem; }
+.ql-snow .ql-stroke { stroke: #94a3b8; }
+.ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: #94a3b8; }
+.ql-snow .ql-picker { color: #94a3b8; }
+.ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke { stroke: #22d3ee; }
+.ql-editor p { margin-bottom: 0.5rem; }
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
         
         body { 
@@ -169,6 +180,32 @@
             <span class="text-white font-bold text-[10px] md:text-xs tracking-[0.2em] pulse-text uppercase">Click anywhere to continue</span>
         </div>
     </div>
+    <div id="vault-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl transition-opacity duration-300 opacity-0">
+    <div class="glass-panel p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 max-w-2xl w-full shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+        
+        <div class="flex justify-between items-center mb-6 shrink-0">
+            <h2 id="vault-modal-title" class="text-lg md:text-xl font-black text-white uppercase tracking-widest">Add Item</h2>
+            <button onclick="closeVaultModal()" class="text-slate-400 hover:text-rose-400 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-rose-500/10"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scroll pr-2 flex flex-col gap-4">
+            <div>
+                <label id="vault-modal-name-label" class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Name / Title</label>
+                <input type="text" id="vault-modal-input" placeholder="Enter title..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors font-medium">
+            </div>
+
+            <div id="vault-modal-editor-section" class="hidden flex-col h-full min-h-[250px]">
+                <label class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Detailed Notes (Optional)</label>
+                <div id="vault-quill-editor" class="bg-black/20 flex-1"></div>
+            </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-white/10 flex justify-end gap-3 shrink-0">
+            <button onclick="closeVaultModal()" class="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Cancel</button>
+            <button onclick="saveVaultModal()" class="bg-cyan-500 text-black px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">Save to Vault</button>
+        </div>
+    </div>
+</div>
 
     <div id="dashboard-app" class="flex flex-col md:flex-row h-dynamic w-full opacity-0 scale-[1.02] transition-all duration-1000 pointer-events-none pb-[70px] md:pb-0">
         
@@ -1821,10 +1858,29 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                 `;
             });
         }
-        // ==============================================
-            // ==============================================
-// REVISION VAULT LOGIC
 // ==============================================
+// REVISION VAULT LOGIC (V2: Rich Text & CRUD)
+// ==============================================
+
+// 1. Initialize Quill Editor globally
+let vaultQuill;
+document.addEventListener("DOMContentLoaded", () => {
+    vaultQuill = new Quill('#vault-quill-editor', {
+        theme: 'snow',
+        placeholder: 'Write your notes here...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['clean'] 
+            ]
+        }
+    });
+});
+
+// Modal State variables
+let vaultModalState = { mode: 'add', type: 'subject', subId: null, chapId: null, topId: null };
+
 function renderVaultView(level, subId = null, chapId = null) {
     const container = document.getElementById('vault-content-container');
     const breadcrumbs = document.getElementById('vault-breadcrumbs');
@@ -1843,9 +1899,18 @@ function renderVaultView(level, subId = null, chapId = null) {
 
         vaultData.forEach(sub => {
             container.innerHTML += `
-                <div onclick="renderVaultView('subject', '${sub.id}')" class="glass-panel p-5 rounded-2xl mb-3 cursor-pointer hover:border-cyan-500/50 transition-all group flex justify-between items-center">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform"><i class="fas fa-book"></i></div><h3 class="text-lg font-black text-white uppercase tracking-wider">${sub.name}</h3></div>
-                    <span class="text-xs text-slate-500 font-bold">${sub.chapters.length} Chapters <i class="fas fa-chevron-right ml-2"></i></span>
+                <div onclick="renderVaultView('subject', '${sub.id}')" class="glass-panel p-4 md:p-5 rounded-2xl mb-3 cursor-pointer hover:border-cyan-500/50 transition-all group flex justify-between items-center">
+                    <div class="flex items-center gap-3 md:gap-4 truncate pr-4">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform shrink-0"><i class="fas fa-book"></i></div>
+                        <h3 class="text-sm md:text-lg font-black text-white uppercase tracking-wider truncate">${sub.name}</h3>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[10px] md:text-xs text-slate-500 font-bold hidden sm:inline">${sub.chapters.length} Chapters</span>
+                        <div class="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); openVaultModal('edit', 'subject', '${sub.id}')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 transition-colors flex items-center justify-center"><i class="fas fa-pencil-alt text-[10px]"></i></button>
+                            <button onclick="event.stopPropagation(); deleteVaultItem('subject', '${sub.id}')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors flex items-center justify-center"><i class="fas fa-trash text-[10px]"></i></button>
+                        </div>
+                    </div>
                 </div>
             `;
         });
@@ -1856,8 +1921,8 @@ function renderVaultView(level, subId = null, chapId = null) {
         
         breadcrumbs.innerHTML = `
             <span class="cursor-pointer hover:text-slate-300 transition-colors" onclick="renderVaultView('root')">Vault</span>
-            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-2"></i>
-            <span class="text-cyan-400">${subject.name}</span>
+            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-1 md:px-2"></i>
+            <span class="text-cyan-400 truncate max-w-[100px] md:max-w-[200px] inline-block">${subject.name}</span>
         `;
         pdfBtn.classList.add('hidden');
 
@@ -1868,9 +1933,15 @@ function renderVaultView(level, subId = null, chapId = null) {
 
         subject.chapters.forEach(chap => {
             container.innerHTML += `
-                <div onclick="renderVaultView('chapter', '${subId}', '${chap.id}')" class="glass-panel p-4 rounded-xl mb-3 border-l-2 border-l-emerald-500 cursor-pointer hover:bg-white/5 transition-all group flex justify-between items-center">
-                    <h4 class="text-md font-bold text-slate-200 group-hover:text-white">${chap.name}</h4>
-                    <span class="text-[10px] uppercase tracking-widest text-emerald-400">${chap.topics.length} Topics <i class="fas fa-arrow-right ml-2"></i></span>
+                <div onclick="renderVaultView('chapter', '${subId}', '${chap.id}')" class="glass-panel p-3 md:p-4 rounded-xl mb-3 border-l-2 border-l-emerald-500 cursor-pointer hover:bg-white/5 transition-all group flex justify-between items-center">
+                    <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white truncate pr-4">${chap.name}</h4>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[9px] md:text-[10px] uppercase tracking-widest text-emerald-400 hidden sm:inline">${chap.topics.length} Topics</span>
+                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); openVaultModal('edit', 'chapter', '${subId}', '${chap.id}')" class="w-6 h-6 md:w-7 md:h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 flex items-center justify-center"><i class="fas fa-pencil-alt text-[10px]"></i></button>
+                            <button onclick="event.stopPropagation(); deleteVaultItem('chapter', '${subId}', '${chap.id}')" class="w-6 h-6 md:w-7 md:h-7 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center"><i class="fas fa-trash text-[10px]"></i></button>
+                        </div>
+                    </div>
                 </div>
             `;
         });
@@ -1881,11 +1952,11 @@ function renderVaultView(level, subId = null, chapId = null) {
         const chapter = subject.chapters.find(c => c.id === chapId);
         
         breadcrumbs.innerHTML = `
-            <span class="cursor-pointer hover:text-slate-300 transition-colors" onclick="renderVaultView('root')">Vault</span>
-            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-2"></i>
-            <span class="cursor-pointer hover:text-slate-300 transition-colors" onclick="renderVaultView('subject', '${subId}')">${subject.name}</span>
-            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-2"></i>
-            <span class="text-cyan-400">${chapter.name}</span>
+            <span class="cursor-pointer hover:text-slate-300 transition-colors hidden sm:inline" onclick="renderVaultView('root')">Vault</span>
+            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-1 md:px-2 hidden sm:inline"></i>
+            <span class="cursor-pointer hover:text-slate-300 transition-colors truncate max-w-[80px] md:max-w-[150px] inline-block" onclick="renderVaultView('subject', '${subId}')">${subject.name}</span>
+            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-1 md:px-2"></i>
+            <span class="text-cyan-400 truncate max-w-[100px] md:max-w-[200px] inline-block">${chapter.name}</span>
         `;
         pdfBtn.classList.remove('hidden');
 
@@ -1895,14 +1966,20 @@ function renderVaultView(level, subId = null, chapId = null) {
         }
 
         chapter.topics.forEach(topic => {
-            let detailsHTML = topic.details ? `<p class="mt-2 text-xs md:text-sm text-slate-400 pl-4 border-l-2 border-slate-700 whitespace-pre-wrap">${topic.details}</p>` : '';
+            let detailsHTML = topic.details ? `<div class="mt-3 text-xs md:text-sm text-slate-300 pl-3 md:pl-4 border-l-2 border-slate-700 quill-content">${topic.details}</div>` : '';
             container.innerHTML += `
-                <div class="bg-black/40 border border-white/5 p-4 rounded-xl mb-3">
-                    <div class="flex items-start gap-3">
-                        <i class="fas fa-circle text-[6px] text-cyan-400 mt-2"></i>
-                        <div class="flex-1">
-                            <h5 class="text-sm font-bold text-white">${topic.title}</h5>
-                            ${detailsHTML}
+                <div class="bg-black/40 border border-white/5 p-4 rounded-xl mb-3 group">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 flex-1 min-w-0">
+                            <i class="fas fa-circle text-[6px] text-cyan-400 mt-1.5 shrink-0"></i>
+                            <div class="flex-1 min-w-0">
+                                <h5 class="text-xs md:text-sm font-bold text-white break-words">${topic.title}</h5>
+                                ${detailsHTML}
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <button onclick="openVaultModal('edit', 'topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 flex items-center justify-center"><i class="fas fa-pencil-alt text-[9px]"></i></button>
+                            <button onclick="deleteVaultItem('topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 rounded bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center"><i class="fas fa-trash text-[9px]"></i></button>
                         </div>
                     </div>
                 </div>
@@ -1911,31 +1988,131 @@ function renderVaultView(level, subId = null, chapId = null) {
     }
 }
 
+// ----------------------------------------------------------------
+// Modal Controls (Replaces prompt)
+// ----------------------------------------------------------------
 function promptAddVaultItem() {
-    let type = currentVaultPath.subjectId === null ? 'Subject' : (currentVaultPath.chapterId === null ? 'Chapter' : 'Topic');
-    
-    const name = prompt(`Enter new ${type} name/title:`);
-    if (!name || name.trim() === '') return;
+    let type = currentVaultPath.subjectId === null ? 'subject' : (currentVaultPath.chapterId === null ? 'chapter' : 'topic');
+    openVaultModal('add', type, currentVaultPath.subjectId, currentVaultPath.chapterId);
+}
 
-    if (type === 'Subject') {
-        vaultData.push({ id: 'sub_' + Date.now(), name: name.trim(), chapters: [] });
-        saveVaultToDB();
-        renderVaultView('root');
+function openVaultModal(mode, type, subId = null, chapId = null, topId = null) {
+    vaultModalState = { mode, type, subId, chapId, topId };
+    
+    const modal = document.getElementById('vault-modal');
+    const titleEl = document.getElementById('vault-modal-title');
+    const inputEl = document.getElementById('vault-modal-input');
+    const editorSec = document.getElementById('vault-modal-editor-section');
+    
+    // Reset fields
+    inputEl.value = '';
+    vaultQuill.root.innerHTML = '';
+    
+    titleEl.innerText = `${mode === 'add' ? 'New' : 'Edit'} ${type}`;
+    
+    // Show/hide rich text editor
+    if (type === 'topic') {
+        editorSec.classList.remove('hidden');
+        editorSec.classList.add('flex');
+    } else {
+        editorSec.classList.add('hidden');
+        editorSec.classList.remove('flex');
+    }
+
+    // Pre-fill if editing
+    if (mode === 'edit') {
+        const sub = vaultData.find(s => s.id === subId);
+        if (type === 'subject') inputEl.value = sub.name;
+        if (type === 'chapter') {
+            const chap = sub.chapters.find(c => c.id === chapId);
+            inputEl.value = chap.name;
+        }
+        if (type === 'topic') {
+            const chap = sub.chapters.find(c => c.id === chapId);
+            const top = chap.topics.find(t => t.id === topId);
+            inputEl.value = top.title;
+            vaultQuill.root.innerHTML = top.details || '';
+        }
+    }
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.children[0].classList.remove('scale-95');
+        inputEl.focus();
+    }, 10);
+}
+
+function closeVaultModal() {
+    const modal = document.getElementById('vault-modal');
+    modal.classList.add('opacity-0');
+    modal.children[0].classList.add('scale-95');
+    setTimeout(() => { modal.classList.add('hidden'); }, 300);
+}
+
+function saveVaultModal() {
+    const { mode, type, subId, chapId, topId } = vaultModalState;
+    const nameVal = document.getElementById('vault-modal-input').value.trim();
+    if (!nameVal) { alert("Title cannot be empty."); return; }
+
+    if (mode === 'add') {
+        if (type === 'subject') {
+            vaultData.push({ id: 'sub_' + Date.now(), name: nameVal, chapters: [] });
+            saveVaultToDB(); renderVaultView('root');
+        } 
+        else if (type === 'chapter') {
+            const sub = vaultData.find(s => s.id === subId);
+            sub.chapters.push({ id: 'chap_' + Date.now(), name: nameVal, topics: [] });
+            saveVaultToDB(); renderVaultView('subject', subId);
+        } 
+        else if (type === 'topic') {
+            const sub = vaultData.find(s => s.id === subId);
+            const chap = sub.chapters.find(c => c.id === chapId);
+            const detailsHtml = vaultQuill.root.innerHTML === '<p><br></p>' ? '' : vaultQuill.root.innerHTML;
+            chap.topics.push({ id: 'top_' + Date.now(), title: nameVal, details: detailsHtml });
+            saveVaultToDB(); renderVaultView('chapter', subId, chapId);
+        }
     } 
-    else if (type === 'Chapter') {
-        const sub = vaultData.find(s => s.id === currentVaultPath.subjectId);
-        sub.chapters.push({ id: 'chap_' + Date.now(), name: name.trim(), topics: [] });
-        saveVaultToDB();
-        renderVaultView('subject', currentVaultPath.subjectId);
+    else if (mode === 'edit') {
+        const sub = vaultData.find(s => s.id === subId);
+        if (type === 'subject') {
+            sub.name = nameVal;
+            saveVaultToDB(); renderVaultView('root');
+        }
+        else if (type === 'chapter') {
+            const chap = sub.chapters.find(c => c.id === chapId);
+            chap.name = nameVal;
+            saveVaultToDB(); renderVaultView('subject', subId);
+        }
+        else if (type === 'topic') {
+            const chap = sub.chapters.find(c => c.id === chapId);
+            const top = chap.topics.find(t => t.id === topId);
+            top.title = nameVal;
+            top.details = vaultQuill.root.innerHTML === '<p><br></p>' ? '' : vaultQuill.root.innerHTML;
+            saveVaultToDB(); renderVaultView('chapter', subId, chapId);
+        }
+    }
+    closeVaultModal();
+}
+
+function deleteVaultItem(type, subId, chapId = null, topId = null) {
+    // Custom confirm to avoid browser prompt, but standard confirm is safest to prevent accidental deletion quickly
+    if(!confirm(`Are you sure you want to delete this ${type}? This action cannot be undone.`)) return;
+
+    if (type === 'subject') {
+        vaultData = vaultData.filter(s => s.id !== subId);
+        saveVaultToDB(); renderVaultView('root');
     } 
-    else if (type === 'Topic') {
-        const sub = vaultData.find(s => s.id === currentVaultPath.subjectId);
-        const chap = sub.chapters.find(c => c.id === currentVaultPath.chapterId);
-        const details = prompt(`(Optional) Enter detailed notes for "${name}":`);
-        
-        chap.topics.push({ id: 'top_' + Date.now(), title: name.trim(), details: details ? details.trim() : "" });
-        saveVaultToDB();
-        renderVaultView('chapter', currentVaultPath.subjectId, currentVaultPath.chapterId);
+    else if (type === 'chapter') {
+        const sub = vaultData.find(s => s.id === subId);
+        sub.chapters = sub.chapters.filter(c => c.id !== chapId);
+        saveVaultToDB(); renderVaultView('subject', subId);
+    } 
+    else if (type === 'topic') {
+        const sub = vaultData.find(s => s.id === subId);
+        const chap = sub.chapters.find(c => c.id === chapId);
+        chap.topics = chap.topics.filter(t => t.id !== topId);
+        saveVaultToDB(); renderVaultView('chapter', subId, chapId);
     }
 }
 
@@ -1944,6 +2121,9 @@ function saveVaultToDB() {
       .catch(err => console.error("Vault save failed:", err));
 }
 
+// ----------------------------------------------------------------
+// Export to PDF (Updated for Rich Text)
+// ----------------------------------------------------------------
 function exportChapterPDF() {
     if (!currentVaultPath.chapterId) return;
     
@@ -1952,29 +2132,37 @@ function exportChapterPDF() {
     const pdfContainer = document.getElementById('pdf-export-container');
     
     let htmlContent = `
-        <div style="font-family: Arial, sans-serif; color: #000; padding: 20px;">
-            <h1 style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">${sub.name} - ${chap.name}</h1>
-            <ul style="list-style-type: disc; padding-left: 20px;">
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 30px;">
+            <div style="border-bottom: 2px solid #0ea5e9; padding-bottom: 10px; margin-bottom: 25px;">
+                <h1 style="margin: 0; font-size: 24px; color: #0f172a;">${chap.name}</h1>
+                <p style="margin: 5px 0 0 0; font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">${sub.name}</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
     `;
 
     chap.topics.forEach(topic => {
-        htmlContent += `<li style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">${topic.title}</li>`;
+        htmlContent += `
+            <div style="page-break-inside: avoid;">
+                <h2 style="font-size: 16px; font-weight: bold; color: #0f172a; margin: 0 0 8px 0; border-left: 3px solid #10b981; padding-left: 10px;">${topic.title}</h2>
+        `;
         if (topic.details) {
+            // Because Quill outputs clean HTML (p, strong, em, ul, li), we just inject it.
             htmlContent += `
-                <ul style="list-style-type: circle; padding-left: 20px; margin-bottom: 15px;">
-                    <li style="font-size: 14px; font-weight: normal; color: #333; white-space: pre-wrap;">${topic.details}</li>
-                </ul>
+                <div style="font-size: 14px; line-height: 1.6; color: #334155; padding-left: 13px;">
+                    ${topic.details}
+                </div>
             `;
         }
+        htmlContent += `</div>`;
     });
 
-    htmlContent += `</ul></div>`;
+    htmlContent += `</div></div>`;
     pdfContainer.innerHTML = htmlContent;
     pdfContainer.classList.remove('hidden');
 
     const opt = {
         margin:       10,
-        filename:     `${sub.name}_${chap.name}_Revision.pdf`,
+        filename:     `${sub.name.replace(/[^a-z0-9]/gi, '_')}_${chap.name.replace(/[^a-z0-9]/gi, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
