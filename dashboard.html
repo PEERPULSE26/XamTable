@@ -1287,11 +1287,16 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                     if(viewName === 'score') {
                         updateScoreUI(); 
                     }
-                    if(viewName === 'leaderboard') {
+                   if(viewName === 'leaderboard') {
                         startLeaderboardSync();
                     } else if (unsubscribeLeaderboard) {
                         unsubscribeLeaderboard();
                         unsubscribeLeaderboard = null;
+                    }
+                    
+                    // FREED: Now it runs every time you click the Vault button
+                    if(viewName === 'vault') {
+                        renderVaultView('root');
                     }
                 }, 50);
             }, 200);
