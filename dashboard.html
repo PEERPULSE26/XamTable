@@ -1891,7 +1891,8 @@ let currentVaultPath = { subjectId: null, chapterId: null };
 
 // 1. Initialize Quill Editor globally
 let vaultQuill;
-document.addEventListener("DOMContentLoaded", () => {
+// Initialize Quill immediately so it exists before any modal clicks happen
+if (document.getElementById('vault-quill-editor')) {
     vaultQuill = new Quill('#vault-quill-editor', {
         theme: 'snow',
         placeholder: 'Write your notes here...',
@@ -1903,7 +1904,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ]
         }
     });
-});
+}
 
 // Modal State variables
 let vaultModalState = { mode: 'add', type: 'subject', subId: null, chapId: null, topId: null };
