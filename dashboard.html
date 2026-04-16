@@ -215,11 +215,23 @@
                 <input type="text" id="vault-modal-input" placeholder="Enter title..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors font-medium">
             </div>
 
-            <div id="vault-modal-editor-section" class="hidden flex-col h-full min-h-[250px]">
-                <label class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Detailed Notes (Optional)</label>
-                <div id="vault-quill-editor" class="bg-black/20 flex-1"></div>
+            <div id="vault-modal-editor-section" class="hidden flex-col h-full min-h-[300px] gap-4">
+                
+                <div>
+                    <label class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Reference Image URL (Optional)</label>
+                    <div class="flex gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center text-cyan-400 shrink-0">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <input type="url" id="vault-modal-image-input" placeholder="Paste image link (https://...)" class="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors font-medium">
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col min-h-[150px]">
+                    <label class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Detailed Notes</label>
+                    <div id="vault-quill-editor" class="bg-black/20 flex-1 rounded-b-xl"></div>
+                </div>
             </div>
-        </div>
 
         <div class="mt-6 pt-4 border-t border-white/10 flex justify-end gap-3 shrink-0">
             <button onclick="closeVaultModal()" class="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Cancel</button>
