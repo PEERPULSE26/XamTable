@@ -827,30 +827,31 @@ let currentVaultPath = { subjectId: null, chapterId: null };
             }, 500);
         }
 
-        function saveUserDB() {
-            const userDB = {
-                name: liveUser.name,
-                photo: liveUser.photo,
-                globalXP: globalXP,
-                studyScore: studyScore,
-                totalCompletedTasks: totalCompletedTasks,
-                history: completedTasksHistory,
-                activeTasks: activeTasksList,
-                lastCheckedDate: lastCheckedDate,
-                weeklyXP: weeklyXP,
-                league: currentLeague,
-                cohortId: cohortId,
-                lastLeagueUpdateWeek: lastLeagueUpdateWeek,
-                streak: streak,
-                lastTaskDate: lastTaskDate,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            db.collection('xamtable_users').doc(liveUser.email).set(userDB)
-              .catch(err => console.error("Save failed:", err));
-              
-            updateStatsDisplays();
-        }
+       function saveUserDB() {
+        const userDB = {
+            name: liveUser.name,
+            photo: liveUser.photo,
+            globalXP: globalXP,
+            studyScore: studyScore,
+            totalCompletedTasks: totalCompletedTasks,
+            history: completedTasksHistory,
+            activeTasks: activeTasksList,
+            lastCheckedDate: lastCheckedDate,
+            weeklyXP: weeklyXP,
+            league: currentLeague,
+            cohortId: cohortId,
+            lastLeagueUpdateWeek: lastLeagueUpdateWeek,
+            streak: streak,
+            lastTaskDate: lastTaskDate,
+            vault: vaultData, 
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        db.collection('xamtable_users').doc(liveUser.email).set(userDB, { merge: true })
+          .catch(err => console.error("Save failed:", err));
+          
+        updateStatsDisplays();
+    }
 
         function updateStatsDisplays() {
             document.getElementById('global-xp-desktop').innerHTML = `${globalXP} <span class="text-xs text-slate-400">XP</span>`;
@@ -1992,20 +1993,30 @@ function renderVaultView(level, subId = null, chapId = null) {
         }
 
         chapter.topics.forEach(topic => {
-            let detailsHTML = topic.details ? `<div class="mt-3 text-xs md:text-sm text-slate-300 pl-3 md:pl-4 border-l-2 border-slate-700 quill-content">${topic.details}</div>` : '';
+            let detailsHTML = topic.details ? `<div class="text-xs md:text-sm text-slate-300 pl-3 md:pl-4 border-l-2 border-slate-700 quill-content break-words">${topic.details}</div>` : '';
+            
+            let imageHTML = topic.imageUrl ? `<div class="w-full lg:w-1/3 shrink-0 rounded-xl overflow-hidden border border-white/10 mt-3 lg:mt-0"><img src="${topic.imageUrl}" class="w-full h-auto object-cover" onerror="this.style.display='none'"></div>` : '';
+            
+            let contentLayout = `<div class="flex flex-col lg:flex-row gap-4 mt-3 w-full items-start">
+                                    ${imageHTML}
+                                    <div class="flex-1 min-w-0 w-full">${detailsHTML}</div>
+                                 </div>`;
+
+            if (!topic.details && !topic.imageUrl) contentLayout = '';
+
             container.innerHTML += `
                 <div class="bg-black/40 border border-white/5 p-4 rounded-xl mb-3 group">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-start gap-3 flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-2 md:gap-3 w-full">
+                        <div class="flex items-start gap-3 flex-1 min-w-0 pr-2 w-full">
                             <i class="fas fa-circle text-[6px] text-cyan-400 mt-1.5 shrink-0"></i>
-                            <div class="flex-1 min-w-0">
+                            <div class="flex-1 min-w-0 w-full">
                                 <h5 class="text-xs md:text-sm font-bold text-white break-words">${topic.title}</h5>
-                                ${detailsHTML}
+                                ${contentLayout}
                             </div>
                         </div>
-                        <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                            <button onclick="openVaultModal('edit', 'topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 flex items-center justify-center"><i class="fas fa-pencil-alt text-[9px]"></i></button>
-                            <button onclick="deleteVaultItem('topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 rounded bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center"><i class="fas fa-trash text-[9px]"></i></button>
+                        <div class="flex flex-col gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <button onclick="openVaultModal('edit', 'topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 md:w-7 md:h-7 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 flex items-center justify-center"><i class="fas fa-pencil-alt text-[9px] md:text-[10px]"></i></button>
+                            <button onclick="deleteVaultItem('topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 md:w-7 md:h-7 rounded bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center"><i class="fas fa-trash text-[9px] md:text-[10px]"></i></button>
                         </div>
                     </div>
                 </div>
@@ -2029,14 +2040,14 @@ function openVaultModal(mode, type, subId = null, chapId = null, topId = null) {
     const titleEl = document.getElementById('vault-modal-title');
     const inputEl = document.getElementById('vault-modal-input');
     const editorSec = document.getElementById('vault-modal-editor-section');
+    const imageInputEl = document.getElementById('vault-modal-image-input'); // NEW
     
-    // Reset fields
     inputEl.value = '';
+    if (imageInputEl) imageInputEl.value = ''; // NEW
     vaultQuill.root.innerHTML = '';
     
     titleEl.innerText = `${mode === 'add' ? 'New' : 'Edit'} ${type}`;
     
-    // Show/hide rich text editor
     if (type === 'topic') {
         editorSec.classList.remove('hidden');
         editorSec.classList.add('flex');
@@ -2045,7 +2056,6 @@ function openVaultModal(mode, type, subId = null, chapId = null, topId = null) {
         editorSec.classList.remove('flex');
     }
 
-    // Pre-fill if editing
     if (mode === 'edit') {
         const sub = vaultData.find(s => s.id === subId);
         if (type === 'subject') inputEl.value = sub.name;
@@ -2058,6 +2068,7 @@ function openVaultModal(mode, type, subId = null, chapId = null, topId = null) {
             const top = chap.topics.find(t => t.id === topId);
             inputEl.value = top.title;
             vaultQuill.root.innerHTML = top.details || '';
+            if (imageInputEl) imageInputEl.value = top.imageUrl || ''; // NEW
         }
     }
 
@@ -2079,6 +2090,8 @@ function closeVaultModal() {
 function saveVaultModal() {
     const { mode, type, subId, chapId, topId } = vaultModalState;
     const nameVal = document.getElementById('vault-modal-input').value.trim();
+    const imageVal = document.getElementById('vault-modal-image-input').value.trim(); // NEW
+
     if (!nameVal) { alert("Title cannot be empty."); return; }
 
     if (mode === 'add') {
@@ -2095,7 +2108,9 @@ function saveVaultModal() {
             const sub = vaultData.find(s => s.id === subId);
             const chap = sub.chapters.find(c => c.id === chapId);
             const detailsHtml = vaultQuill.root.innerHTML === '<p><br></p>' ? '' : vaultQuill.root.innerHTML;
-            chap.topics.push({ id: 'top_' + Date.now(), title: nameVal, details: detailsHtml });
+            
+            // NEW: Added imageUrl here
+            chap.topics.push({ id: 'top_' + Date.now(), title: nameVal, details: detailsHtml, imageUrl: imageVal });
             saveVaultToDB(); renderVaultView('chapter', subId, chapId);
         }
     } 
@@ -2115,12 +2130,14 @@ function saveVaultModal() {
             const top = chap.topics.find(t => t.id === topId);
             top.title = nameVal;
             top.details = vaultQuill.root.innerHTML === '<p><br></p>' ? '' : vaultQuill.root.innerHTML;
+            
+            // NEW: Updated imageUrl here
+            top.imageUrl = imageVal; 
             saveVaultToDB(); renderVaultView('chapter', subId, chapId);
         }
     }
     closeVaultModal();
 }
-
 function deleteVaultItem(type, subId, chapId = null, topId = null) {
     // Custom confirm to avoid browser prompt, but standard confirm is safest to prevent accidental deletion quickly
     if(!confirm(`Are you sure you want to delete this ${type}? This action cannot be undone.`)) return;
