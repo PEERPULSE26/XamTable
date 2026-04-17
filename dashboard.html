@@ -1974,9 +1974,8 @@ let currentVaultPath = { subjectId: null, chapterId: null };
 // REVISION VAULT LOGIC (V2: Rich Text & CRUD)
 // ==============================================
 
-// 1. Initialize Quill Editor globally
 let vaultQuill;
-document.addEventListener("DOMContentLoaded", () => {
+if (document.getElementById('vault-quill-editor')) {
     vaultQuill = new Quill('#vault-quill-editor', {
         theme: 'snow',
         placeholder: 'Write your notes here...',
@@ -1988,8 +1987,12 @@ document.addEventListener("DOMContentLoaded", () => {
             ]
         }
     });
-});
 
+    // NEW: Auto-save to browser memory every time you type
+    vaultQuill.on('text-change', () => {
+        localStorage.setItem('xamVaultDraft_' + liveUser.email, vaultQuill.root.innerHTML);
+    });
+}
 // Modal State variables
 let vaultModalState = { mode: 'add', type: 'subject', subId: null, chapId: null, topId: null };
 
@@ -2115,44 +2118,56 @@ function openVaultModal(mode, type, subId = null, chapId = null, topId = null) {
     const titleEl = document.getElementById('vault-modal-title');
     const inputEl = document.getElementById('vault-modal-input');
     const editorSec = document.getElementById('vault-modal-editor-section');
+    const imageInputEl = document.getElementById('vault-modal-image-input'); 
     
-    // Reset fields
-    inputEl.value = '';
-    vaultQuill.root.innerHTML = '';
+    if (inputEl) inputEl.value = '';
+    if (imageInputEl) imageInputEl.value = ''; 
     
-    titleEl.innerText = `${mode === 'add' ? 'New' : 'Edit'} ${type}`;
+    // NEW: Check for a saved draft when adding a topic. Otherwise, clear it.
+    if (vaultQuill) {
+        if (mode === 'add' && type === 'topic') {
+            vaultQuill.root.innerHTML = localStorage.getItem('xamVaultDraft_' + liveUser.email) || '';
+        } else {
+            vaultQuill.root.innerHTML = '';
+        }
+    }
     
-    // Show/hide rich text editor
-    if (type === 'topic') {
-        editorSec.classList.remove('hidden');
-        editorSec.classList.add('flex');
-    } else {
-        editorSec.classList.add('hidden');
-        editorSec.classList.remove('flex');
+    if (titleEl) titleEl.innerText = `${mode === 'add' ? 'New' : 'Edit'} ${type}`;
+    
+    if (editorSec) {
+        if (type === 'topic') {
+            editorSec.classList.remove('hidden');
+            editorSec.classList.add('flex');
+        } else {
+            editorSec.classList.add('hidden');
+            editorSec.classList.remove('flex');
+        }
     }
 
-    // Pre-fill if editing
     if (mode === 'edit') {
         const sub = vaultData.find(s => s.id === subId);
-        if (type === 'subject') inputEl.value = sub.name;
-        if (type === 'chapter') {
+        if (type === 'subject' && inputEl) inputEl.value = sub.name;
+        if (type === 'chapter' && inputEl) {
             const chap = sub.chapters.find(c => c.id === chapId);
             inputEl.value = chap.name;
         }
         if (type === 'topic') {
             const chap = sub.chapters.find(c => c.id === chapId);
             const top = chap.topics.find(t => t.id === topId);
-            inputEl.value = top.title;
-            vaultQuill.root.innerHTML = top.details || '';
+            if (inputEl) inputEl.value = top.title;
+            if (vaultQuill) vaultQuill.root.innerHTML = top.details || '';
+            if (imageInputEl) imageInputEl.value = top.imageUrl || ''; 
         }
     }
 
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        modal.children[0].classList.remove('scale-95');
-        inputEl.focus();
-    }, 10);
+    if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.children[0].classList.remove('scale-95');
+            if (inputEl) inputEl.focus();
+        }, 10);
+    }
 }
 
 function closeVaultModal() {
@@ -2165,6 +2180,8 @@ function closeVaultModal() {
 function saveVaultModal() {
     const { mode, type, subId, chapId, topId } = vaultModalState;
     const nameVal = document.getElementById('vault-modal-input').value.trim();
+    const imageVal = document.getElementById('vault-modal-image-input') ? document.getElementById('vault-modal-image-input').value.trim() : '';
+
     if (!nameVal) { alert("Title cannot be empty."); return; }
 
     if (mode === 'add') {
@@ -2180,8 +2197,9 @@ function saveVaultModal() {
         else if (type === 'topic') {
             const sub = vaultData.find(s => s.id === subId);
             const chap = sub.chapters.find(c => c.id === chapId);
-            const detailsHtml = vaultQuill.root.innerHTML === '<p><br></p>' ? '' : vaultQuill.root.innerHTML;
-            chap.topics.push({ id: 'top_' + Date.now(), title: nameVal, details: detailsHtml });
+            const detailsHtml = vaultQuill && vaultQuill.root.innerHTML !== '<p><br></p>' ? vaultQuill.root.innerHTML : '';
+            
+            chap.topics.push({ id: 'top_' + Date.now(), title: nameVal, details: detailsHtml, imageUrl: imageVal });
             saveVaultToDB(); renderVaultView('chapter', subId, chapId);
         }
     } 
@@ -2200,10 +2218,14 @@ function saveVaultModal() {
             const chap = sub.chapters.find(c => c.id === chapId);
             const top = chap.topics.find(t => t.id === topId);
             top.title = nameVal;
-            top.details = vaultQuill.root.innerHTML === '<p><br></p>' ? '' : vaultQuill.root.innerHTML;
+            top.details = vaultQuill && vaultQuill.root.innerHTML !== '<p><br></p>' ? vaultQuill.root.innerHTML : '';
+            top.imageUrl = imageVal; 
             saveVaultToDB(); renderVaultView('chapter', subId, chapId);
         }
     }
+    
+    // NEW: Clear the local draft memory after a successful save
+    localStorage.removeItem('xamVaultDraft_' + liveUser.email);
     closeVaultModal();
 }
 
