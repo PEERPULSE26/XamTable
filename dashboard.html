@@ -1987,11 +1987,13 @@ if (document.getElementById('vault-quill-editor')) {
             ]
         }
     });
-
-    // NEW: Auto-save to browser memory every time you type
-    vaultQuill.on('text-change', () => {
-        localStorage.setItem('xamVaultDraft_' + liveUser.email, vaultQuill.root.innerHTML);
+    // NEW: Auto-save ONLY if a human types (source === 'user'), ignore script clear-outs
+    vaultQuill.on('text-change', (delta, oldDelta, source) => {
+        if (source === 'user') {
+            localStorage.setItem('xamVaultDraft_' + liveUser.email, vaultQuill.root.innerHTML);
+        }
     });
+
 }
 // Modal State variables
 let vaultModalState = { mode: 'add', type: 'subject', subId: null, chapId: null, topId: null };
