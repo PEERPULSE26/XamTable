@@ -701,7 +701,6 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                     const data = docSnap.data();
                     globalXP = data.globalXP !== undefined ? data.globalXP : 1000;
                     studyScore = data.studyScore !== undefined ? data.studyScore : 700;
-                    vaultData = data.vault || [];
                     totalCompletedTasks = data.totalCompletedTasks || 0;
                     completedTasksHistory = data.history || {};
                     activeTasksList = data.activeTasks || [];
@@ -729,7 +728,19 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                     cohortId = `${activeWeek}_0_${Math.floor(Math.random() * 10)}`; 
                     saveUserDB(); 
                 }
-
+                // Fetch the secure vault from the isolated subcollection
+                try {
+                    const vaultSnap = await db.collection('xamtable_users').doc(liveUser.email).collection('exam_memory').doc('secure_vault').get();
+                    if (vaultSnap.exists) {
+                        vaultData = vaultSnap.data().vault || [];
+                    } else {
+                        vaultData = [];
+                    }
+                } catch (vErr) {
+                    console.error("Failed to load secure vault", vErr);
+                    vaultData = [];
+                }
+                 
                 updateStatsDisplays();
                 restoreActiveTasks();
                 
@@ -854,30 +865,30 @@ let currentVaultPath = { subjectId: null, chapterId: null };
         }
 
         function saveUserDB() {
-            const userDB = {
-                name: liveUser.name,
-                photo: liveUser.photo,
-                globalXP: globalXP,
-                studyScore: studyScore,
-                totalCompletedTasks: totalCompletedTasks,
-                history: completedTasksHistory,
-                activeTasks: activeTasksList,
-                lastCheckedDate: lastCheckedDate,
-                weeklyXP: weeklyXP,
-                league: currentLeague,
-                cohortId: cohortId,
-                lastLeagueUpdateWeek: lastLeagueUpdateWeek,
-                streak: streak,
-                lastTaskDate: lastTaskDate,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            db.collection('xamtable_users').doc(liveUser.email).set(userDB)
-              .catch(err => console.error("Save failed:", err));
-              
-            updateStatsDisplays();
-        }
-
+        const userDB = {
+            name: liveUser.name,
+            photo: liveUser.photo,
+            globalXP: globalXP,
+            studyScore: studyScore,
+            totalCompletedTasks: totalCompletedTasks,
+            history: completedTasksHistory,
+            activeTasks: activeTasksList,
+            lastCheckedDate: lastCheckedDate,
+            weeklyXP: weeklyXP,
+            league: currentLeague,
+            cohortId: cohortId,
+            lastLeagueUpdateWeek: lastLeagueUpdateWeek,
+            streak: streak,
+            lastTaskDate: lastTaskDate,
+            // NOTICE: vaultData is completely removed from here
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        db.collection('xamtable_users').doc(liveUser.email).set(userDB, { merge: true })
+          .catch(err => console.error("Main save failed:", err));
+          
+        updateStatsDisplays();
+    }
         function updateStatsDisplays() {
             document.getElementById('global-xp-desktop').innerHTML = `${globalXP} <span class="text-xs text-slate-400">XP</span>`;
             document.getElementById('global-xp-mobile').innerText = globalXP;
@@ -2218,8 +2229,9 @@ function deleteVaultItem(type, subId, chapId = null, topId = null) {
 }
 
 function saveVaultToDB() {
-    db.collection('xamtable_users').doc(liveUser.email).update({ vault: vaultData })
-      .catch(err => console.error("Vault save failed:", err));
+    // Rerouted to an isolated Subcollection so the dashboard can't touch it
+    db.collection('xamtable_users').doc(liveUser.email).collection('exam_memory').doc('secure_vault').set({ vault: vaultData })
+      .catch(err => console.error("Vault secure save failed:", err));
 }
 
 // ----------------------------------------------------------------
