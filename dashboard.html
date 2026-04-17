@@ -1097,44 +1097,79 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                         return (b.studyScore || 700) - (a.studyScore || 700); // If XP is tied, highest Study Score wins
                     });
                     
-                    listEl.innerHTML = '';
+                   listEl.innerHTML = '';
                     
                     if(users.length === 0) {
-                        listEl.innerHTML = `<div class="text-center py-10 opacity-50 text-xs tracking-widest uppercase">No rivals found in this bracket yet.</div>`;
+                        listEl.innerHTML = '<div class="text-center py-10 opacity-50 text-xs tracking-widest uppercase">No rivals found in this bracket yet.</div>';
                         return;
                     }
 
+                    // --- NEW PODIUM UI FOR TOP 3 ---
+                    let podiumHTML = '<div class="flex justify-center items-end gap-2 md:gap-6 mb-8 mt-4">';
+                    
+                    const makePillar = (u, rank) => {
+                        if (!u) return '<div class="w-20 md:w-28"></div>';
+                        const isMe = (u.id === liveUser.email);
+                        const nameColor = isMe ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]' : 'text-white';
+                        
+                        let colorClass, height, iconColor;
+                        if (rank === 1) { colorClass = 'from-yellow-400/80 to-yellow-600/80 border-yellow-400/50'; height = 'h-32 md:h-40'; iconColor = 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]'; }
+                        if (rank === 2) { colorClass = 'from-slate-300/80 to-slate-500/80 border-slate-300/50'; height = 'h-24 md:h-28'; iconColor = 'text-slate-300 drop-shadow-[0_0_10px_rgba(203,213,225,0.8)]'; }
+                        if (rank === 3) { colorClass = 'from-amber-600/80 to-amber-800/80 border-amber-600/50'; height = 'h-20 md:h-24'; iconColor = 'text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]'; }
+                        
+                        return '<div class="flex flex-col items-center w-24 md:w-32 relative transform hover:-translate-y-2 transition-transform duration-300">' +
+                            '<i class="fas fa-trophy ' + iconColor + ' text-2xl md:text-4xl mb-2"></i>' +
+                            '<img src="' + (u.photo || 'https://ui-avatars.com/api/?name=?') + '" class="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-white/20 mb-2 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] object-cover bg-black">' +
+                            '<span class="text-[10px] md:text-xs font-black ' + nameColor + ' truncate w-full text-center mb-1 px-1">' + (isMe ? 'You' : (u.name || 'Aspirant')) + '</span>' +
+                            '<span class="text-[9px] md:text-[10px] text-emerald-400 font-bold mb-2 tracking-wider">' + (u.weeklyXP || 0) + ' XP</span>' +
+                            '<div class="w-full ' + height + ' bg-gradient-to-t ' + colorClass + ' rounded-t-lg md:rounded-t-2xl border-t-4 flex items-start justify-center pt-3 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] relative overflow-hidden backdrop-blur-sm">' +
+                                 '<span class="font-black text-black/40 text-2xl md:text-4xl">' + rank + '</span>' +
+                            '</div>' +
+                        '</div>';
+                    };
+
+                    // Build Podium Layout (2nd, 1st, 3rd)
+                    if (users.length > 1) podiumHTML += makePillar(users[1], 2);
+                    if (users.length > 0) podiumHTML += makePillar(users[0], 1);
+                    if (users.length > 2) podiumHTML += makePillar(users[2], 3);
+                    
+                    podiumHTML += '</div><div class="space-y-1">';
+                    listEl.innerHTML = podiumHTML;
+
+                    // --- REGULAR LIST FOR RANK 4 AND BELOW ---
                     users.forEach((u, index) => {
                         const rank = index + 1;
+                        if (rank <= 3) return; // Top 3 are on the podium, skip them here
+                        
                         const isMe = (u.id === liveUser.email);
                         
                         let bgStyle = isMe ? "bg-white/10 border-white/20" : "bg-black/20 border-transparent hover:bg-white/5";
                         if (rank <= 7) bgStyle += " border-l-2 border-l-emerald-400"; 
                         else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) bgStyle += " border-l-2 border-l-rose-500"; 
 
-                        listEl.innerHTML += `
-                            <div class="flex items-center p-2 md:p-3 rounded-xl border ${bgStyle} transition-colors">
-                                <div class="w-8 md:w-12 text-center font-black text-slate-500 text-xs md:text-sm">${rank}</div>
-                                <div class="flex-1 flex items-center gap-2 pl-2 overflow-hidden">
-                                    <img src="${u.photo || 'https://ui-avatars.com/api/?name=?'}" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/10 shrink-0">
-                                    <span class="text-[10px] md:text-xs font-bold text-white truncate ${isMe ? 'text-cyan-400' : ''}">${isMe ? 'You' : (u.name || 'Aspirant')}</span>
-                                </div>
-                                <div class="w-20 md:w-24 text-right pr-2">
-                                    <span class="text-[9px] md:text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">${u.studyScore || 700}</span>
-                                </div>
-                                <div class="w-16 md:w-24 text-right pr-2 md:pr-4 font-black text-emerald-400 text-xs md:text-sm">
-                                    ${u.weeklyXP || 0}
-                                </div>
-                            </div>
-                        `;
+                        listEl.innerHTML += '<div class="flex items-center p-2 md:p-3 rounded-xl border ' + bgStyle + ' transition-colors">' +
+                                '<div class="w-8 md:w-12 text-center font-black text-slate-500 text-xs md:text-sm">' + rank + '</div>' +
+                                '<div class="flex-1 flex items-center gap-2 pl-2 overflow-hidden">' +
+                                    '<img src="' + (u.photo || 'https://ui-avatars.com/api/?name=?') + '" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/10 shrink-0">' +
+                                    '<span class="text-[10px] md:text-xs font-bold text-white truncate ' + (isMe ? 'text-cyan-400' : '') + '">' + (isMe ? 'You' : (u.name || 'Aspirant')) + '</span>' +
+                                '</div>' +
+                                '<div class="w-20 md:w-24 text-right pr-2">' +
+                                    '<span class="text-[9px] md:text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">' + (u.studyScore || 700) + '</span>' +
+                                '</div>' +
+                                '<div class="w-16 md:w-24 text-right pr-2 md:pr-4 font-black text-emerald-400 text-xs md:text-sm">' +
+                                    (u.weeklyXP || 0) +
+                                '</div>' +
+                            '</div>';
                         
                         if (rank === 7 && users.length > 7) {
-                            listEl.innerHTML += `<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>`;
+                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>';
                         }
                         if (rank === users.length - 5 && currentLeague > 1 && users.length > 10) {
-                            listEl.innerHTML += `<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-rose-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-rose-500/50 font-black">Demotion Zone</span><div class="w-full border-t border-dashed border-rose-500/30"></div></div>`;
+                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-rose-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-rose-500/50 font-black">Demotion Zone</span><div class="w-full border-t border-dashed border-rose-500/30"></div></div>';
                         }
                     });
+                    
+                    listEl.innerHTML += '</div>';
                 });
         }
 
