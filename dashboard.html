@@ -267,43 +267,6 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
         </button>
     </div>
 </div>
-    <div id="support-modal" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/90 backdrop-blur-lg transition-opacity duration-300 opacity-0">
-    <div class="glass-panel p-6 md:p-10 rounded-2xl md:rounded-3xl border-t-4 border-amber-500 max-w-2xl w-full shadow-[0_0_40px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300">
-        
-        <button onclick="closeSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10">
-            <i class="fas fa-times text-xl"></i>
-        </button>
-
-        <div class="text-center mb-8">
-            <div class="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-full bg-gradient-to-tr from-amber-400 to-orange-600 flex items-center justify-center text-black text-3xl md:text-4xl mb-4 shadow-[0_0_20px_rgba(245,158,11,0.4)]">
-                <i class="fas fa-crown"></i>
-            </div>
-            <h2 class="text-2xl md:text-3xl font-black text-white uppercase tracking-widest">Support XamTable</h2>
-            <p class="text-amber-400 text-sm font-bold tracking-widest mt-2 uppercase">Unlock VIP Status</p>
-        </div>
-
-        <div class="space-y-4 text-slate-300 text-sm md:text-base leading-relaxed mb-8 bg-black/40 p-5 md:p-6 rounded-xl border border-white/5">
-            <p>
-                Hey Aspirants. I built XamTable alone to solve the exact problems we face while preparing for NEET and JEE. No massive corporate team, no investors—just one developer trying to build the ultimate study engine.
-            </p>
-            <p>
-                My goal is to keep the core features <strong>100% Free and Ad-Free</strong> forever. But ,the database and server costs will start to matter now for me, whenever I integrate any new features. I cannot bear this out of pocket anymore.
-            </p>
-            <p>
-                If this app has helped you stay disciplined atleast for 21days, consider supporting the servers. Every contribution helps keep the platform alive and lightning-fast. 
-            </p>
-            <p class="text-emerald-400 font-bold mt-4 border-t border-white/10 pt-4">
-                <i class="fas fa-check-circle mr-2"></i> PERK: All supporters permanently unlock the glowing <span class="text-amber-400">VIP Badge</span> next to their name on the global leaderboard.
-            </p>
-        </div>
-
-        <div class="flex justify-center">
-            <button id="razorpay-trigger-btn" class="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-amber-400 to-orange-500 text-black font-black text-lg rounded-xl uppercase tracking-widest hover:from-amber-300 hover:to-orange-400 transition-all hover:-translate-y-1 shadow-[0_0_20px_rgba(245,158,11,0.5)] flex items-center justify-center gap-3">
-                <i class="fas fa-bolt"></i> Become a VIP Supporter
-            </button>
-        </div>
-    </div>
-</div>
 
     <div id="dashboard-app" class="flex flex-col md:flex-row h-dynamic w-full opacity-0 scale-[1.02] transition-all duration-1000 pointer-events-none pb-[70px] md:pb-0">
         
@@ -335,10 +298,6 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
                 <a href="#" onclick="switchView('vault', this, 'desktop')" id="nav-vault-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
     <i class="fas fa-vault w-5"></i> Revision Vault
 </a>
-                <button onclick="openSupportModal()" class="relative group inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-black text-black uppercase tracking-widest transition-all duration-300 bg-gradient-to-r from-amber-400 to-orange-500 rounded-xl hover:from-amber-300 hover:to-orange-400 shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-    <i class="fas fa-bolt"></i>
-    <span>Support App</span>
-</button>
             </nav>
 
             <div class="p-4 border-t border-white/5 m-4 bg-black/40 rounded-2xl relative overflow-hidden flex justify-between items-center">
@@ -2424,29 +2383,6 @@ function exportChapterPDF() {
             targetEl.style.transform = 'scale(1)';
         }, 200);
     }, 700);
-}
-        function openSupportModal() {
-    var modal = document.getElementById('support-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        // Tiny delay to allow CSS transitions to trigger
-        setTimeout(function() {
-            modal.classList.remove('opacity-0');
-            modal.children[0].classList.remove('scale-95');
-        }, 10);
-    }
-}
-
-function closeSupportModal() {
-    var modal = document.getElementById('support-modal');
-    if (modal) {
-        modal.classList.add('opacity-0');
-        modal.children[0].classList.add('scale-95');
-        // Wait for transition to finish before hiding completely
-        setTimeout(function() { 
-            modal.classList.add('hidden'); 
-        }, 300);
-    }
 }
     </script>
 </body>
