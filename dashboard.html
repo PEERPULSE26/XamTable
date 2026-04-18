@@ -12,6 +12,20 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        .reward-pill {
+    position: fixed;
+    width: 28px;
+    height: 12px;
+    background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+    border-radius: 999px;
+    box-shadow: 0 0 15px 3px rgba(0, 242, 254, 0.8);
+    pointer-events: none; /* Stops it from blocking clicks */
+    z-index: 99999; /* Keeps it above everything */
+    /* This creates the smooth curved flight path */
+    transition: left 0.7s cubic-bezier(0.25, 1, 0.5, 1), top 0.7s cubic-bezier(0.25, 1, 0.5, 1), transform 0.7s ease-in, opacity 0.7s ease-in;
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+}
         /* Quill Dark Mode Overrides */
 .ql-toolbar.ql-snow { border-color: rgba(255,255,255,0.1); border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background: rgba(0,0,0,0.4); }
 .ql-container.ql-snow { border-color: rgba(255,255,255,0.1); border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -1230,7 +1244,7 @@ let currentVaultPath = { subjectId: null, chapterId: null };
             const newTask = `
                 <div id="${taskData.id}" data-date="${taskData.targetDateStr}" class="glass-panel p-3 md:p-5 rounded-xl md:rounded-2xl border-l-4 border-l-cyan-500 flex items-start justify-between group transition-all duration-500 shrink-0">
                     <div class="flex items-start gap-3 md:gap-4 w-full">
-                        <button id="check-${taskData.id}" onclick="completeTask('${taskData.id}')" class="w-5 h-5 md:w-6 md:h-6 shrink-0 rounded-full border-2 border-slate-600 flex items-center justify-center hover:border-emerald-500 transition-colors mt-0.5 bg-black/20">
+                       <button id="check-${taskData.id}" onclick="completeTask('${taskData.id}'); shootGlowingPill(event, 'global-xp-desktop', 'global-xp-mobile')" class="w-5 h-5 md:w-6 md:h-6 shrink-0 rounded-full border-2 border-slate-600 flex items-center justify-center hover:border-emerald-500 transition-colors mt-0.5 bg-black/20">
                             <i class="fas fa-check text-[8px] md:text-[10px] text-transparent hover:text-emerald-500/50"></i>
                         </button>
                         
@@ -2307,6 +2321,68 @@ function exportChapterPDF() {
         modal.children[0].classList.add('scale-95');
         setTimeout(() => { modal.classList.add('hidden'); }, 300);
     }
+}
+        function shootGlowingPill(event, targetId1, targetId2) {
+    if (!event) return;
+
+    // 1. Get exact click coordinates
+    var startX = event.clientX;
+    var startY = event.clientY;
+    
+    if (event.touches && event.touches.length > 0) {
+        startX = event.touches[0].clientX;
+        startY = event.touches[0].clientY;
+    }
+
+    // 2. Smart Target Finder (Desktop vs Mobile)
+    var targetEl = document.getElementById(targetId1);
+    
+    // If target 1 doesn't exist OR is hidden by Tailwind (offsetWidth === 0), use target 2
+    if (!targetEl || targetEl.offsetWidth === 0) {
+        targetEl = document.getElementById(targetId2);
+    }
+    
+    // If both are hidden, abort the animation
+    if (!targetEl || targetEl.offsetWidth === 0) return; 
+
+    // 3. Calculate target coordinates
+    var rect = targetEl.getBoundingClientRect();
+    var endX = rect.left + (rect.width / 2);
+    var endY = rect.top + (rect.height / 2);
+
+    // ... (leave the rest of the spawn/animate/destroy code exactly the same)
+
+    var rect = targetEl.getBoundingClientRect();
+    var endX = rect.left + (rect.width / 2);
+    var endY = rect.top + (rect.height / 2);
+
+    // 3. Spawn the Glowing Pill at the cursor
+    var pill = document.createElement('div');
+    pill.className = 'reward-pill';
+    pill.style.left = startX + 'px';
+    pill.style.top = startY + 'px';
+    document.body.appendChild(pill);
+
+    // 4. Force the browser to register the pill before moving it
+    void pill.offsetWidth;
+
+    // 5. Shoot it to the target, spin it rapidly, and fade it out
+    pill.style.left = endX + 'px';
+    pill.style.top = endY + 'px';
+    pill.style.transform = 'rotate(1080deg) scale(0.3)';
+    pill.style.opacity = '0';
+
+    // 6. Delete the pill from the code after flight to prevent lag
+    setTimeout(function() {
+        pill.remove();
+        
+        // Give the target element a little "bump" effect when the pill hits it
+        targetEl.style.transition = 'transform 0.2s';
+        targetEl.style.transform = 'scale(1.3)';
+        setTimeout(function() {
+            targetEl.style.transform = 'scale(1)';
+        }, 200);
+    }, 700);
 }
     </script>
 </body>
