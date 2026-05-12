@@ -1116,55 +1116,44 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                         listEl.innerHTML = '<div class="text-center py-10 opacity-50 text-xs tracking-widest uppercase">No rivals found in this bracket yet.</div>';
                         return;
                     }
+                    // --- CLEAN LIST RENDERING (TOP 3 HIGHLIGHTED) ---
+                    listEl.innerHTML = '<div class="space-y-1">';
 
-                    // --- NEW CURVED PODIUM UI (DOES NOT REMOVE FROM LIST) ---
-                    let podiumHTML = '<div class="flex justify-center items-end gap-1 md:gap-3 mb-6 pt-4">';
-                    
-                    const makePillar = (u, rank) => {
-                        if (!u) return '<div class="w-20 md:w-28"></div>';
-                        const isMe = (u.id === liveUser.email);
-                        const nameColor = isMe ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]' : 'text-white';
-                        
-                        let colorClass, height, iconColor, radiusClass;
-                        // Center/Gold - Fully curved top
-                        if (rank === 1) { colorClass = 'from-yellow-400/80 to-yellow-600/80 border-yellow-400/50'; height = 'h-24 md:h-32'; iconColor = 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]'; radiusClass = 'rounded-t-full'; }
-                        // Left/Silver - Curved top-left
-                        if (rank === 2) { colorClass = 'from-slate-300/80 to-slate-500/80 border-slate-300/50'; height = 'h-16 md:h-24'; iconColor = 'text-slate-300 drop-shadow-[0_0_10px_rgba(203,213,225,0.8)]'; radiusClass = 'rounded-tl-full rounded-tr-lg'; }
-                        // Right/Bronze - Curved top-right
-                        if (rank === 3) { colorClass = 'from-amber-600/80 to-amber-800/80 border-amber-600/50'; height = 'h-12 md:h-16'; iconColor = 'text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]'; radiusClass = 'rounded-tr-full rounded-tl-lg'; }
-                        
-                        return '<div class="flex flex-col items-center w-24 md:w-32 relative transform hover:-translate-y-1 transition-transform duration-300">' +
-                            '<i class="fas fa-trophy ' + iconColor + ' text-xl md:text-3xl mb-1"></i>' +
-                            '<img src="' + (u.photo || 'https://ui-avatars.com/api/?name=?') + '" class="w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-white/20 mb-1 z-10 shadow-[0_5px_15px_rgba(0,0,0,0.5)] object-cover bg-black">' +
-                            '<span class="text-[9px] md:text-[10px] font-black ' + nameColor + ' truncate w-full text-center px-1">' + (isMe ? 'You' : (u.name || 'Aspirant')) + '</span>' +
-                            '<span class="text-[8px] md:text-[9px] text-emerald-400 font-bold mb-2 tracking-wider">' + (u.weeklyXP || 0) + ' XP</span>' +
-                            '<div class="w-full ' + height + ' bg-gradient-to-t ' + colorClass + ' ' + radiusClass + ' border-t-2 md:border-t-4 flex items-start justify-center pt-2 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] relative overflow-hidden backdrop-blur-sm">' +
-                                 '<span class="font-black text-black/40 text-xl md:text-2xl">' + rank + '</span>' +
-                            '</div>' +
-                        '</div>';
-                    };
-
-                    // Build Podium Layout (2nd, 1st, 3rd)
-                    if (users.length > 1) podiumHTML += makePillar(users[1], 2);
-                    if (users.length > 0) podiumHTML += makePillar(users[0], 1);
-                    if (users.length > 2) podiumHTML += makePillar(users[2], 3);
-                    
-                    podiumHTML += '</div><div class="space-y-1">';
-                    listEl.innerHTML = podiumHTML;
-
-                    // --- FULL LIST RENDERING (EVERYONE INCLUDED) ---
                     users.forEach((u, index) => {
                         const rank = index + 1;
                         const isMe = (u.id === liveUser.email);
                         
-                        let bgStyle = isMe ? "bg-white/10 border-white/20" : "bg-black/20 border-transparent hover:bg-white/5";
-                        if (rank <= 7) bgStyle += " border-l-2 border-l-emerald-400"; 
-                        else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) bgStyle += " border-l-2 border-l-rose-500"; 
+                        // Default styles for everyone else
+                        let bgStyle = isMe ? "bg-white/10 border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.1)]" : "bg-black/20 border-transparent hover:bg-white/5";
+                        let rankDisplay = rank;
+                        let rankColor = "text-slate-500";
 
+                        // --- THE TOP 3 HIGHLIGHTS ---
+                        if (rank === 1) {
+                            bgStyle = isMe ? "bg-yellow-500/20 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.2)]" : "bg-gradient-to-r from-yellow-500/10 to-transparent border-l-4 border-yellow-400";
+                            rankDisplay = '<i class="fas fa-trophy text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"></i>';
+                            rankColor = "text-yellow-400";
+                        } else if (rank === 2) {
+                            bgStyle = isMe ? "bg-slate-300/20 border-slate-300 shadow-[0_0_15px_rgba(203,213,225,0.2)]" : "bg-gradient-to-r from-slate-400/10 to-transparent border-l-4 border-slate-300";
+                            rankDisplay = '<i class="fas fa-medal text-slate-300 drop-shadow-[0_0_5px_rgba(203,213,225,0.8)]"></i>';
+                            rankColor = "text-slate-300";
+                        } else if (rank === 3) {
+                            bgStyle = isMe ? "bg-amber-600/20 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "bg-gradient-to-r from-amber-600/10 to-transparent border-l-4 border-amber-500";
+                            rankDisplay = '<i class="fas fa-medal text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]"></i>';
+                            rankColor = "text-amber-500";
+                        } 
+                        // Emerald/Rose borders for standard ranks
+                        else if (rank <= 7) {
+                            if (!isMe) bgStyle += " border-l-2 border-l-emerald-400"; 
+                        } else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) {
+                            if (!isMe) bgStyle += " border-l-2 border-l-rose-500"; 
+                        }
+
+                        // Build the row
                         listEl.innerHTML += '<div class="flex items-center p-2 md:p-3 rounded-xl border ' + bgStyle + ' transition-colors">' +
-                                '<div class="w-8 md:w-12 text-center font-black text-slate-500 text-xs md:text-sm">' + rank + '</div>' +
+                                '<div class="w-8 md:w-12 text-center font-black ' + rankColor + ' text-xs md:text-sm">' + rankDisplay + '</div>' +
                                 '<div class="flex-1 flex items-center gap-2 pl-2 overflow-hidden">' +
-                                    '<img src="' + (u.photo || 'https://ui-avatars.com/api/?name=?') + '" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/10 shrink-0">' +
+                                    '<img src="' + (u.photo || 'https://ui-avatars.com/api/?name=?') + '" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/10 shrink-0 object-cover">' +
                                     '<span class="text-[10px] md:text-xs font-bold text-white truncate ' + (isMe ? 'text-cyan-400' : '') + '">' + (isMe ? 'You' : (u.name || 'Aspirant')) + '</span>' +
                                 '</div>' +
                                 '<div class="w-20 md:w-24 text-right pr-2">' +
@@ -1175,15 +1164,75 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                                 '</div>' +
                             '</div>';
                         
+                        // Promotion / Demotion Zone Dividers
                         if (rank === 7 && users.length > 7) {
-                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>';
+                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black shrink-0">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>';
                         }
                         if (rank === users.length - 5 && currentLeague > 1 && users.length > 10) {
-                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-rose-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-rose-500/50 font-black">Demotion Zone</span><div class="w-full border-t border-dashed border-rose-500/30"></div></div>';
+                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-rose-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-rose-500/50 font-black shrink-0">Demotion Zone</span><div class="w-full border-t border-dashed border-rose-500/30"></div></div>';
+                        }
+                    });
+                    
+                    listEl.innerHTML += '</div>';// --- CLEAN LIST RENDERING (TOP 3 HIGHLIGHTED) ---
+                    listEl.innerHTML = '<div class="space-y-1">';
+
+                    users.forEach((u, index) => {
+                        const rank = index + 1;
+                        const isMe = (u.id === liveUser.email);
+                        
+                        // Default styles for everyone else
+                        let bgStyle = isMe ? "bg-white/10 border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.1)]" : "bg-black/20 border-transparent hover:bg-white/5";
+                        let rankDisplay = rank;
+                        let rankColor = "text-slate-500";
+
+                        // --- THE TOP 3 HIGHLIGHTS ---
+                        if (rank === 1) {
+                            bgStyle = isMe ? "bg-yellow-500/20 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.2)]" : "bg-gradient-to-r from-yellow-500/10 to-transparent border-l-4 border-yellow-400";
+                            rankDisplay = '<i class="fas fa-trophy text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"></i>';
+                            rankColor = "text-yellow-400";
+                        } else if (rank === 2) {
+                            bgStyle = isMe ? "bg-slate-300/20 border-slate-300 shadow-[0_0_15px_rgba(203,213,225,0.2)]" : "bg-gradient-to-r from-slate-400/10 to-transparent border-l-4 border-slate-300";
+                            rankDisplay = '<i class="fas fa-medal text-slate-300 drop-shadow-[0_0_5px_rgba(203,213,225,0.8)]"></i>';
+                            rankColor = "text-slate-300";
+                        } else if (rank === 3) {
+                            bgStyle = isMe ? "bg-amber-600/20 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "bg-gradient-to-r from-amber-600/10 to-transparent border-l-4 border-amber-500";
+                            rankDisplay = '<i class="fas fa-medal text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]"></i>';
+                            rankColor = "text-amber-500";
+                        } 
+                        // Emerald/Rose borders for standard ranks
+                        else if (rank <= 7) {
+                            if (!isMe) bgStyle += " border-l-2 border-l-emerald-400"; 
+                        } else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) {
+                            if (!isMe) bgStyle += " border-l-2 border-l-rose-500"; 
+                        }
+
+                        // Build the row
+                        listEl.innerHTML += '<div class="flex items-center p-2 md:p-3 rounded-xl border ' + bgStyle + ' transition-colors">' +
+                                '<div class="w-8 md:w-12 text-center font-black ' + rankColor + ' text-xs md:text-sm">' + rankDisplay + '</div>' +
+                                '<div class="flex-1 flex items-center gap-2 pl-2 overflow-hidden">' +
+                                    '<img src="' + (u.photo || 'https://ui-avatars.com/api/?name=?') + '" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/10 shrink-0 object-cover">' +
+                                    '<span class="text-[10px] md:text-xs font-bold text-white truncate ' + (isMe ? 'text-cyan-400' : '') + '">' + (isMe ? 'You' : (u.name || 'Aspirant')) + '</span>' +
+                                '</div>' +
+                                '<div class="w-20 md:w-24 text-right pr-2">' +
+                                    '<span class="text-[9px] md:text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">' + (u.studyScore || 700) + '</span>' +
+                                '</div>' +
+                                '<div class="w-16 md:w-24 text-right pr-2 md:pr-4 font-black text-emerald-400 text-xs md:text-sm">' +
+                                    (u.weeklyXP || 0) +
+                                '</div>' +
+                            '</div>';
+                        
+                        // Promotion / Demotion Zone Dividers
+                        if (rank === 7 && users.length > 7) {
+                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black shrink-0">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>';
+                        }
+                        if (rank === users.length - 5 && currentLeague > 1 && users.length > 10) {
+                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-rose-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-rose-500/50 font-black shrink-0">Demotion Zone</span><div class="w-full border-t border-dashed border-rose-500/30"></div></div>';
                         }
                     });
                     
                     listEl.innerHTML += '</div>';
+
+                    
                 });
         }
 
