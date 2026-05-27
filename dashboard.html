@@ -9,54 +9,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .reward-pill {
-    position: fixed;
-    width: 28px;
-    height: 12px;
-    background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
-    border-radius: 999px;
-    box-shadow: 0 0 15px 3px rgba(0, 242, 254, 0.8);
-    pointer-events: none; /* Stops it from blocking clicks */
-    z-index: 99999; /* Keeps it above everything */
-    /* This creates the smooth curved flight path */
-    transition: left 0.7s cubic-bezier(0.25, 1, 0.5, 1), top 0.7s cubic-bezier(0.25, 1, 0.5, 1), transform 0.7s ease-in, opacity 0.7s ease-in;
-    transform: rotate(0deg) scale(1);
-    opacity: 1;
-}
+            position: fixed;
+            width: 28px;
+            height: 12px;
+            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+            border-radius: 999px;
+            box-shadow: 0 0 15px 3px rgba(0, 242, 254, 0.8);
+            pointer-events: none;
+            z-index: 99999;
+            transition: left 0.7s cubic-bezier(0.25, 1, 0.5, 1), top 0.7s cubic-bezier(0.25, 1, 0.5, 1), transform 0.7s ease-in, opacity 0.7s ease-in;
+            transform: rotate(0deg) scale(1);
+            opacity: 1;
+        }
         /* Quill Dark Mode Overrides */
-.ql-toolbar.ql-snow { border-color: rgba(255,255,255,0.1); border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background: rgba(0,0,0,0.4); }
-.ql-container.ql-snow { border-color: rgba(255,255,255,0.1); border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
-.ql-editor { min-height: 120px; font-size: 0.875rem; }
-.ql-snow .ql-stroke { stroke: #94a3b8; }
-.ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: #94a3b8; }
-.ql-snow .ql-picker { color: #94a3b8; }
-.ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke { stroke: #22d3ee; }
-.ql-editor p { margin-bottom: 0.5rem; }
-        /* --- Restore List Styles for Quill Content (Overrides Tailwind Reset) --- */
-.quill-content ul, .pdf-quill-content ul { 
-    list-style-type: disc !important; 
-    padding-left: 1.5rem !important; 
-    margin-bottom: 0.5rem; 
-}
-.quill-content ol, .pdf-quill-content ol { 
-    list-style-type: decimal !important; 
-    padding-left: 1.5rem !important; 
-    margin-bottom: 0.5rem; 
-}
-.quill-content li, .pdf-quill-content li { 
-    display: list-item !important;
-    margin-bottom: 0.25rem; 
-}
-.quill-content p, .pdf-quill-content p { 
-    margin-bottom: 0.5rem; 
-}
-/* Ensure nested lists look right */
-.quill-content ul ul, .pdf-quill-content ul ul { list-style-type: circle !important; }
-.quill-content ol ol, .pdf-quill-content ol ol { list-style-type: lower-alpha !important; }
+        .ql-toolbar.ql-snow { border-color: rgba(255,255,255,0.1); border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background: rgba(0,0,0,0.4); }
+        .ql-container.ql-snow { border-color: rgba(255,255,255,0.1); border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .ql-editor { min-height: 120px; font-size: 0.875rem; }
+        .ql-snow .ql-stroke { stroke: #94a3b8; }
+        .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: #94a3b8; }
+        .ql-snow .ql-picker { color: #94a3b8; }
+        .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke { stroke: #22d3ee; }
+        .ql-editor p { margin-bottom: 0.5rem; }
+        
+        /* --- Restore List Styles for Quill Content --- */
+        .quill-content ul, .pdf-quill-content ul { list-style-type: disc !important; padding-left: 1.5rem !important; margin-bottom: 0.5rem; }
+        .quill-content ol, .pdf-quill-content ol { list-style-type: decimal !important; padding-left: 1.5rem !important; margin-bottom: 0.5rem; }
+        .quill-content li, .pdf-quill-content li { display: list-item !important; margin-bottom: 0.25rem; }
+        .quill-content p, .pdf-quill-content p { margin-bottom: 0.5rem; }
+        .quill-content ul ul, .pdf-quill-content ul ul { list-style-type: circle !important; }
+        .quill-content ol ol, .pdf-quill-content ol ol { list-style-type: lower-alpha !important; }
+        
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
+        
         body { 
             background-color: #020617; 
             color: white; 
@@ -79,7 +67,6 @@
             filter: blur(60px);
         }
 
-        /* Mobile Bottom Nav Glass */
         .mobile-nav-glass {
             background: rgba(2, 6, 23, 0.85);
             backdrop-filter: blur(20px);
@@ -126,32 +113,24 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.2); border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(6,182,212,0.4); }
         
-        /* Hide scrollbar completely on mobile for cleaner look */
         @media (max-width: 768px) {
             .custom-scroll::-webkit-scrollbar { display: none; }
             .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         }
 
-        /* Mobile Height & Safe Area Fixes */
-        .h-dynamic { 
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Dynamic viewport height */
-        }
-        .pb-safe { 
-            padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); 
-        }
+        .h-dynamic { height: 100vh; height: 100dvh; }
+        .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
 
-        /* League specific colors */
-        .league-0 { color: #cd7f32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); } /* Bronze */
-        .league-1 { color: #c0c0c0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); } /* Silver */
-        .league-2 { color: #ffd700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.1); } /* Gold */
-        .league-3 { color: #0ea5e9; border-color: rgba(14,165,233,0.3); background: rgba(14,165,233,0.1); } /* Sapphire */
-        .league-4 { color: #e11d48; border-color: rgba(225,29,72,0.3); background: rgba(225,29,72,0.1); } /* Ruby */
-        .league-5 { color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); } /* Emerald */
-        .league-6 { color: #a855f7; border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.1); } /* Amethyst */
-        .league-7 { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); } /* Pearl */
-        .league-8 { color: #1e293b; border-color: #334155; background: #0f172a; text-shadow: 0 0 10px rgba(255,255,255,0.2); } /* Obsidian */
-        .league-9 { color: #67e8f9; border-color: rgba(103,232,249,0.5); background: rgba(103,232,249,0.1); text-shadow: 0 0 15px rgba(103,232,249,0.8); } /* Diamond */
+        .league-0 { color: #cd7f32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); }
+        .league-1 { color: #c0c0c0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); }
+        .league-2 { color: #ffd700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.1); }
+        .league-3 { color: #0ea5e9; border-color: rgba(14,165,233,0.3); background: rgba(14,165,233,0.1); }
+        .league-4 { color: #e11d48; border-color: rgba(225,29,72,0.3); background: rgba(225,29,72,0.1); }
+        .league-5 { color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); }
+        .league-6 { color: #a855f7; border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.1); }
+        .league-7 { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); }
+        .league-8 { color: #1e293b; border-color: #334155; background: #0f172a; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .league-9 { color: #67e8f9; border-color: rgba(103,232,249,0.5); background: rgba(103,232,249,0.1); text-shadow: 0 0 15px rgba(103,232,249,0.8); }
     </style>
   <script>
         const savedUser = localStorage.getItem('xamTableLiveUser');
@@ -299,17 +278,14 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
 
             <div class="p-4 border-t border-white/5 m-4 bg-black/40 rounded-2xl relative overflow-hidden flex flex-col gap-3">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-[40px] pointer-events-none"></div>
-                
                 <div class="flex justify-between items-center relative z-10">
                     <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest"><i class="fas fa-star text-emerald-500/50 mr-1"></i> XP Rate</div>
                     <div id="global-xp-desktop" class="text-sm font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">1000</div>
                 </div>
-                
                 <div class="flex justify-between items-center relative z-10">
                     <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest"><i class="fas fa-gem text-cyan-500/50 mr-1"></i> Vault</div>
-                    <div class="text-sm font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]"><span id="diamonds-desktop">0</span></div>
+                    <div class="text-sm font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]"><span id="diamonds-desktop">0</span> <span class="text-xs text-slate-400">💎</span></div>
                 </div>
-
                 <div class="flex justify-between items-center relative z-10 pt-2 border-t border-white/10">
                     <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest"><i class="fas fa-fire text-orange-500/50 mr-1"></i> Streak</div>
                     <div class="text-sm font-black text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"><span id="streak-desktop">0</span></div>
@@ -323,7 +299,6 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
                 <h1 id="header-title" class="text-base md:text-xl font-black text-white uppercase italic tracking-tight truncate pr-2">List your Day!</h1>
                 
                 <div class="flex items-center gap-3 md:gap-4 shrink-0">
-                    <!-- Mobile RPG Stats Pill -->
                     <div class="md:hidden flex items-center gap-2 bg-black/50 border border-white/10 py-1.5 px-3 rounded-xl shadow-inner">
                         <div class="flex items-center gap-1.5 pr-2 border-r border-white/10">
                             <i class="fas fa-star text-[10px] text-emerald-400"></i>
@@ -338,8 +313,6 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
                             <span id="streak-mobile" class="text-[11px] font-black text-orange-500 tracking-wider">0</span>
                         </div>
                     </div>
-
-                    <!-- Desktop User Profile -->
                     <div class="flex flex-col text-right hidden sm:flex">
                         <span id="live-user-name" class="text-xs font-bold text-white truncate max-w-[150px]">Aspirant</span>
                         <span class="text-[9px] font-mono text-cyan-400">Google Verified</span>
@@ -355,6 +328,21 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
             <main id="view-dashboard" class="flex-1 p-4 md:p-10 flex justify-center overflow-hidden transition-opacity duration-300">
                 <div class="w-full max-w-3xl flex flex-col h-full">
                   
+                    <div class="mb-5 md:mb-6 w-full flex flex-col gap-2 shrink-0">
+                        <div class="flex justify-between items-end px-1">
+                            <span class="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 drop-shadow-md"><i class="fas fa-route text-cyan-500 mr-1"></i> Marathon to <span id="marathon-goal" class="text-white ml-1">Day 7</span></span>
+                            <span id="marathon-payout" class="text-[9px] md:text-[10px] font-black text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.2)]">+10 💎</span>
+                        </div>
+                        
+                        <div class="relative h-2.5 bg-black/60 rounded-full border border-white/5 shadow-inner">
+                            <div id="marathon-bar" class="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-cyan-600 via-cyan-400 to-emerald-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.6)] transition-all duration-1000 ease-out" style="width: 0%;"></div>
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 transition-all duration-1000 ease-out w-full pointer-events-none">
+                                <div id="marathon-runner" class="absolute flex items-center justify-center transition-all duration-1000 ease-out" style="left: 0%; margin-left: -4px;">
+                                    <i class="fas fa-running text-white text-sm md:text-base drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="glass-panel rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-2xl border-cyan-500/20 mb-4 md:mb-6 relative shrink-0 overflow-hidden">
                         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500"></div>
@@ -486,7 +474,6 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
                         
                         <div id="historyListContainer" class="flex-1 overflow-y-auto custom-scroll pr-1 md:pr-2 space-y-2 md:space-y-3"></div>
                         
-                        <!-- NEW ANALYTICS ENGINE HTML INJECTED HERE -->
                         <div class="shrink-0 mt-4 md:mt-6 pt-4 md:pt-6 border-t border-white/10 w-full">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-cyan-400">Weekly Output</h3>
@@ -759,6 +746,7 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                  
                 updateStatsDisplays();
                 restoreActiveTasks();
+                checkStreakMilestone(); // Retroactive check for existing users
                 if(!document.getElementById('view-score').classList.contains('hidden')) updateScoreUI();
                 if(!document.getElementById('view-completed').classList.contains('hidden')) {
                     renderCalendar();
@@ -894,6 +882,8 @@ let currentVaultPath = { subjectId: null, chapterId: null };
             cohortId: cohortId,
             lastLeagueUpdateWeek: lastLeagueUpdateWeek,
             streak: streak,
+            diamonds: diamonds,
+            lastClaimedStreak: lastClaimedStreak,
             lastTaskDate: lastTaskDate,
             // NOTICE: vaultData is completely removed from here
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -916,10 +906,56 @@ let currentVaultPath = { subjectId: null, chapterId: null };
             if(dDesk) dDesk.innerHTML = `${diamonds} <span class="text-xs text-slate-400">💎</span>`;
             if(dMob) dMob.innerText = diamonds;
 
-            
+            updateMarathonUI();
         }
 
-       
+       function updateMarathonUI() {
+            const runner = document.getElementById('marathon-runner');
+            const bar = document.getElementById('marathon-bar');
+            const goalText = document.getElementById('marathon-goal');
+            const payoutText = document.getElementById('marathon-payout');
+            
+            if (!runner || !bar) return;
+
+            // Calculate next multiple of 7
+            let nextMilestone = Math.ceil((streak + 0.1) / 7) * 7; 
+            if (streak === 0) nextMilestone = 7;
+
+            // Calculate progress % towards that milestone
+            let progress = (streak % 7);
+            if (streak > 0 && progress === 0) progress = 7; // If exactly on a milestone, show 100% full
+            let percentage = (progress / 7) * 100;
+
+            // AP Reward Math: Base 10. Day 7=10, Day 14=20, etc.
+            let nextReward = (nextMilestone / 7) * 10;
+
+            bar.style.width = `${percentage}%`;
+            
+            // --- THE FIX: Use 'left' so he physically runs across the screen ---
+            let runnerPosition = percentage;
+            if (percentage > 95) runnerPosition = 95; // Stop him from falling off the edge
+            runner.style.left = `${runnerPosition}%`; 
+            
+            goalText.innerText = `Day ${nextMilestone}`;
+            payoutText.innerText = `+${nextReward} 💎`;
+        }
+
+        function checkStreakMilestone() {
+            // Check if streak is a multiple of 7 AND hasn't been claimed yet
+            if (streak > 0 && streak % 7 === 0 && streak > lastClaimedStreak) {
+                let multiplier = streak / 7;
+                let reward = multiplier * 10; // AP Formula
+
+                diamonds += reward;
+                lastClaimedStreak = streak;
+                
+                saveUserDB();
+                updateStatsDisplays();
+
+                // Trigger a celebration popup
+                showLeagueModal("Milestone Reached!", `You crushed a ${streak}-day marathon! Earned +${reward} Diamonds 💎`);
+            }
+        }
         // ==============================================
         // ADVANCED SHARING: DUOLINGO-STYLE CANVAS
         // ==============================================
@@ -1165,63 +1201,6 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                             bgStyle = isMe ? "bg-orange-500/20 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]" : "bg-gradient-to-r from-orange-600/10 to-transparent border-l-4 border-orange-500";
                             rankDisplay = '<i class="fas fa-medal text-orange-500 drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]"></i>';
                             rankColor = "text-orange-500";
-                        }
-                        // Emerald/Rose borders for standard ranks
-                        else if (rank <= 7) {
-                            if (!isMe) bgStyle += " border-l-2 border-l-emerald-400"; 
-                        } else if (rank >= users.length - 4 && currentLeague > 1 && users.length > 10) {
-                            if (!isMe) bgStyle += " border-l-2 border-l-rose-500"; 
-                        }
-
-                        // Build the row
-                        listEl.innerHTML += '<div class="flex items-center p-2 md:p-3 rounded-xl border ' + bgStyle + ' transition-colors">' +
-                                '<div class="w-8 md:w-12 text-center font-black ' + rankColor + ' text-xs md:text-sm">' + rankDisplay + '</div>' +
-                                '<div class="flex-1 flex items-center gap-2 pl-2 overflow-hidden">' +
-                                    '<img src="' + (u.photo || 'https://ui-avatars.com/api/?name=?') + '" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/10 shrink-0 object-cover">' +
-                                    '<span class="text-[10px] md:text-xs font-bold text-white truncate ' + (isMe ? 'text-cyan-400' : '') + '">' + (isMe ? 'You' : (u.name || 'Aspirant')) + '</span>' +
-                                '</div>' +
-                                '<div class="w-20 md:w-24 text-right pr-2">' +
-                                    '<span class="text-[9px] md:text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">' + (u.studyScore || 700) + '</span>' +
-                                '</div>' +
-                                '<div class="w-16 md:w-24 text-right pr-2 md:pr-4 font-black text-emerald-400 text-xs md:text-sm">' +
-                                    (u.weeklyXP || 0) +
-                                '</div>' +
-                            '</div>';
-                        
-                        // Promotion / Demotion Zone Dividers
-                        if (rank === 7 && users.length > 7) {
-                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-emerald-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-emerald-500/50 font-black shrink-0">Promotion Zone</span><div class="w-full border-t border-dashed border-emerald-500/30"></div></div>';
-                        }
-                        if (rank === users.length - 5 && currentLeague > 1 && users.length > 10) {
-                            listEl.innerHTML += '<div class="flex items-center justify-center py-2"><div class="w-full border-t border-dashed border-rose-500/30"></div><span class="px-2 text-[8px] uppercase tracking-widest text-rose-500/50 font-black shrink-0">Demotion Zone</span><div class="w-full border-t border-dashed border-rose-500/30"></div></div>';
-                        }
-                    });
-                    
-                    listEl.innerHTML += '</div>';// --- CLEAN LIST RENDERING (TOP 3 HIGHLIGHTED) ---
-                    listEl.innerHTML = '<div class="space-y-1">';
-
-                    users.forEach((u, index) => {
-                        const rank = index + 1;
-                        const isMe = (u.id === liveUser.email);
-                        
-                        // Default styles for everyone else
-                        let bgStyle = isMe ? "bg-white/10 border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.1)]" : "bg-black/20 border-transparent hover:bg-white/5";
-                        let rankDisplay = rank;
-                        let rankColor = "text-slate-500";
-
-                        // --- THE TOP 3 HIGHLIGHTS ---
-                        if (rank === 1) {
-                            bgStyle = isMe ? "bg-yellow-500/20 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.2)]" : "bg-gradient-to-r from-yellow-500/10 to-transparent border-l-4 border-yellow-400";
-                            rankDisplay = '<i class="fas fa-trophy text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"></i>';
-                            rankColor = "text-yellow-400";
-                        } else if (rank === 2) {
-                            bgStyle = isMe ? "bg-slate-300/20 border-slate-300 shadow-[0_0_15px_rgba(203,213,225,0.2)]" : "bg-gradient-to-r from-slate-400/10 to-transparent border-l-4 border-slate-300";
-                            rankDisplay = '<i class="fas fa-medal text-slate-300 drop-shadow-[0_0_5px_rgba(203,213,225,0.8)]"></i>';
-                            rankColor = "text-slate-300";
-                        } else if (rank === 3) {
-                            bgStyle = isMe ? "bg-amber-600/20 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "bg-gradient-to-r from-amber-600/10 to-transparent border-l-4 border-amber-500";
-                            rankDisplay = '<i class="fas fa-medal text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]"></i>';
-                            rankColor = "text-amber-500";
                         } 
                         // Emerald/Rose borders for standard ranks
                         else if (rank <= 7) {
@@ -1720,6 +1699,7 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                 }
                 lastTaskDate = todayStrTask;
             }
+            checkStreakMilestone(); // Check instantly after finishing task
 
             if(!completedTasksHistory[taskDate]) {
                 completedTasksHistory[taskDate] = [];
