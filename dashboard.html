@@ -8,9 +8,6 @@
     <link rel="icon" type="image/png" href="/logo.png?v=4" sizes="192x192">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .reward-pill {
             position: fixed;
@@ -25,23 +22,6 @@
             transform: rotate(0deg) scale(1);
             opacity: 1;
         }
-        /* Quill Dark Mode Overrides */
-        .ql-toolbar.ql-snow { border-color: rgba(255,255,255,0.1); border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background: rgba(0,0,0,0.4); }
-        .ql-container.ql-snow { border-color: rgba(255,255,255,0.1); border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .ql-editor { min-height: 120px; font-size: 0.875rem; }
-        .ql-snow .ql-stroke { stroke: #94a3b8; }
-        .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: #94a3b8; }
-        .ql-snow .ql-picker { color: #94a3b8; }
-        .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke { stroke: #22d3ee; }
-        .ql-editor p { margin-bottom: 0.5rem; }
-        
-        /* --- Restore List Styles for Quill Content --- */
-        .quill-content ul, .pdf-quill-content ul { list-style-type: disc !important; padding-left: 1.5rem !important; margin-bottom: 0.5rem; }
-        .quill-content ol, .pdf-quill-content ol { list-style-type: decimal !important; padding-left: 1.5rem !important; margin-bottom: 0.5rem; }
-        .quill-content li, .pdf-quill-content li { display: list-item !important; margin-bottom: 0.25rem; }
-        .quill-content p, .pdf-quill-content p { margin-bottom: 0.5rem; }
-        .quill-content ul ul, .pdf-quill-content ul ul { list-style-type: circle !important; }
-        .quill-content ol ol, .pdf-quill-content ol ol { list-style-type: lower-alpha !important; }
         
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
         
@@ -191,58 +171,6 @@
             <span class="text-white font-bold text-[10px] md:text-xs tracking-[0.2em] pulse-text uppercase">Click anywhere to continue</span>
         </div>
     </div>
-    <div id="vault-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl transition-opacity duration-300 opacity-0">
-    <div class="glass-panel p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 max-w-2xl w-full shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
-        
-        <div class="flex justify-between items-center mb-6 shrink-0">
-            <h2 id="vault-modal-title" class="text-lg md:text-xl font-black text-white uppercase tracking-widest">Add Item</h2>
-            <button onclick="closeVaultModal()" class="text-slate-400 hover:text-rose-400 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-rose-500/10"><i class="fas fa-times"></i></button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto custom-scroll pr-2 flex flex-col gap-4">
-            <div>
-                <label id="vault-modal-name-label" class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Name / Title</label>
-                <input type="text" id="vault-modal-input" placeholder="Enter title..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors font-medium">
-            </div>
-
-            <div id="vault-modal-editor-section" class="hidden flex-col h-full min-h-[250px]">
-                <label class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Detailed Notes (Optional)</label>
-                <div id="vault-quill-editor" class="bg-black/20 flex-1"></div>
-            </div>
-        </div>
-
-        <div class="mt-6 pt-4 border-t border-white/10 flex justify-end gap-3 shrink-0">
-            <button onclick="closeVaultModal()" class="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Cancel</button>
-            <button onclick="saveVaultModal()" class="bg-cyan-500 text-black px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">Save to Vault</button>
-        </div>
-    </div>
-</div>
-    <div id="vault-warning-modal" class="hidden fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity duration-300 opacity-0">
-    <div class="glass-panel p-6 md:p-8 rounded-2xl md:rounded-3xl border-t-4 border-amber-500 max-w-lg w-full text-center shadow-2xl transform scale-95 transition-transform duration-300 relative">
-        
-        <button onclick="closeVaultWarning()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <div class="w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 text-2xl md:text-3xl mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-            <i class="fas fa-triangle-exclamation"></i>
-        </div>
-        
-        <h2 class="text-lg md:text-xl font-black text-white uppercase tracking-widest mb-3">Notice</h2>
-        
-        <p class="text-slate-300 text-xs md:text-sm font-medium leading-relaxed mb-6 text-left">
-            The Revision Vault is currently in an unstable Beta phase. To ensure your hard work is saved, please export your notes as a PDF immediately after adding them.
-
-To keep XamTable completely free for all aspirants, our current database capacity is strictly limited. We kindly request that you only log brief keywords rather than lengthy, detailed paragraphs.
-
-A fully stable, upgraded version of the Vault will be deployed after May 5, 2026. Thank you for your cooperation.
-        </p>
-        
-        <button onclick="closeVaultWarning()" class="w-full bg-amber-500 text-black font-black py-3 rounded-xl uppercase tracking-widest text-xs md:text-sm hover:bg-amber-400 transition-colors shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-            I Understand
-        </button>
-    </div>
-</div>
 
     <div id="dashboard-app" class="flex flex-col md:flex-row h-dynamic w-full opacity-0 scale-[1.02] transition-all duration-1000 pointer-events-none pb-[70px] md:pb-0">
         
@@ -271,9 +199,6 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
                 <div class="flex-1"></div> <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent font-bold text-sm transition-colors">
                     <i class="fas fa-power-off w-5"></i> Disconnect
                 </a>
-                <a href="#" onclick="switchView('vault', this, 'desktop')" id="nav-vault-desktop" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors">
-    <i class="fas fa-vault w-5"></i> Revision Vault
-</a>
             </nav>
 
             <div class="p-4 border-t border-white/5 m-4 bg-black/40 rounded-2xl relative overflow-hidden flex flex-col gap-3">
@@ -283,7 +208,7 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
                     <div id="global-xp-desktop" class="text-sm font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">1000</div>
                 </div>
                 <div class="flex justify-between items-center relative z-10">
-                    <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest"><i class="fas fa-gem text-cyan-500/50 mr-1"></i> Vault</div>
+                    <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest"><i class="fas fa-gem text-cyan-500/50 mr-1"></i> Gems</div>
                     <div class="text-sm font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]"><span id="diamonds-desktop">0</span> <span class="text-xs text-slate-400">💎</span></div>
                 </div>
                 <div class="flex justify-between items-center relative z-10 pt-2 border-t border-white/10">
@@ -416,31 +341,7 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
 
                 </div>
             </main>
-            <main id="view-vault" class="hidden flex-1 p-4 md:p-10 flex flex-col overflow-hidden transition-opacity duration-300 opacity-0 pb-24 md:pb-10">
-    <div class="w-full max-w-5xl mx-auto flex flex-col h-full">
-        
-        <div class="glass-panel rounded-2xl p-4 md:p-6 mb-4 shrink-0 flex justify-between items-center border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
-            <div id="vault-breadcrumbs" class="text-sm md:text-base font-black uppercase tracking-widest text-white flex items-center gap-2">
-                <span class="cursor-pointer hover:text-cyan-400 transition-colors" onclick="renderVaultView('root')">Vault</span>
-            </div>
             
-            <div class="flex gap-2" id="vault-controls">
-                <button onclick="promptAddVaultItem()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-cyan-400 transition-all">
-                    <i class="fas fa-plus mr-1"></i> Add
-                </button>
-                <button id="btn-export-pdf" onclick="exportChapterPDF()" class="hidden bg-white/10 text-white border border-white/20 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all">
-                    <i class="fas fa-file-pdf text-rose-400 mr-1"></i> Export PDF
-                </button>
-            </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto custom-scroll p-1" id="vault-content-container">
-            </div>
-
-        <div id="pdf-export-container" class="hidden bg-white text-black p-8"></div>
-    </div>
-</main>
-
             <main id="view-completed" class="hidden flex-1 p-4 md:p-10 flex justify-center overflow-hidden transition-opacity duration-300 opacity-0">
                 <div class="w-full max-w-5xl flex flex-col lg:flex-row h-full gap-4 md:gap-6">
                     
@@ -561,26 +462,22 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
     </div>
 
     <nav class="md:hidden fixed bottom-0 w-full z-50 mobile-nav-glass flex justify-around items-center px-2 py-3 pb-safe">
-        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-cyan-400 transition-colors">
+        <a href="#" onclick="switchView('dashboard', this, 'mobile')" id="nav-dashboard-mobile" class="flex flex-col items-center gap-1 w-1/4 text-cyan-400 transition-colors">
             <i class="fas fa-border-all text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Board</span>
         </a>
-        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('leaderboard', this, 'mobile')" id="nav-leaderboard-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-trophy text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Rank</span>
         </a>
-        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('score', this, 'mobile')" id="nav-score-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-id-card text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">Score</span>
         </a>
-        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
+        <a href="#" onclick="switchView('completed', this, 'mobile')" id="nav-completed-mobile" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-white transition-colors">
             <i class="fas fa-check-double text-lg"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">History</span>
         </a>
-        <a href="#" onclick="switchView('vault', this, 'mobile')" id="nav-vault-mobile" class="flex flex-col items-center gap-1 w-1/5 text-slate-400 hover:text-white transition-colors">
-        <i class="fas fa-vault text-lg"></i>
-        <span class="text-[9px] font-bold uppercase tracking-wider">Vault</span>
-    </a>
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -652,8 +549,6 @@ A fully stable, upgraded version of the Vault will be deployed after May 5, 2026
         let lastClaimedStreak = 0;
         let studyScore = 700;
         let totalCompletedTasks = 0; 
-        let vaultData = [];
-let currentVaultPath = { subjectId: null, chapterId: null };
         let completedTasksHistory = {};
         let activeTasksList = [];
         let lastCheckedDate = getFormattedDate(0);
@@ -713,7 +608,6 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                     const data = docSnap.data();
                     globalXP = data.globalXP !== undefined ? data.globalXP : 1000;
                     studyScore = data.studyScore !== undefined ? data.studyScore : 700;
-                    vaultData = data.vault || [];
                     totalCompletedTasks = data.totalCompletedTasks || 0;
                     completedTasksHistory = data.history || {};
                     activeTasksList = data.activeTasks || [];
@@ -885,7 +779,6 @@ let currentVaultPath = { subjectId: null, chapterId: null };
             diamonds: diamonds,
             lastClaimedStreak: lastClaimedStreak,
             lastTaskDate: lastTaskDate,
-            // NOTICE: vaultData is completely removed from here
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         };
         
@@ -1371,11 +1264,10 @@ let currentVaultPath = { subjectId: null, chapterId: null };
         'dashboard': document.getElementById('view-dashboard'),
         'leaderboard': document.getElementById('view-leaderboard'),
         'completed': document.getElementById('view-completed'),
-        'score': document.getElementById('view-score'),
-        'vault': document.getElementById('view-vault') 
+        'score': document.getElementById('view-score')
     };
     
-    const navIds = ['dashboard', 'leaderboard', 'score', 'completed', 'vault'];
+    const navIds = ['dashboard', 'leaderboard', 'score', 'completed'];
     
     navIds.forEach(nav => {
         const desktopEl = document.getElementById(`nav-${nav}-desktop`);
@@ -1383,15 +1275,14 @@ let currentVaultPath = { subjectId: null, chapterId: null };
         
         if (nav === viewName) {
             desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-sm transition-colors";
-            mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-cyan-400 w-1/5 transition-colors";
+            mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-cyan-400 w-1/4 transition-colors";
         } else {
             desktopEl.className = "desktop-nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white font-bold text-sm transition-colors";
-            mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-slate-400 hover:text-white w-1/5 transition-colors";
+            mobileEl.className = "mobile-nav-link flex flex-col items-center gap-1 text-slate-400 hover:text-white w-1/4 transition-colors";
         }
     });
 
     const headerTitle = document.getElementById('header-title');
-    // ... (keep the rest of the existing opacity/hidden logic untouched)
             Object.values(views).forEach(view => {
                 if(!view.classList.contains('hidden')) {
                     view.classList.add('opacity-0');
@@ -1421,20 +1312,6 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                         unsubscribeLeaderboard = null;
                     }
                     
-                    // FREED: Now it runs every time you click the Vault button
-                    if(viewName === 'vault') {
-                        renderVaultView('root');
-                    }
-                    if(viewName === 'vault') {
-                        const warningModal = document.getElementById('vault-warning-modal');
-                        if (warningModal) {
-                            warningModal.classList.remove('hidden');
-                            setTimeout(() => {
-                                warningModal.classList.remove('opacity-0');
-                                warningModal.children[0].classList.remove('scale-95');
-                            }, 10);
-                        }
-                    }
                 }, 50);
             }, 200);
 
@@ -1442,7 +1319,6 @@ let currentVaultPath = { subjectId: null, chapterId: null };
             if(viewName === 'leaderboard') headerTitle.innerText = "Global Rank";
             if(viewName === 'completed') headerTitle.innerText = "Execution History";
             if(viewName === 'score') headerTitle.innerText = "Study Credit Score";
-            if(viewName === 'vault') headerTitle.innerText = "Revision Vault";
         }
 
         function getFormattedDate(offsetDays = 0) {
@@ -2023,355 +1899,7 @@ let currentVaultPath = { subjectId: null, chapterId: null };
                 `;
             });
         }
-// ==============================================
-// REVISION VAULT LOGIC (V2: Rich Text & CRUD)
-// ==============================================
 
-let vaultQuill;
-if (document.getElementById('vault-quill-editor')) {
-    vaultQuill = new Quill('#vault-quill-editor', {
-        theme: 'snow',
-        placeholder: 'Write your notes here...',
-        modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['clean'] 
-            ]
-        }
-    });
-    // NEW: Auto-save ONLY if a human types (source === 'user'), ignore script clear-outs
-    vaultQuill.on('text-change', (delta, oldDelta, source) => {
-        if (source === 'user') {
-            localStorage.setItem('xamVaultDraft_' + liveUser.email, vaultQuill.root.innerHTML);
-        }
-    });
-
-}
-// Modal State variables
-let vaultModalState = { mode: 'add', type: 'subject', subId: null, chapId: null, topId: null };
-
-function renderVaultView(level, subId = null, chapId = null) {
-    const container = document.getElementById('vault-content-container');
-    const breadcrumbs = document.getElementById('vault-breadcrumbs');
-    const pdfBtn = document.getElementById('btn-export-pdf');
-    container.innerHTML = '';
-
-    if (level === 'root') {
-        currentVaultPath = { subjectId: null, chapterId: null };
-        breadcrumbs.innerHTML = `<span class="cursor-pointer text-cyan-400">Vault</span>`;
-        pdfBtn.classList.add('hidden');
-
-        if (vaultData.length === 0) {
-            container.innerHTML = `<div class="text-center py-20 opacity-30"><i class="fas fa-folder-open text-4xl mb-4"></i><p class="text-sm font-bold uppercase tracking-widest">Vault is empty.</p></div>`;
-            return;
-        }
-
-        vaultData.forEach(sub => {
-            container.innerHTML += `
-                <div onclick="renderVaultView('subject', '${sub.id}')" class="glass-panel p-4 md:p-5 rounded-2xl mb-3 cursor-pointer hover:border-cyan-500/50 transition-all group flex justify-between items-center">
-                    <div class="flex items-center gap-3 md:gap-4 truncate pr-4">
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform shrink-0"><i class="fas fa-book"></i></div>
-                        <h3 class="text-sm md:text-lg font-black text-white uppercase tracking-wider truncate">${sub.name}</h3>
-                    </div>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <span class="text-[10px] md:text-xs text-slate-500 font-bold hidden sm:inline">${sub.chapters.length} Chapters</span>
-                        <div class="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="event.stopPropagation(); openVaultModal('edit', 'subject', '${sub.id}')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 transition-colors flex items-center justify-center"><i class="fas fa-pencil-alt text-[10px]"></i></button>
-                            <button onclick="event.stopPropagation(); deleteVaultItem('subject', '${sub.id}')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors flex items-center justify-center"><i class="fas fa-trash text-[10px]"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    } 
-    else if (level === 'subject') {
-        currentVaultPath = { subjectId: subId, chapterId: null };
-        const subject = vaultData.find(s => s.id === subId);
-        
-        breadcrumbs.innerHTML = `
-            <span class="cursor-pointer hover:text-slate-300 transition-colors" onclick="renderVaultView('root')">Vault</span>
-            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-1 md:px-2"></i>
-            <span class="text-cyan-400 truncate max-w-[100px] md:max-w-[200px] inline-block">${subject.name}</span>
-        `;
-        pdfBtn.classList.add('hidden');
-
-        if (subject.chapters.length === 0) {
-            container.innerHTML = `<div class="text-center py-20 opacity-30"><p class="text-sm font-bold uppercase tracking-widest">No chapters added yet.</p></div>`;
-            return;
-        }
-
-        subject.chapters.forEach(chap => {
-            container.innerHTML += `
-                <div onclick="renderVaultView('chapter', '${subId}', '${chap.id}')" class="glass-panel p-3 md:p-4 rounded-xl mb-3 border-l-2 border-l-emerald-500 cursor-pointer hover:bg-white/5 transition-all group flex justify-between items-center">
-                    <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white truncate pr-4">${chap.name}</h4>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <span class="text-[9px] md:text-[10px] uppercase tracking-widest text-emerald-400 hidden sm:inline">${chap.topics.length} Topics</span>
-                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="event.stopPropagation(); openVaultModal('edit', 'chapter', '${subId}', '${chap.id}')" class="w-6 h-6 md:w-7 md:h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 flex items-center justify-center"><i class="fas fa-pencil-alt text-[10px]"></i></button>
-                            <button onclick="event.stopPropagation(); deleteVaultItem('chapter', '${subId}', '${chap.id}')" class="w-6 h-6 md:w-7 md:h-7 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center"><i class="fas fa-trash text-[10px]"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-    else if (level === 'chapter') {
-        currentVaultPath = { subjectId: subId, chapterId: chapId };
-        const subject = vaultData.find(s => s.id === subId);
-        const chapter = subject.chapters.find(c => c.id === chapId);
-        
-        breadcrumbs.innerHTML = `
-            <span class="cursor-pointer hover:text-slate-300 transition-colors hidden sm:inline" onclick="renderVaultView('root')">Vault</span>
-            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-1 md:px-2 hidden sm:inline"></i>
-            <span class="cursor-pointer hover:text-slate-300 transition-colors truncate max-w-[80px] md:max-w-[150px] inline-block" onclick="renderVaultView('subject', '${subId}')">${subject.name}</span>
-            <i class="fas fa-chevron-right text-[10px] text-slate-600 px-1 md:px-2"></i>
-            <span class="text-cyan-400 truncate max-w-[100px] md:max-w-[200px] inline-block">${chapter.name}</span>
-        `;
-        pdfBtn.classList.remove('hidden');
-
-        if (chapter.topics.length === 0) {
-            container.innerHTML = `<div class="text-center py-20 opacity-30"><p class="text-sm font-bold uppercase tracking-widest">No topics noted yet.</p></div>`;
-            return;
-        }
-
-        chapter.topics.forEach(topic => {
-            let detailsHTML = topic.details ? `<div class="mt-3 text-xs md:text-sm text-slate-300 pl-3 md:pl-4 border-l-2 border-slate-700 quill-content">${topic.details}</div>` : '';
-            container.innerHTML += `
-                <div class="bg-black/40 border border-white/5 p-4 rounded-xl mb-3 group">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-start gap-3 flex-1 min-w-0">
-                            <i class="fas fa-circle text-[6px] text-cyan-400 mt-1.5 shrink-0"></i>
-                            <div class="flex-1 min-w-0">
-                                <h5 class="text-xs md:text-sm font-bold text-white break-words">${topic.title}</h5>
-                                ${detailsHTML}
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                            <button onclick="openVaultModal('edit', 'topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 flex items-center justify-center"><i class="fas fa-pencil-alt text-[9px]"></i></button>
-                            <button onclick="deleteVaultItem('topic', '${subId}', '${chapId}', '${topic.id}')" class="w-6 h-6 rounded bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center"><i class="fas fa-trash text-[9px]"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-}
-
-// ----------------------------------------------------------------
-// Modal Controls (Replaces prompt)
-// ----------------------------------------------------------------
-function promptAddVaultItem() {
-    let type = currentVaultPath.subjectId === null ? 'subject' : (currentVaultPath.chapterId === null ? 'chapter' : 'topic');
-    openVaultModal('add', type, currentVaultPath.subjectId, currentVaultPath.chapterId);
-}
-
-function openVaultModal(mode, type, subId = null, chapId = null, topId = null) {
-    vaultModalState = { mode, type, subId, chapId, topId };
-    
-    const modal = document.getElementById('vault-modal');
-    const titleEl = document.getElementById('vault-modal-title');
-    const inputEl = document.getElementById('vault-modal-input');
-    const editorSec = document.getElementById('vault-modal-editor-section');
-    const imageInputEl = document.getElementById('vault-modal-image-input'); 
-    
-    if (inputEl) inputEl.value = '';
-    if (imageInputEl) imageInputEl.value = ''; 
-    
-    // NEW: Check for a saved draft when adding a topic. Otherwise, clear it.
-    if (vaultQuill) {
-        if (mode === 'add' && type === 'topic') {
-            vaultQuill.root.innerHTML = localStorage.getItem('xamVaultDraft_' + liveUser.email) || '';
-        } else {
-            vaultQuill.root.innerHTML = '';
-        }
-    }
-    
-    if (titleEl) titleEl.innerText = `${mode === 'add' ? 'New' : 'Edit'} ${type}`;
-    
-    if (editorSec) {
-        if (type === 'topic') {
-            editorSec.classList.remove('hidden');
-            editorSec.classList.add('flex');
-        } else {
-            editorSec.classList.add('hidden');
-            editorSec.classList.remove('flex');
-        }
-    }
-
-    if (mode === 'edit') {
-        const sub = vaultData.find(s => s.id === subId);
-        if (type === 'subject' && inputEl) inputEl.value = sub.name;
-        if (type === 'chapter' && inputEl) {
-            const chap = sub.chapters.find(c => c.id === chapId);
-            inputEl.value = chap.name;
-        }
-        if (type === 'topic') {
-            const chap = sub.chapters.find(c => c.id === chapId);
-            const top = chap.topics.find(t => t.id === topId);
-            if (inputEl) inputEl.value = top.title;
-            if (vaultQuill) vaultQuill.root.innerHTML = top.details || '';
-            if (imageInputEl) imageInputEl.value = top.imageUrl || ''; 
-        }
-    }
-
-    if (modal) {
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modal.children[0].classList.remove('scale-95');
-            if (inputEl) inputEl.focus();
-        }, 10);
-    }
-}
-
-function closeVaultModal() {
-    const modal = document.getElementById('vault-modal');
-    modal.classList.add('opacity-0');
-    modal.children[0].classList.add('scale-95');
-    setTimeout(() => { modal.classList.add('hidden'); }, 300);
-}
-
-function saveVaultModal() {
-    const { mode, type, subId, chapId, topId } = vaultModalState;
-    const nameVal = document.getElementById('vault-modal-input').value.trim();
-    const imageVal = document.getElementById('vault-modal-image-input') ? document.getElementById('vault-modal-image-input').value.trim() : '';
-
-    if (!nameVal) { alert("Title cannot be empty."); return; }
-
-    if (mode === 'add') {
-        if (type === 'subject') {
-            vaultData.push({ id: 'sub_' + Date.now(), name: nameVal, chapters: [] });
-            saveVaultToDB(); renderVaultView('root');
-        } 
-        else if (type === 'chapter') {
-            const sub = vaultData.find(s => s.id === subId);
-            sub.chapters.push({ id: 'chap_' + Date.now(), name: nameVal, topics: [] });
-            saveVaultToDB(); renderVaultView('subject', subId);
-        } 
-        else if (type === 'topic') {
-            const sub = vaultData.find(s => s.id === subId);
-            const chap = sub.chapters.find(c => c.id === chapId);
-            const detailsHtml = vaultQuill && vaultQuill.root.innerHTML !== '<p><br></p>' ? vaultQuill.root.innerHTML : '';
-            
-            chap.topics.push({ id: 'top_' + Date.now(), title: nameVal, details: detailsHtml, imageUrl: imageVal });
-            saveVaultToDB(); renderVaultView('chapter', subId, chapId);
-        }
-    } 
-    else if (mode === 'edit') {
-        const sub = vaultData.find(s => s.id === subId);
-        if (type === 'subject') {
-            sub.name = nameVal;
-            saveVaultToDB(); renderVaultView('root');
-        }
-        else if (type === 'chapter') {
-            const chap = sub.chapters.find(c => c.id === chapId);
-            chap.name = nameVal;
-            saveVaultToDB(); renderVaultView('subject', subId);
-        }
-        else if (type === 'topic') {
-            const chap = sub.chapters.find(c => c.id === chapId);
-            const top = chap.topics.find(t => t.id === topId);
-            top.title = nameVal;
-            top.details = vaultQuill && vaultQuill.root.innerHTML !== '<p><br></p>' ? vaultQuill.root.innerHTML : '';
-            top.imageUrl = imageVal; 
-            saveVaultToDB(); renderVaultView('chapter', subId, chapId);
-        }
-    }
-    
-    // NEW: Clear the local draft memory after a successful save
-    localStorage.removeItem('xamVaultDraft_' + liveUser.email);
-    closeVaultModal();
-}
-
-function deleteVaultItem(type, subId, chapId = null, topId = null) {
-    // Custom confirm to avoid browser prompt, but standard confirm is safest to prevent accidental deletion quickly
-    if(!confirm(`Are you sure you want to delete this ${type}? This action cannot be undone.`)) return;
-
-    if (type === 'subject') {
-        vaultData = vaultData.filter(s => s.id !== subId);
-        saveVaultToDB(); renderVaultView('root');
-    } 
-    else if (type === 'chapter') {
-        const sub = vaultData.find(s => s.id === subId);
-        sub.chapters = sub.chapters.filter(c => c.id !== chapId);
-        saveVaultToDB(); renderVaultView('subject', subId);
-    } 
-    else if (type === 'topic') {
-        const sub = vaultData.find(s => s.id === subId);
-        const chap = sub.chapters.find(c => c.id === chapId);
-        chap.topics = chap.topics.filter(t => t.id !== topId);
-        saveVaultToDB(); renderVaultView('chapter', subId, chapId);
-    }
-}
-
-function saveVaultToDB() {
-    // Saves only the vault to the main approved document, bypassing security blocks
-    db.collection('xamtable_users').doc(liveUser.email).update({ vault: vaultData })
-      .catch(err => console.error("Vault save failed:", err));
-}
-
-// ----------------------------------------------------------------
-// Export to PDF (Updated for Rich Text)
-// ----------------------------------------------------------------
-function exportChapterPDF() {
-    if (!currentVaultPath.chapterId) return;
-    
-    const sub = vaultData.find(s => s.id === currentVaultPath.subjectId);
-    const chap = sub.chapters.find(c => c.id === currentVaultPath.chapterId);
-    const pdfContainer = document.getElementById('pdf-export-container');
-    
-    // Notice the addition of pdf-quill-content below
-    let htmlContent = `
-        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 30px;">
-            <div style="border-bottom: 2px solid #0ea5e9; padding-bottom: 10px; margin-bottom: 25px;">
-                <h1 style="margin: 0; font-size: 24px; color: #0f172a;">${chap.name}</h1>
-                <p style="margin: 5px 0 0 0; font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">${sub.name}</p>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-    `;
-
-    chap.topics.forEach(topic => {
-        htmlContent += `
-            <div style="page-break-inside: avoid;">
-                <h2 style="font-size: 16px; font-weight: bold; color: #0f172a; margin: 0 0 8px 0; border-left: 3px solid #10b981; padding-left: 10px;">${topic.title}</h2>
-        `;
-        if (topic.details) {
-            // FIXED: Wrapped in pdf-quill-content so our CSS targets it during the PDF render
-            htmlContent += `
-                <div class="pdf-quill-content" style="font-size: 14px; line-height: 1.6; color: #334155; padding-left: 13px;">
-                    ${topic.details}
-                </div>
-            `;
-        }
-        htmlContent += `</div>`;
-    });
-
-    htmlContent += `</div></div>`;
-    pdfContainer.innerHTML = htmlContent;
-    pdfContainer.classList.remove('hidden');
-
-    const opt = {
-        margin:       10,
-        filename:     `${sub.name.replace(/[^a-z0-9]/gi, '_')}_${chap.name.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(pdfContainer).save().then(() => {
-        pdfContainer.classList.add('hidden');
-        pdfContainer.innerHTML = '';
-    });
-}
-        function closeVaultWarning() {
-    const modal = document.getElementById('vault-warning-modal');
-    if (modal) {
-        modal.classList.add('opacity-0');
-        modal.children[0].classList.add('scale-95');
-        setTimeout(() => { modal.classList.add('hidden'); }, 300);
-    }
-}
         function shootGlowingPill(event, targetId1, targetId2) {
     if (!event) return;
 
@@ -2396,12 +1924,6 @@ function exportChapterPDF() {
     if (!targetEl || targetEl.offsetWidth === 0) return; 
 
     // 3. Calculate target coordinates
-    var rect = targetEl.getBoundingClientRect();
-    var endX = rect.left + (rect.width / 2);
-    var endY = rect.top + (rect.height / 2);
-
-    // ... (leave the rest of the spawn/animate/destroy code exactly the same)
-
     var rect = targetEl.getBoundingClientRect();
     var endX = rect.left + (rect.width / 2);
     var endY = rect.top + (rect.height / 2);
